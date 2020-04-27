@@ -17,7 +17,7 @@ Android Java - Mint Gallery
  6. Chụp ảnh
  7. Quay video
 ### Công việc từng tuần - Phần trăm
- 1 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
+ 1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
 ### Tài liệu tham khảo
  1. Bottom nav https://youtu.be/tPV8xA7m-iw 
  2. Load image từ device https://youtu.be/l_Wun7zUDPc
