@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -39,9 +41,10 @@ public class ImageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View View, ViewGroup parent) {
         ImageView imageView = new ImageView(context);
-        imageView.setImageURI(Uri.parse(list.get(position).toString()));
-        imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        imageView.setLayoutParams(new GridView.LayoutParams(240,240));
+        Glide.with(context.getApplicationContext()).load(getItem(position).toString())
+                .override(240,240)
+                .centerCrop()
+                .into(imageView);
         return imageView;
     }
 }

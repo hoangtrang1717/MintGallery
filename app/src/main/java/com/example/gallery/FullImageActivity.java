@@ -31,7 +31,6 @@ public class FullImageActivity extends AppCompatActivity {
         slider =(ViewPager) findViewById(R.id.image_viewpaprer);
         arrayList = (ArrayList<File>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
-        System.out.println("hihi"+arrayList);
         imageSlider =new FullImageSlider(FullImageActivity.this,arrayList,data);
         slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);

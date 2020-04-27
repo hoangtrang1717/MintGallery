@@ -13,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
+import com.github.chrisbanes.photoview.PhotoView;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -46,10 +49,9 @@ public class FullImageSlider extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         View itemview = layoutInflater.inflate(R.layout.full_image_layout,container,false);
-        ImageView fullImage = (ImageView) itemview.findViewById(R.id.image);
-        //fullImage.setImageURI(Uri.parse(data));
-        //fullImage.setImageURI(Uri.parse(arrayList.get(position).toString()));
-        fullImage.setImageURI(Uri.parse(arrayList.get(position).toString()));
+        PhotoView fullImage = (PhotoView) itemview.findViewById(R.id.image);
+        fullImage.setMaximumScale(5);
+        Glide.with(context.getApplicationContext()).load(arrayList.get(position).toString()).into(fullImage);
         fullImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
