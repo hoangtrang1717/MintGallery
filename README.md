@@ -9,9 +9,13 @@ Android Java - Mint Gallery
  - 1753115 - Trương Trần Hải Yến
 
 ### Các chức năng của ứng dụng
- 1. Xem ảnh
- 2. Chụp ảnh
- 3. Quay video
+ 1. Xem Image (HY - done)
+ 2. Xem Full Image(HY - done)
+ 3. Xóa Image
+ 4. Xem Album
+ 5. Xóa Album
+ 6. Chụp ảnh
+ 7. Quay video
 ### Công việc từng tuần - Phần trăm
 
 ### Tài liệu tham khảo
