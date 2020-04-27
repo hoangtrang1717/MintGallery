@@ -1,0 +1,20 @@
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/img_favorite"
+        android:icon="@drawable/ic_favorite"
+        android:title=""
+        app:showAsAction="always|collapseActionView"/>
+    <item android:id="@+id/img_more_option"
+        android:title=""
+        android:icon="@drawable/ic_more_option"
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/info"
+                android:title="Information"
+                app:showAsAction="ifRoom"/>
+            <item android:id="@+id/edit"
+                android:title="Edit"
+                app:showAsAction="ifRoom"/>
+        </menu>
+    </item>
+</menu>
