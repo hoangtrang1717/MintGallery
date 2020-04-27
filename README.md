@@ -19,3 +19,8 @@ Android Java - Mint Gallery
 ### Công việc từng tuần - Phần trăm
 
 ### Tài liệu tham khảo
+ 1. Bottom nav https://youtu.be/tPV8xA7m-iw 
+ 2. Load image từ device https://youtu.be/l_Wun7zUDPc
+ 3. Request permission https://developer.android.com/training/permissions/requesting?authuser=1
+ 4. Image Slider using ViewPage https://youtu.be/DBOIQP3lI_w
+ 
