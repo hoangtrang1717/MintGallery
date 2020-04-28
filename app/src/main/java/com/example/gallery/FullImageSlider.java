@@ -51,7 +51,16 @@ public class FullImageSlider extends PagerAdapter {
         View itemview = layoutInflater.inflate(R.layout.full_image_layout,container,false);
         PhotoView fullImage = (PhotoView) itemview.findViewById(R.id.image);
         fullImage.setMaximumScale(5);
+
+        //fullImage.setImageURI(Uri.parse(data));
+        //fullImage.setImageURI(Uri.parse(arrayList.get(position).toString()));
+        //fullImage.setImageURI(Uri.parse(arrayList.get(position).toString()));
         Glide.with(context.getApplicationContext()).load(arrayList.get(position).toString()).into(fullImage);
+
+        /*Intent i= new Intent(context.getApplicationContext(),FullImageActivity.class);
+        i.putExtra("curposition",position);
+        context.startActivity(i);*/
+
         fullImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
