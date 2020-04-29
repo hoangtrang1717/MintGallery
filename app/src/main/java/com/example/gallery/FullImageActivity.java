@@ -108,6 +108,7 @@ public class FullImageActivity extends AppCompatActivity {
 
     public void EditImage(){
         Intent i= new Intent(FullImageActivity.this,EditImageActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         i.putExtra("path",arrayList.get(CurrentPosition).getPath());
         i.putExtra("array",arrayList);
         i.putExtra("pos",CurrentPosition);
