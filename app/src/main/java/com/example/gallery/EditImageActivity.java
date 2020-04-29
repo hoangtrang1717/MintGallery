@@ -205,6 +205,12 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
             case R.id.action_save:
                 saveImageToGallery();
                 return true;
+            case R.id.action_redo:
+                photoEditor.redo();
+                return true;
+            case R.id.action_undo:
+                photoEditor.undo();
+                return true;
             case android.R.id.home:
                 this.finish();
                 return true;
