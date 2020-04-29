@@ -20,6 +20,7 @@ Android Java - Mint Gallery
  10. Edit: ảnh - filter (HY -done)
  11. Edit: ảnh - contrast, brightness, saturation (HY - done)
  12. Edit: ảnh - save ảnh (HY - done)
+ 13. Edit: ảnh - Brush(HY - done)
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
 ### Tài liệu tham khảo

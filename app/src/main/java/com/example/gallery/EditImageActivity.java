@@ -14,10 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.Adapter.FilterViewPagerAdapter;
+import com.example.gallery.Interface.BrushFragmentListener;
 import com.example.gallery.Interface.EditImageFragmentListener;
 import com.example.gallery.Interface.FilterListFragmentListener;
 import com.example.gallery.Utils.BitmapUtils;
@@ -35,15 +37,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener {
+import ja.burhanrashid52.photoeditor.OnSaveBitmap;
+import ja.burhanrashid52.photoeditor.PhotoEditor;
+import ja.burhanrashid52.photoeditor.PhotoEditorView;
+
+public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, BrushFragmentListener {
     public static final int PERMISSION_PICK_IMAGE = 100;
     public static String path = null;
     public static int CurPosition;
     ArrayList<File> arrayList;
 
-    ImageView imageView;
-    TabLayout tabLayout;
-    ViewPager viewPager;
+    PhotoEditorView imageView;
+    PhotoEditor photoEditor;
+
+    CardView btnFiltersList, btnEditList, btnBrush, btnEmoji;
 
     CoordinatorLayout coordinatorLayout;
 
@@ -75,20 +82,51 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         System.out.println("EditPath"+path);
         CurPosition=getIntent().getExtras().getInt("pos");
 
-        imageView = (ImageView)findViewById(R.id.imageFilter);
-        tabLayout=(TabLayout) findViewById(R.id.filterTabs);
-        viewPager = (ViewPager) findViewById(R.id.filterViewPager);
+        imageView = (PhotoEditorView) findViewById(R.id.imageFilter);
+        photoEditor =new PhotoEditor.Builder(this,imageView)
+                .setPinchTextScalable(true)
+                .build();
         coordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
+        btnEditList =(CardView)findViewById(R.id.btnEditList);
+        btnFiltersList=(CardView)findViewById(R.id.btnFiltersList);
+        btnBrush=(CardView)findViewById(R.id.btnBrush);
+
+        btnEditList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditImageFragment editImageFragment = EditImageFragment.getInstance();
+                editImageFragment.setListener(EditImageActivity.this);
+                editImageFragment.show(getSupportFragmentManager(),editImageFragment.getTag());
+            }
+        });
+        btnFiltersList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FilterListFragment filterListFragment = FilterListFragment.getInstance();
+                filterListFragment.setListener(EditImageActivity.this);
+                filterListFragment.show(getSupportFragmentManager(),filterListFragment.getTag());
+            }
+        });
+        btnBrush.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Enable brush mode
+                photoEditor.setBrushDrawingMode(true);
+
+                BrushFragment brushFragment = BrushFragment.getInstance();
+                brushFragment.setListener(EditImageActivity.this);
+                brushFragment.show(getSupportFragmentManager(),brushFragment.getTag());
+            }
+        });
         loadImg();
-        setupViewPager(viewPager);
-        tabLayout.setupWithViewPager(viewPager);
+
     }
 
     private void loadImg() {
         originalBitmap = BitmapUtils.getBitmapFromGallery(this,path,300,300);
         filteredBitmap =originalBitmap.copy(Bitmap.Config.ARGB_8888,true);
         finalBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888,true);
-        imageView.setImageBitmap(originalBitmap);
+        imageView.getSource().setImageBitmap(originalBitmap);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -111,7 +149,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         brightnessFinal =brightness;
         Filter myFilter =new Filter();
         myFilter.addSubFilter(new BrightnessSubFilter(brightness));
-        imageView.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
+        imageView.getSource().setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
     }
 
     @Override
@@ -119,7 +157,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         saturationFinal =saturation;
         Filter myFilter =new Filter();
         myFilter.addSubFilter(new SaturationSubfilter(saturation));
-        imageView.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
+        imageView.getSource().setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
     }
 
     @Override
@@ -127,7 +165,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         saturationFinal =contrast;
         Filter myFilter =new Filter();
         myFilter.addSubFilter(new ContrastSubFilter(contrast));
-        imageView.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
+        imageView.getSource().setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
     }
 
     @Override
@@ -150,7 +188,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     public void onFilterSelected(Filter filter) {
         resetControl();
         filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888,true);
-        imageView.setImageBitmap(filter.processFilter(filteredBitmap));
+        imageView.getSource().setImageBitmap(filter.processFilter(filteredBitmap));
         finalBitmap=filteredBitmap.copy(Bitmap.Config.ARGB_8888,true);
     }
 
@@ -175,45 +213,49 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     }
 
     private void saveImageToGallery(){
-        BitmapDrawable drawable =(BitmapDrawable) imageView.getDrawable();
-        Bitmap bitmap =drawable.getBitmap();
-        File filepath = Environment.getExternalStorageDirectory();
-        File dir = new File(filepath.getAbsolutePath()+"/Mintery/");
-        dir.mkdir();
-        final File file = new File(dir,System.currentTimeMillis()+".png");
-        arrayList.add(file);
-        System.out.println(arrayList);
-        try {
-            outputStream = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        for(int i=0;i<arrayList.size();i++){
-            if(arrayList.get(i).getPath().equals(file.getPath())){
-                CurPosition = i;
-            }
-        }
-        bitmap.compress(Bitmap.CompressFormat.PNG,100,outputStream);
-        Toast.makeText(getApplicationContext(),"Save successfully",Toast.LENGTH_SHORT).show();
-        try {
-            outputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Snackbar snackbar = Snackbar.make(coordinatorLayout,"Image saved to Gallery",Snackbar.LENGTH_LONG)
-                .setAction("OPEN", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        openImage(file);
+        photoEditor.saveAsBitmap(new OnSaveBitmap() {
+            @Override
+            public void onBitmapReady(Bitmap saveBitmap) {
+                imageView.getSource().setImageBitmap(saveBitmap);
+                BitmapDrawable drawable =(BitmapDrawable) imageView.getSource().getDrawable();
+                saveBitmap =drawable.getBitmap();
+                File filepath = Environment.getExternalStorageDirectory();
+                File dir = new File(filepath.getAbsolutePath());
+                dir.mkdir();
+                final File file = new File(dir,System.currentTimeMillis()+".png");
+                arrayList.add(file);
+                System.out.println(arrayList);
+                try {
+                    outputStream = new FileOutputStream(file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                for(int i=0;i<arrayList.size();i++){
+                    if(arrayList.get(i).getPath().equals(file.getPath())){
+                        CurPosition = i;
                     }
-                });
-        snackbar.show();
+                }
+                saveBitmap.compress(Bitmap.CompressFormat.PNG,100,outputStream);
+                Toast.makeText(getApplicationContext(),"Save successfully",Toast.LENGTH_SHORT).show();
+                try {
+                    outputStream.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                openImage(file);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+
     }
 
     private void openImage(File file) {
@@ -231,5 +273,29 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         brightnessFinal=0;
         saturationFinal=1.0f;
         contrastFinal=1.0f;
+    }
+
+    @Override
+    public void onBrushSizeChangedListener(float size) {
+        photoEditor.setBrushSize(size);
+    }
+
+    @Override
+    public void onBrushOpacityChangedListener(int opacity) {
+        photoEditor.setOpacity(opacity);
+    }
+
+    @Override
+    public void onBrushColorChangedListener(int color) {
+        photoEditor.setBrushColor(color);
+    }
+
+    @Override
+    public void onBrushStateChangedListener(boolean isErazer) {
+        if(isErazer){
+            photoEditor.brushEraser();
+        }
+        else
+            photoEditor.setBrushDrawingMode(true);
     }
 }
