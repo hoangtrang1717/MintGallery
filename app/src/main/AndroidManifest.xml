@@ -31,9 +31,11 @@
         </activity>
         <activity android:name=".FullImageSlider">
         </activity>
-        <activity android:name=".ImageDetail">
+        <activity android:name=".ImageDetail"
+            android:noHistory="true">
         </activity>
-        <activity android:name=".EditImageActivity">
+        <activity android:name=".EditImageActivity"
+            android:noHistory="true">
         </activity>
     </application>
 

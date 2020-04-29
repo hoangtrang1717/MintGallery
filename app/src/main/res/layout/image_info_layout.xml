@@ -3,21 +3,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
-    <TextView android:id="@+id/textViewImgDetail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Detail"
-        android:textStyle="bold"
-        android:textSize="22dp" />
+    android:orientation="vertical">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarImgDetail"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"/>
     <LinearLayout android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
         <TextView android:id="@+id/textviewImgDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,7 +25,8 @@
     </LinearLayout>
     <LinearLayout android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
         <TextView android:id="@+id/textviewImgName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,7 +40,8 @@
     </LinearLayout>
     <LinearLayout android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
         <TextView android:id="@+id/textviewImgPath"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,7 +55,8 @@
     </LinearLayout>
     <LinearLayout android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
         <TextView android:id="@+id/textviewImgSize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

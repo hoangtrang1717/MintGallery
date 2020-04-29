@@ -35,6 +35,7 @@
         <option value="layoutResourceFile" />
         <option value="Class" />
         <option value="Interface" />
+        <option value="resourceFile" />
       </list>
     </option>
   </component>
