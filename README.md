@@ -29,3 +29,4 @@ Android Java - Mint Gallery
  3. Request permission https://developer.android.com/training/permissions/requesting?authuser=1
  4. Image Slider using ViewPage https://youtu.be/DBOIQP3lI_w
  5. Edit ảnh Filter https://www.androidhive.info/2017/11/android-building-image-filters-like-instagram/
+ 
