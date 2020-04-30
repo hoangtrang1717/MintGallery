@@ -229,7 +229,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 File dir = new File(filepath.getAbsolutePath());
                 dir.mkdir();
                 final File file = new File(dir,System.currentTimeMillis()+".png");
-                arrayList.add(file);
+                arrayList.add(0,file);
                 System.out.println(arrayList);
                 try {
                     outputStream = new FileOutputStream(file);
@@ -267,8 +267,8 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     private void openImage(File file) {
         Intent i= new Intent(EditImageActivity.this,FullImageActivity.class);
         i.putExtra("list",arrayList);
-        i.putExtra("id",arrayList.get(CurPosition).getPath());
-        i.putExtra("position",CurPosition);
+        i.putExtra("id",arrayList.get(0).getPath());
+        i.putExtra("position",0);
         startActivity(i);
     }
 

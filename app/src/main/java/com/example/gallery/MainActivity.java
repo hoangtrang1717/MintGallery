@@ -34,6 +34,13 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, new PhotoFragment()).commit();
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(navListener);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, new PhotoFragment()).commit();
+    }
 
     private static final int REQUEST_PERMISSION = 1234;
     private static final int REQUEST_READ_PERMISSION = 1;
