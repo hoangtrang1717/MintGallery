@@ -81,7 +81,8 @@ public class FullImageActivity extends AppCompatActivity {
                 return true;
             case R.id.home:
             case android.R.id.home:
-                this.finish();
+                //finish();
+                startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -107,6 +108,7 @@ public class FullImageActivity extends AppCompatActivity {
 
     public void EditImage(){
         Intent i= new Intent(FullImageActivity.this,EditImageActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         i.putExtra("path",arrayList.get(CurrentPosition).getPath());
         i.putExtra("array",arrayList);
         i.putExtra("pos",CurrentPosition);

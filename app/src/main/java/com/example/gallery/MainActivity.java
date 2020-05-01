@@ -1,6 +1,7 @@
 package com.example.gallery;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,11 +35,18 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, new PhotoFragment()).commit();
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(navListener);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, new PhotoFragment()).commit();
+    }
 
     private static final int REQUEST_PERMISSION = 1234;
     private static final int REQUEST_READ_PERMISSION = 1;
     private static final int REQUEST_WRITE_PERMISSION = 2;
-    private static final int REQUEST_CAMEA_PERMISSION = 3;
+    private static final int REQUEST_CAMERA_PERMISSION = 3;
 
     private static final String[] PERMISSION = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -72,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA}, REQUEST_CAMEA_PERMISSION);
+                            new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
                 }
             }
         }
@@ -141,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()){
             case R.id.camera:
+                Intent i = new Intent(this.getApplicationContext(),Camera.class);
+                startActivity(i);
                 Toast.makeText(MainActivity.this, "Camera clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.bin:

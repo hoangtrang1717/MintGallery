@@ -16,6 +16,7 @@ import com.example.gallery.Adapter.ThumbnailAdapter;
 import com.example.gallery.Interface.FilterListFragmentListener;
 import com.example.gallery.Utils.BitmapUtils;
 import com.example.gallery.Utils.SpacesItemDecoration;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.zomato.photofilters.FilterPack;
 import com.zomato.photofilters.imageprocessors.Filter;
 import com.zomato.photofilters.utils.ThumbnailItem;
@@ -24,12 +25,20 @@ import com.zomato.photofilters.utils.ThumbnailsManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilterListFragment extends Fragment implements FilterListFragmentListener {
+public class FilterListFragment extends BottomSheetDialogFragment implements FilterListFragmentListener {
     RecyclerView recyclerView;
     ThumbnailAdapter adapter;
     List<ThumbnailItem> thumbnailItems;
 
     FilterListFragmentListener listener;
+
+    static FilterListFragment instance;
+    public static FilterListFragment getInstance(){
+        if(instance==null){
+            instance = new FilterListFragment();
+        }
+        return instance;
+    }
 
     public void setListener(FilterListFragmentListener listener) {
         this.listener = listener;

@@ -15,8 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.gallery.Sort.SortByModified;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class PhotoFragment extends Fragment {
     Context context;
@@ -63,6 +66,7 @@ public class PhotoFragment extends Fragment {
                 }
             }
         }
+        Collections.sort(b, Collections.<File>reverseOrder(new SortByModified()));
         return b;
     }
 }

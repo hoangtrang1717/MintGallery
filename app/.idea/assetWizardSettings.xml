@@ -23,7 +23,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/E:/Android/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_back_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/E:/Android/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_redo_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -34,7 +34,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="b9dcd2" />
-                            <entry key="outputName" value="ic_arrow_back" />
+                            <entry key="outputName" value="ic_redo_mint" />
                             <entry key="sourceFile" value="C:\Users\DELL" />
                           </map>
                         </option>
