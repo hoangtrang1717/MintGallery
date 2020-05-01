@@ -2,6 +2,7 @@ package com.example.gallery;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,9 +19,11 @@ import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.gallery.Adapter.EmojiAdapter;
 import com.example.gallery.Adapter.FilterViewPagerAdapter;
 import com.example.gallery.Interface.BrushFragmentListener;
 import com.example.gallery.Interface.EditImageFragmentListener;
+import com.example.gallery.Interface.EmojiFragmentListener;
 import com.example.gallery.Interface.FilterListFragmentListener;
 import com.example.gallery.Utils.BitmapUtils;
 import com.google.android.material.snackbar.Snackbar;
@@ -41,7 +44,7 @@ import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
-public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, BrushFragmentListener {
+public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, BrushFragmentListener, EmojiFragmentListener {
     public static final int PERMISSION_PICK_IMAGE = 100;
     public static String path = null;
     public static int CurPosition;
@@ -85,11 +88,13 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         imageView = (PhotoEditorView) findViewById(R.id.imageFilter);
         photoEditor =new PhotoEditor.Builder(this,imageView)
                 .setPinchTextScalable(true)
+                .setDefaultEmojiTypeface(Typeface.createFromAsset(getAssets(),"NotoColorEmoji.ttf"))
                 .build();
         coordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
         btnEditList =(CardView)findViewById(R.id.btnEditList);
         btnFiltersList=(CardView)findViewById(R.id.btnFiltersList);
         btnBrush=(CardView)findViewById(R.id.btnBrush);
+        btnEmoji=(CardView)findViewById(R.id.btnEmoji);
 
         btnEditList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +121,14 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 BrushFragment brushFragment = BrushFragment.getInstance();
                 brushFragment.setListener(EditImageActivity.this);
                 brushFragment.show(getSupportFragmentManager(),brushFragment.getTag());
+            }
+        });
+        btnEmoji.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EmojiFragment emojiFragment = EmojiFragment.getInstance();
+                emojiFragment.setListner(EditImageActivity.this);
+                emojiFragment.show(getSupportFragmentManager(),emojiFragment.getTag());
             }
         });
         loadImg();
@@ -229,7 +242,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 File dir = new File(filepath.getAbsolutePath());
                 dir.mkdir();
                 final File file = new File(dir,System.currentTimeMillis()+".png");
-                arrayList.add(file);
+                arrayList.add(0,file);
                 System.out.println(arrayList);
                 try {
                     outputStream = new FileOutputStream(file);
@@ -267,8 +280,8 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     private void openImage(File file) {
         Intent i= new Intent(EditImageActivity.this,FullImageActivity.class);
         i.putExtra("list",arrayList);
-        i.putExtra("id",arrayList.get(CurPosition).getPath());
-        i.putExtra("position",CurPosition);
+        i.putExtra("id",arrayList.get(0).getPath());
+        i.putExtra("position",0);
         startActivity(i);
     }
 
@@ -303,5 +316,10 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         }
         else
             photoEditor.setBrushDrawingMode(true);
+    }
+
+    @Override
+    public void onEmojiSelected(String emoji) {
+        photoEditor.addEmoji(emoji);
     }
 }
