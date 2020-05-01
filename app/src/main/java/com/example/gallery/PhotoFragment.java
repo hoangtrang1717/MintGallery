@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +51,36 @@ public class PhotoFragment extends Fragment {
         });
 
         return layout_photo;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        super.onCreate(savedInstanceState);
+    }
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main,menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.camera:
+                Intent i = new Intent(context,Camera.class);
+                startActivity(i);
+                Toast.makeText(getActivity(), "Bin clicked", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.bin:
+                Toast.makeText(getActivity(), "Bin clicked", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.action_search:
+                Toast.makeText(getActivity(), "Search clicked", Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private ArrayList<File> imageReader(File root) {

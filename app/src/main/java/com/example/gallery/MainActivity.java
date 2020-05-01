@@ -135,32 +135,5 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     };
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        //noinspection SimplifiableIfStatement
-        switch (item.getItemId()){
-            case R.id.camera:
-                Intent i = new Intent(this.getApplicationContext(),Camera.class);
-                startActivity(i);
-                Toast.makeText(MainActivity.this, "Camera clicked", Toast.LENGTH_LONG).show();
-                return true;
-            case R.id.bin:
-                Toast.makeText(MainActivity.this, "Bin clicked", Toast.LENGTH_LONG).show();
-                return true;
-            case R.id.action_search:
-                Toast.makeText(MainActivity.this, "Search clicked", Toast.LENGTH_LONG).show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+
 }
