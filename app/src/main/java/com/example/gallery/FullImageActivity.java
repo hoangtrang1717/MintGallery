@@ -16,6 +16,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static com.example.gallery.R.id.info;
+
 public class FullImageActivity extends AppCompatActivity {
     ViewPager slider;
     Toolbar img_toolbar;
@@ -68,7 +70,7 @@ public class FullImageActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()){
-            case R.id.info:
+            case info:
                 ShowImageDetail();
                 Toast.makeText(FullImageActivity.this, "Detail" , Toast.LENGTH_LONG).show();
                 return true;
@@ -76,8 +78,12 @@ public class FullImageActivity extends AppCompatActivity {
                 EditImage();
                 Toast.makeText(FullImageActivity.this, "Edit clicked", Toast.LENGTH_LONG).show();
                 return true;
+            case R.id.delete:
+                DeleteImage();
+                Toast.makeText(FullImageActivity.this, "Delete clicked", Toast.LENGTH_LONG).show();
+                return true;
             case R.id.img_favorite:
-                Toast.makeText(FullImageActivity.this, "Search clicked", Toast.LENGTH_LONG).show();
+                Toast.makeText(FullImageActivity.this, "Favorite clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.home:
             case android.R.id.home:
@@ -88,6 +94,22 @@ public class FullImageActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private void DeleteImage() {
+        arrayList.get(CurrentPosition).delete();
+        if(arrayList.size() == 1)
+        {
+            startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            return;
+        }
+        if(CurrentPosition - 1 >= 0) {
+            slider.setCurrentItem(CurrentPosition - 1);
+        }
+        else {
+            slider.setCurrentItem(CurrentPosition + 1);
+        }
+    }
+
     public void ShowImageDetail(){
         Date lastModifiedDate = new Date(arrayList.get(CurrentPosition).lastModified());
         String lastModified = lastModifiedDate.toString();
