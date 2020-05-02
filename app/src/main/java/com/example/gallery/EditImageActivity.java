@@ -39,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 
 import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
@@ -48,7 +49,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     public static final int PERMISSION_PICK_IMAGE = 100;
     public static String path = null;
     public static int CurPosition;
-    ArrayList<File> arrayList;
+    ArrayList<ImageInformation> arrayList;
 
     PhotoEditorView imageView;
     PhotoEditor photoEditor;
@@ -80,7 +81,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Edit");
 
-        arrayList = (ArrayList<File>) getIntent().getSerializableExtra("array");
+        arrayList = (ArrayList<ImageInformation>) getIntent().getSerializableExtra("array");
         path=getIntent().getExtras().getString("path");
         System.out.println("EditPath"+path);
         CurPosition=getIntent().getExtras().getInt("pos");
@@ -238,20 +239,43 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 imageView.getSource().setImageBitmap(saveBitmap);
                 BitmapDrawable drawable =(BitmapDrawable) imageView.getSource().getDrawable();
                 saveBitmap =drawable.getBitmap();
-                File filepath = Environment.getExternalStorageDirectory();
-                File dir = new File(filepath.getAbsolutePath());
-                dir.mkdir();
-                final File file = new File(dir,System.currentTimeMillis()+".png");
-                arrayList.add(0,file);
-                System.out.println(arrayList);
-                try {
-                    outputStream = new FileOutputStream(file);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                File dir = new File(
+                        Environment.getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_DCIM
+                        ),"MintGallery"
+                );
+                //File filepath = Environment.getExternalStorageDirectory();
+                //File dir = new File("file://"+"/DCIM/MintGallery/");
+                //MediaStore.Images.Media.insertImage(getContentResolver(), saveBitmap,"MintEditor","Photo By Mint");
+                //String dir = Environment.getExternalStorageDirectory() + "/MintGallery";
+                //final File test = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/MintGallery/");
+                //File direct = new File("file://"+"/DCIM/MintGallery/");
+                //File file = new File(test,+System.currentTimeMillis()+".png");
+                File storageDir = Environment.getExternalStorageDirectory();
+                File direct = new File(storageDir.getAbsolutePath()+"/DCIM/MintGallery/");
+                File file = new File(direct,+System.currentTimeMillis()+".png");
+
+                if(!direct.exists()){
+                    direct.mkdirs();
                 }
-                for(int i=0;i<arrayList.size();i++){
-                    if(arrayList.get(i).getPath().equals(file.getPath())){
-                        CurPosition = i;
+                if(!file.exists() ) {
+                    ImageInformation information = new ImageInformation();
+                    information.setSelected(false);
+                    information.setPath(file.getAbsolutePath());
+                    information.setThumb(file.getAbsolutePath());
+                    Date date = new Date();
+                    information.setDateTaken(date);
+                    arrayList.add(0, information);
+                    System.out.println(arrayList);
+                    try {
+                        outputStream = new FileOutputStream(file);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    for (int i = 0; i < arrayList.size(); i++) {
+                        if (arrayList.get(i).getPath().equals(file.getPath())) {
+                            CurPosition = i;
+                        }
                     }
                 }
                 saveBitmap.compress(Bitmap.CompressFormat.PNG,100,outputStream);

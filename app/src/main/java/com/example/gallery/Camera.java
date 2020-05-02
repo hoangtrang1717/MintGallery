@@ -18,7 +18,7 @@ import static androidx.core.content.FileProvider.getUriForFile;
 public class Camera extends Activity{
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
-    ArrayList<File> arr = new ArrayList<>();
+    ArrayList<ImageInformation> arr = new ArrayList<>();
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -43,7 +43,12 @@ public class Camera extends Activity{
                        "com.example.gallery.provider",
                        photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                arr.add(photoFile);
+                ImageInformation information = new ImageInformation();
+                information.setPath(photoFile.getAbsolutePath());
+                information.setThumb(photoFile.getAbsolutePath());
+                Date date = new Date();
+                information.setDateTaken(date);
+                arr.add(0, information);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
