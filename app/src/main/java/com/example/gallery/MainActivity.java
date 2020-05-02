@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        Toast.makeText(MainActivity.this,
+                "onResume", Toast.LENGTH_SHORT).show();
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, new PhotoFragment()).commit();

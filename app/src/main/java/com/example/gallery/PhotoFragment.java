@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.gallery.Sort.SortByModified;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,11 +40,10 @@ public class PhotoFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        LinearLayout layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_photo_layout, null);
+        View layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_photo_layout, null);
         context=this.getContext();
         //arrayList = imageReader(Environment.DIRECTORY_PICTURES.endsWith(".png"));
         //File file = new File(getPath(uri));
-
         arrayList = new ArrayList<>();
         fetchImageFromGallery();
         final ImageAdapter adapter = new ImageAdapter(arrayList,getActivity());
@@ -84,12 +84,22 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
+        arrayList = new ArrayList<>();
+        fetchImageFromGallery();
+        final ImageAdapter adapter = new ImageAdapter(arrayList,getActivity());
         super.onCreate(savedInstanceState);
     }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main,menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Toast.makeText(getActivity(),
+                "Activity onResume", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -137,7 +147,6 @@ public class PhotoFragment extends Fragment {
             Uri uri;
             Cursor cursor;
             int column_index_data, column_index_folder_name, column_id, thumb, date, height, width;
-
             String absolutePathImage = null;
             uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
             System.out.println(uri);

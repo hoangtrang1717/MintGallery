@@ -1,11 +1,15 @@
 package com.example.gallery;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,12 +71,14 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     float saturationFinal = 1.0f;
     float contrastFinal = 1.0f;
     OutputStream outputStream;
+    Context context;
     static {
         System.loadLibrary("NativeImageProcessor");
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        context =getApplicationContext();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_filter_main_layout);
 
@@ -236,13 +242,14 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         photoEditor.saveAsBitmap(new OnSaveBitmap() {
             @Override
             public void onBitmapReady(Bitmap saveBitmap) {
+
                 imageView.getSource().setImageBitmap(saveBitmap);
-                BitmapDrawable drawable =(BitmapDrawable) imageView.getSource().getDrawable();
-                saveBitmap =drawable.getBitmap();
+                BitmapDrawable drawable = (BitmapDrawable) imageView.getSource().getDrawable();
+                saveBitmap = drawable.getBitmap();
                 File dir = new File(
                         Environment.getExternalStoragePublicDirectory(
                                 Environment.DIRECTORY_DCIM
-                        ),"MintGallery"
+                        ), "MintGallery"
                 );
                 //File filepath = Environment.getExternalStorageDirectory();
                 //File dir = new File("file://"+"/DCIM/MintGallery/");
@@ -252,45 +259,57 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 //File direct = new File("file://"+"/DCIM/MintGallery/");
                 //File file = new File(test,+System.currentTimeMillis()+".png");
                 File storageDir = Environment.getExternalStorageDirectory();
-                File direct = new File(storageDir.getAbsolutePath()+"/DCIM/MintGallery/");
-                File file = new File(direct,+System.currentTimeMillis()+".png");
+                File direct = new File(storageDir.getAbsolutePath() + "/DCIM/MintGallery/");
 
-                if(!direct.exists()){
+                if (!direct.exists()) {
                     direct.mkdirs();
-                }
-                if(!file.exists() ) {
-                    ImageInformation information = new ImageInformation();
-                    information.setSelected(false);
-                    information.setPath(file.getAbsolutePath());
-                    information.setThumb(file.getAbsolutePath());
-                    Date date = new Date();
-                    information.setDateTaken(date);
-                    arrayList.add(0, information);
-                    System.out.println(arrayList);
+                } else {
+                    File file = new File(direct, +System.currentTimeMillis() + ".jpeg");
+                    if (!file.exists()) {
+                        try {
+                            outputStream = new FileOutputStream(file);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        for (int i = 0; i < arrayList.size(); i++) {
+                            if (arrayList.get(i).getPath().equals(file.getPath())) {
+                                CurPosition = i;
+                            }
+                        }
+
+                        ImageInformation information = new ImageInformation();
+                        information.setSelected(false);
+                        information.setPath(file.getAbsolutePath());
+                        information.setThumb(file.getAbsolutePath());
+                        Date date = new Date();
+                        information.setDateTaken(date);
+                        arrayList.add(0, information);
+                        System.out.println(arrayList);
+                    }
+                    saveBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                    MediaScannerConnection.scanFile(context,
+                            new String[] { file.toString() }, null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                @Override
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.i("ExternalStorage", "Scanned " + path + ":");
+                                    Log.i("ExternalStorage", "-> uri=" + uri);
+                                }
+                            });
+                    Toast.makeText(getApplicationContext(), "Save successfully", Toast.LENGTH_SHORT).show();
                     try {
-                        outputStream = new FileOutputStream(file);
-                    } catch (FileNotFoundException e) {
+                        outputStream.flush();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    for (int i = 0; i < arrayList.size(); i++) {
-                        if (arrayList.get(i).getPath().equals(file.getPath())) {
-                            CurPosition = i;
-                        }
+                    try {
+                        outputStream.close();
+                        System.out.println("sagr");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                    openImage(file);
                 }
-                saveBitmap.compress(Bitmap.CompressFormat.PNG,100,outputStream);
-                Toast.makeText(getApplicationContext(),"Save successfully",Toast.LENGTH_SHORT).show();
-                try {
-                    outputStream.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                openImage(file);
             }
 
             @Override
