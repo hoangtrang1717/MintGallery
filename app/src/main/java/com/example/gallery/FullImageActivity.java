@@ -1,5 +1,6 @@
 package com.example.gallery;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -19,11 +20,12 @@ import java.util.Date;
 import static com.example.gallery.R.id.info;
 
 public class FullImageActivity extends AppCompatActivity {
+    Context context = this;
     ViewPager slider;
     Toolbar img_toolbar;
     //ImageView fullImage;
     FullImageSlider imageSlider;
-    ArrayList<File> arrayList;
+    ArrayList<ImageInformation> arrayList;
     int CurrentPosition;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,7 @@ public class FullImageActivity extends AppCompatActivity {
         String data = getIntent().getExtras().getString("id");
         //fullImage.setImageURI(Uri.parse(data));
         slider =(ViewPager) findViewById(R.id.image_viewpaprer);
-        arrayList = (ArrayList<File>) getIntent().getSerializableExtra("list");
+        arrayList = (ArrayList<ImageInformation>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
         System.out.println("hihi"+arrayList);
         imageSlider =new FullImageSlider(FullImageActivity.this,arrayList,data);
@@ -88,7 +90,8 @@ public class FullImageActivity extends AppCompatActivity {
             case R.id.home:
             case android.R.id.home:
                 //finish();
-                startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(FullImageActivity.this,MainActivity.class));
+                //startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -96,7 +99,7 @@ public class FullImageActivity extends AppCompatActivity {
     }
 
     private void DeleteImage() {
-        arrayList.get(CurrentPosition).delete();
+        arrayList.remove(arrayList.get(CurrentPosition));
         if(arrayList.size() == 1)
         {
             startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
@@ -111,19 +114,19 @@ public class FullImageActivity extends AppCompatActivity {
     }
 
     public void ShowImageDetail(){
-        Date lastModifiedDate = new Date(arrayList.get(CurrentPosition).lastModified());
+        Date lastModifiedDate = arrayList.get(CurrentPosition).getDateTaken();
         String lastModified = lastModifiedDate.toString();
-        String imgName= arrayList.get(CurrentPosition).getName();
-        String imgPath =arrayList.get(CurrentPosition).getParentFile().getPath();
-        double imgSize = (double)arrayList.get(CurrentPosition).length()/(double)(1024*1024);
+        String imgName= arrayList.get(CurrentPosition).getPath();
+        //String imgPath =arrayList.get(CurrentPosition).getParentFile().getPath();
+        //double imgSize = (double)arrayList.get(CurrentPosition).length()/(double)(1024*1024);
 
         Intent myIntentA1A2;
         myIntentA1A2 = new Intent(FullImageActivity.this, ImageDetail.class);
         Bundle myBundle1 = new Bundle();
         myBundle1.putString("date", lastModified);
         myBundle1.putString("name", imgName);
-        myBundle1.putString("path", imgPath);
-        myBundle1.putDouble("size", imgSize);
+        // myBundle1.putString("path", imgPath);
+        // myBundle1.putDouble("size", imgSize);
         myIntentA1A2.putExtras(myBundle1);
         startActivityForResult(myIntentA1A2, 1122);
     }

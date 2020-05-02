@@ -1,21 +1,28 @@
 package com.example.gallery;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class ImageInformation {
-    String name;
-    Date date;
-    int size;
-    int img;
-    public ImageInformation(){
+public class ImageInformation implements Serializable {
+    String name, path, thumb;
+    int height,width;
+    boolean selected;
+    Date dateTaken;
 
+    public Date getDateTaken() {
+        return dateTaken;
     }
-    public ImageInformation(int img){
-        this.img=img;
+
+    public void setDateTaken(Date dateTaken) {
+        this.dateTaken = dateTaken;
     }
-    public ImageInformation(String name, int img){
-        this.name=name;
-        this.img=img;
+
+    public String getThumb() {
+        return thumb;
+    }
+
+    public void setThumb(String thumb) {
+        this.thumb = thumb;
     }
 
     public String getName() {
@@ -26,28 +33,36 @@ public class ImageInformation {
         this.name = name;
     }
 
-    public int getImg() {
-        return img;
+    public String getPath() {
+        return path;
     }
 
-    public void setImg(int img) {
-        this.img = img;
+    public void setPath(String path) {
+        this.path = path;
     }
 
-    public Date getDate() {
-        return date;
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public boolean isSelected() {
+        return selected;
     }
 
-    public int getSize() {
-        return size;
+    public int getHeight() {
+        return height;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
     }
 }
 
