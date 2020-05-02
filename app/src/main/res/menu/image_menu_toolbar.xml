@@ -15,6 +15,10 @@
             <item android:id="@+id/edit"
                 android:title="Edit"
                 app:showAsAction="ifRoom"/>
+            <item
+                android:id="@+id/delete"
+                android:title="Delete"
+                app:showAsAction="ifRoom" />
         </menu>
     </item>
 </menu>
