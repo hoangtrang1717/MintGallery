@@ -2,10 +2,12 @@ package com.example.gallery;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +51,7 @@ public class Camera extends Activity{
                 Date date = new Date();
                 information.setDateTaken(date);
                 arr.add(0, information);
+
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -70,13 +73,22 @@ public class Camera extends Activity{
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         //File storagedir = Environment.getExternalStorageDirectory();
 
+
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
+        MediaScannerConnection.scanFile(this,
+                new String[] {image.getAbsolutePath()}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i("ExternalStorage", "Scanned " + path + ":");
+                        Log.i("ExternalStorage", "-> uri=" + uri);
+                    }
+                });
 
-        // Save a file: path for use with ACTION_VIEW intents
         return image;
     }
 }

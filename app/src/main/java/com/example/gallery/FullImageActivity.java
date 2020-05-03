@@ -90,7 +90,8 @@ public class FullImageActivity extends AppCompatActivity {
             case R.id.home:
             case android.R.id.home:
                 //finish();
-                startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(FullImageActivity.this,MainActivity.class));
+                //startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
