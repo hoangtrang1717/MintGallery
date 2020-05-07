@@ -279,8 +279,10 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
 
                         ImageInformation information = new ImageInformation();
                         information.setSelected(false);
+                        information.setName(file.getName());
                         information.setPath(file.getAbsolutePath());
                         information.setThumb(file.getAbsolutePath());
+                        information.setSize(file.length());
                         Date date = new Date();
                         information.setDateTaken(date);
                         arrayList.add(0, information);
