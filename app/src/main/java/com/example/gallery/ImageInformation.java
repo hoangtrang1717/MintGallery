@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class ImageInformation implements Serializable {
     String name, path, thumb;
-    int height,width;
+    long size;
     boolean selected;
     Date dateTaken;
 
@@ -49,20 +49,12 @@ public class ImageInformation implements Serializable {
         return selected;
     }
 
-    public int getHeight() {
-        return height;
+    public long getSize() {
+        return size;
     }
 
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
+    public void setSize(long size) {
+        this.size = size;
     }
 }
 
