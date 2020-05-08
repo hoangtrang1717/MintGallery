@@ -49,7 +49,7 @@
         <activity
             android:name=".EditImageActivity"
             android:noHistory="true"></activity>
-        <activity android:name=".Camera"></activity>
+        <activity android:name=".CameraActivity"></activity>
     </application>
 
 
