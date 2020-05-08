@@ -1,12 +1,10 @@
 package com.example.gallery;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.gallery.Sort.SortByModified;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -107,9 +104,8 @@ public class PhotoFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.camera:
-                Intent i = new Intent(context,Camera.class);
-                startActivity(i);
-                Toast.makeText(getActivity(), "Bin clicked", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(context, CameraActivity.class));
+                Toast.makeText(getActivity(), "Camera clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.bin:
                 Toast.makeText(getActivity(), "Bin clicked", Toast.LENGTH_LONG).show();
