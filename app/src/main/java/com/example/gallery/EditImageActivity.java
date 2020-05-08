@@ -242,6 +242,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 File dir = new File(filepath.getAbsolutePath());
                 dir.mkdir();
                 final File file = new File(dir,System.currentTimeMillis()+".png");
+                Toast.makeText(EditImageActivity.this, filepath.getAbsolutePath() + System.currentTimeMillis()+".png", Toast.LENGTH_LONG).show();
                 arrayList.add(0,file);
                 System.out.println(arrayList);
                 try {

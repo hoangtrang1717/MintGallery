@@ -96,6 +96,19 @@ public class FullImageActivity extends AppCompatActivity {
     }
 
     private void DeleteImage() {
+        String imgPath = arrayList.get(CurrentPosition).getParentFile().getPath();
+        String imgName= arrayList.get(CurrentPosition).getName();
+        File dir = new File(imgPath);
+        dir.mkdir();
+        Toast.makeText(FullImageActivity.this, imgPath + imgName, Toast.LENGTH_LONG).show();
+
+        final File temp = new File(dir, imgName);
+        boolean succ = temp.delete();
+        if(succ == false)
+        {
+            Toast.makeText(FullImageActivity.this, "Delete failed", Toast.LENGTH_LONG).show();
+            return;
+        }
         arrayList.get(CurrentPosition).delete();
         if(arrayList.size() == 1)
         {
