@@ -109,6 +109,8 @@ public class FullImageActivity extends AppCompatActivity {
             Toast.makeText(FullImageActivity.this, "Delete failed", Toast.LENGTH_LONG).show();
             return;
         }
+        else
+            Toast.makeText(FullImageActivity.this, "Delete successful", Toast.LENGTH_LONG).show();
         arrayList.get(CurrentPosition).delete();
         if(arrayList.size() == 1)
         {
@@ -141,7 +143,7 @@ public class FullImageActivity extends AppCompatActivity {
         startActivityForResult(myIntentA1A2, 1122);
     }
 
-    public void EditImage(){
+    public void EditImage() {
         Intent i= new Intent(FullImageActivity.this,EditImageActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         i.putExtra("path",arrayList.get(CurrentPosition).getPath());
