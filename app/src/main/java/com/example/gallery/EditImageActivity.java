@@ -3,6 +3,7 @@ package com.example.gallery;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
@@ -25,6 +26,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.Adapter.EmojiAdapter;
 import com.example.gallery.Adapter.FilterViewPagerAdapter;
+import com.example.gallery.Interface.AddStickerListener;
 import com.example.gallery.Interface.BrushFragmentListener;
 import com.example.gallery.Interface.EditImageFragmentListener;
 import com.example.gallery.Interface.EmojiFragmentListener;
@@ -49,7 +51,7 @@ import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
-public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, BrushFragmentListener, EmojiFragmentListener {
+public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, BrushFragmentListener, EmojiFragmentListener, AddStickerListener {
     public static final int PERMISSION_PICK_IMAGE = 100;
     public static String path = null;
     public static int CurPosition;
@@ -58,7 +60,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     PhotoEditorView imageView;
     PhotoEditor photoEditor;
 
-    CardView btnFiltersList, btnEditList, btnBrush, btnEmoji;
+    CardView btnFiltersList, btnEditList, btnBrush, btnEmoji, btnSticker;
 
     CoordinatorLayout coordinatorLayout;
 
@@ -102,6 +104,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         btnFiltersList=(CardView)findViewById(R.id.btnFiltersList);
         btnBrush=(CardView)findViewById(R.id.btnBrush);
         btnEmoji=(CardView)findViewById(R.id.btnEmoji);
+        btnSticker=(CardView)findViewById(R.id.btnSticker);
 
         btnEditList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,6 +139,14 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 EmojiFragment emojiFragment = EmojiFragment.getInstance();
                 emojiFragment.setListner(EditImageActivity.this);
                 emojiFragment.show(getSupportFragmentManager(),emojiFragment.getTag());
+            }
+        });
+        btnSticker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StickerFragment stickerFragment = StickerFragment.getInstance();
+                stickerFragment.setListener(EditImageActivity.this);
+                stickerFragment.show(getSupportFragmentManager(),stickerFragment.getTag());
             }
         });
         loadImg();
@@ -367,5 +378,12 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     @Override
     public void onEmojiSelected(String emoji) {
         photoEditor.addEmoji(emoji);
+    }
+
+
+    @Override
+    public void onAddSticker(int sticker) {
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),sticker);
+        photoEditor.addImage(Bitmap.createScaledBitmap(bitmap, 300, 300, false));
     }
 }
