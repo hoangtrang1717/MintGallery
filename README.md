@@ -21,9 +21,12 @@ Android Java - Mint Gallery
  10. Edit: ảnh - contrast, brightness, saturation (HY - done)
  11. Edit: ảnh - save ảnh (HY - done)
  12. Edit: ảnh - Brush(HY - done)
- 12. Edit: anh - Emoji(HY - done)
+ 13. Edit: anh - Emoji(HY - done)
+ 14. Set wallpaper(HY -done)
+ 15. Zoom ảnh (HY - done)
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
+ 2. 02/05 - 08/05 https://docs.google.com/document/d/1W-ZXX68kKPAlfJkMtbK6QEE6smI5GLrK6PI2rwHbmyw/edit?usp=sharing
 ### Tài liệu tham khảo
  1. Bottom nav https://youtu.be/tPV8xA7m-iw 
  2. Load image từ device https://youtu.be/l_Wun7zUDPc

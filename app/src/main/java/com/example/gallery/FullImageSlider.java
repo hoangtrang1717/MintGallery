@@ -21,10 +21,10 @@ import java.util.ArrayList;
 
 public class FullImageSlider extends PagerAdapter {
     Context context;
-    ArrayList<File> arrayList;
+    ArrayList<ImageInformation> arrayList;
     LayoutInflater layoutInflater;
     String data;
-    public FullImageSlider(Context c,ArrayList<File> list, String data){
+    public FullImageSlider(Context c,ArrayList<ImageInformation> list, String data){
         this.context=c;
         this.data=data;
         this.arrayList=list;
@@ -55,7 +55,7 @@ public class FullImageSlider extends PagerAdapter {
         //fullImage.setImageURI(Uri.parse(data));
         //fullImage.setImageURI(Uri.parse(arrayList.get(position).toString()));
         //fullImage.setImageURI(Uri.parse(arrayList.get(position).toString()));
-        Glide.with(context.getApplicationContext()).load(arrayList.get(position).toString()).into(fullImage);
+        Glide.with(context.getApplicationContext()).load(arrayList.get(position).getThumb()).into(fullImage);
 
         /*Intent i= new Intent(context.getApplicationContext(),FullImageActivity.class);
         i.putExtra("curposition",position);
