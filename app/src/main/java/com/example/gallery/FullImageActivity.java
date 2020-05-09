@@ -2,17 +2,22 @@ package com.example.gallery;
 
 import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
@@ -86,7 +91,7 @@ public class FullImageActivity extends AppCompatActivity {
                 Toast.makeText(FullImageActivity.this, "Edit clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.delete:
-                DeleteImage();
+                deleteFiles(arrayList.get(CurrentPosition).getPath());
                 Toast.makeText(FullImageActivity.this, "Delete clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.wallpaper:
@@ -107,7 +112,7 @@ public class FullImageActivity extends AppCompatActivity {
         }
     }
 
-    private void DeleteImage() {
+    /*private void DeleteImage() {
         String imgPath = arrayList.get(CurrentPosition).getPath();
         String imgName= arrayList.get(CurrentPosition).getName();
         File dir = new File(imgPath);
@@ -133,8 +138,44 @@ public class FullImageActivity extends AppCompatActivity {
         else {
             slider.setCurrentItem(CurrentPosition + 1);
         }
-    }
+    }*/
 
+    public void deleteFiles(final String path) {
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
+        myAlertDialog.setTitle("Delete Image");
+        myAlertDialog.setMessage("Do you want to delete it?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface arg0, int arg1) {
+                File file = new File(path);
+
+                if (file.exists()) {
+                    String deleteCmd = "rm -r " + path;
+                    Runtime runtime = Runtime.getRuntime();
+                    try {
+                        runtime.exec(deleteCmd);
+                    } catch (IOException e) {
+
+                    }
+                }
+                arrayList.remove(arrayList.get(CurrentPosition));
+                MediaScannerConnection.scanFile(getApplicationContext(),
+                        new String[] {file.getAbsolutePath()}, null,
+                        new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String path, Uri uri) {
+                                Log.i("ExternalStorage", "Scanned " + path + ":");
+                                Log.i("ExternalStorage", "-> uri=" + uri);
+                            }
+                        });
+                finish();
+                startActivity(getIntent());            }});
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface arg0, int arg1) {
+            }});
+        myAlertDialog.show();
+    }
     public void ShowImageDetail(){
         Date lastModifiedDate = arrayList.get(CurrentPosition).getDateTaken();
         String lastModified = lastModifiedDate.toString();
