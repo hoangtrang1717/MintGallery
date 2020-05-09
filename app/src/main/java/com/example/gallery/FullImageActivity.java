@@ -173,7 +173,6 @@ public class FullImageActivity extends AppCompatActivity {
         myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface arg0, int arg1) {
-                finish();
             }});
         myAlertDialog.show();
     }
