@@ -108,7 +108,7 @@ public class FullImageActivity extends AppCompatActivity {
     }
 
     private void DeleteImage() {
-        String imgPath = arrayList.get(CurrentPosition).getParentFile().getPath();
+        String imgPath = arrayList.get(CurrentPosition).getPath();
         String imgName= arrayList.get(CurrentPosition).getName();
         File dir = new File(imgPath);
         dir.mkdir();
@@ -121,7 +121,7 @@ public class FullImageActivity extends AppCompatActivity {
             Toast.makeText(FullImageActivity.this, "Delete failed", Toast.LENGTH_LONG).show();
             return;
         }
-        arrayList.get(CurrentPosition).delete();
+        arrayList.get(CurrentPosition);
         if(arrayList.size() == 1)
         {
             startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
