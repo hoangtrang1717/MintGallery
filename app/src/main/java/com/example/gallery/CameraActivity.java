@@ -115,6 +115,15 @@ public class CameraActivity extends Activity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO ) {
             if (resultCode == RESULT_OK) {
+                MediaScannerConnection.scanFile(this,
+                        new String[] {imageFile.getAbsolutePath()}, null,
+                        new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String path, Uri uri) {
+                                Log.i("ExternalStorage", "Scanned " + path + ":");
+                                Log.i("ExternalStorage", "-> uri=" + uri);
+                            }
+                        });
                 Intent i = new Intent(this.getApplicationContext(), FullImageActivity.class);
                 i.putExtra("id", 1);
                 i.putExtra("position", 0);
@@ -153,15 +162,7 @@ public class CameraActivity extends Activity{
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
-        MediaScannerConnection.scanFile(this,
-                new String[] {image.getAbsolutePath()}, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i("ExternalStorage", "Scanned " + path + ":");
-                        Log.i("ExternalStorage", "-> uri=" + uri);
-                    }
-                });
+
 
         return image;
     }
