@@ -287,6 +287,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                         information.setDateTaken(date);
                         arrayList.add(0, information);
                         System.out.println(arrayList);
+
                     }
                     saveBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                     MediaScannerConnection.scanFile(context,

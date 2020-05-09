@@ -17,15 +17,16 @@ import java.util.Date;
 
 import static androidx.core.content.FileProvider.getUriForFile;
 
-public class Camera extends Activity{
+public class CameraActivity extends Activity{
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     ArrayList<ImageInformation> arr = new ArrayList<>();
+    File imageFile;
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.camera_layout);
         dispatchTakePictureIntent();
     }
     private void dispatchTakePictureIntent() {
@@ -44,6 +45,8 @@ public class Camera extends Activity{
                Uri photoURI = getUriForFile(this,
                        "com.example.gallery.provider",
                        photoFile);
+                imageFile = photoFile;
+                //Uri photoURI = Uri.fromFile(photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 ImageInformation information = new ImageInformation();
                 information.setPath(photoFile.getAbsolutePath());
@@ -64,13 +67,20 @@ public class Camera extends Activity{
             i.putExtra("position",0);
             i.putExtra("list",arr);
             startActivity(i);
+
         }
+        else{
+            if(imageFile.exists()){
+                imageFile.delete();
+            }
+        }
+        finish();
     }
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        String imageFileName = "MINT_" + timeStamp + "_";
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),"100ANDRO");
         //File storagedir = Environment.getExternalStorageDirectory();
 
 
