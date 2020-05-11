@@ -2,6 +2,7 @@ package com.chocomint.mintery;
 
 import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -75,6 +76,8 @@ public class FullImageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.detail:
+                Intent intent = new Intent(this, MediaDetailActivity.class);
+                startActivity(intent);
                 Toast.makeText(this, "Detail", Toast.LENGTH_LONG);
                 return true;
             case R.id.img_favorite:
