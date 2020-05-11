@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/img_favorite"
-        android:icon="@drawable/ic_favorite"
+        android:icon="@drawable/favorite_tabbar"
         android:title=""
         app:showAsAction="always|collapseActionView"/>
     <item android:id="@+id/img_more_option"
@@ -9,19 +10,15 @@
         android:icon="@drawable/ic_more_option"
         app:showAsAction="always">
         <menu>
-            <item android:id="@+id/info"
-                android:title="Information"
+            <item android:id="@+id/detail"
+                android:title="Details"
                 app:showAsAction="ifRoom"/>
-            <item android:id="@+id/edit"
-                android:title="Edit"
+            <item android:id="@+id/wallpaper"
+                android:title="Set as wallpaper"
                 app:showAsAction="ifRoom"/>
             <item
-                android:id="@+id/delete"
-                android:title="Delete"
-                app:showAsAction="ifRoom" />
-            <item
-                android:id="@+id/wallpaper"
-                android:title="Set Wallpaper"
+                android:id="@+id/about_us"
+                android:title="About us"
                 app:showAsAction="ifRoom" />
         </menu>
     </item>

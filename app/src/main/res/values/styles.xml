@@ -4,22 +4,17 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@android:color/white</item>
         <item name="colorAccent">@color/colorAccent</item>
-    </style>
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="popupTheme">@style/MyDarkToolbarStyle</item>
+        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.FullScreen">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="actionMenuTextColor">@color/colorPrimary</item>
+    <style name="MyDarkToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="fontFamily">@font/poppins</item>
     </style>
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat">
-    </style>
-    <style name="AppTheme.PopUpOverlay" parent="ThemeOverlay.AppCompat">
-    </style>
+
 </resources>
