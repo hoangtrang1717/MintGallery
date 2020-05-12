@@ -47,7 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:src="@drawable/ic_image_white" />
+                        android:src="@drawable/ic_filter_white" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -143,6 +143,36 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Emoji"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnSticker"
+                android:padding="16dp"
+                android:layout_marginLeft="10dp"
+                app:cardBackgroundColor="@color/card_background_color"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:cardElevation="8dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|center_vertical"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_image_white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sticker"
                         android:textAlignment="center"
                         android:textColor="@android:color/white"
                         android:textSize="18dp"
