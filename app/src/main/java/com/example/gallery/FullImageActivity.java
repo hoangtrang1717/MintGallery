@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.lang.Object;
 
 import static com.example.gallery.R.id.info;
 
@@ -108,33 +110,14 @@ public class FullImageActivity extends AppCompatActivity {
     }
 
     private void DeleteImage() {
-        String imgPath = arrayList.get(CurrentPosition).getParentFile().getPath();
-        String imgName= arrayList.get(CurrentPosition).getName();
-        File dir = new File(imgPath);
-        dir.mkdir();
-        Toast.makeText(FullImageActivity.this, imgPath + imgName, Toast.LENGTH_LONG).show();
+        String imgPath = arrayList.get(CurrentPosition).getPath();
+        Toast.makeText(FullImageActivity.this, imgPath, Toast.LENGTH_LONG).show();
 
-        final File temp = new File(dir, imgName);
-        boolean succ = temp.delete();
-        if(succ == false)
-        {
-            Toast.makeText(FullImageActivity.this, "Delete failed", Toast.LENGTH_LONG).show();
-            return;
-        }
+        File IMAGE = new File(imgPath);
+        if(!IMAGE.delete())
+            Toast.makeText(FullImageActivity.this, "FAILED", Toast.LENGTH_LONG).show();
         else
-            Toast.makeText(FullImageActivity.this, "Delete successful", Toast.LENGTH_LONG).show();
-        arrayList.get(CurrentPosition).delete();
-        if(arrayList.size() == 1)
-        {
-            startActivity(new Intent(getApplicationContext(),MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            return;
-        }
-        if(CurrentPosition - 1 >= 0) {
-            slider.setCurrentItem(CurrentPosition - 1);
-        }
-        else {
-            slider.setCurrentItem(CurrentPosition + 1);
-        }
+            Toast.makeText(FullImageActivity.this, "SUCCESSFUL", Toast.LENGTH_LONG).show();
     }
 
     public void ShowImageDetail(){
