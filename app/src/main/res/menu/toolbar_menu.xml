@@ -10,7 +10,7 @@
     <item
         android:id="@+id/setting_toolbar"
         android:title="Setting"
-        android:icon="@drawable/setting_toolbar"
+        android:icon="@drawable/settings_toolbar"
         app:showAsAction="always" >
         <menu>
             <item android:id="@+id/setting"

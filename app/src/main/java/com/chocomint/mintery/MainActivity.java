@@ -33,12 +33,18 @@ public class MainActivity extends AppCompatActivity {
     Toolbar mainToolbar;
     TextView toolBarText;
 
+    final int PHOTO_FRAG = 1;
+    final int ALBUM_FRAG = 2;
+    final int VIDEO_FRAG = 3;
+    int currentFrag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         getView();
+        currentFrag = PHOTO_FRAG;
         photoTabbar.setColorFilter(getResources().getColor(R.color.primary));
 
         setSupportActionBar(mainToolbar);

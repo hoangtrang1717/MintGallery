@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/img_favorite"
+        android:icon="@drawable/favorite_tabbar"
+        android:title=""
+        app:showAsAction="always|collapseActionView"/>
+    <item android:id="@+id/img_more_option"
+        android:title=""
+        android:icon="@drawable/ic_more_option"
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/detail"
+                android:title="Details"
+                app:showAsAction="ifRoom"/>
+            <item
+                android:id="@+id/about_us"
+                android:title="About us"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+</menu>
