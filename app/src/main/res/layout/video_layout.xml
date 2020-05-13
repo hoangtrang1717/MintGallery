@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="2dp"
-        android:id="@+id/image_toolbar"
+        android:id="@+id/video_toolbar"
         android:background="@android:color/white"
         android:theme="@style/ThemeOverlay.AppCompat.Light">
     </androidx.appcompat.widget.Toolbar>
@@ -21,7 +21,7 @@
         android:id="@+id/image_viewpaprer"/>
 
     <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/full_image_bottomtab"
+        android:id="@+id/full_video_bottomtab"
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_gravity="bottom"
@@ -34,17 +34,10 @@
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_crop"
+                android:src="@drawable/ic_scissors"
                 android:background="@android:color/transparent"
                 android:layout_weight="1"
-                android:id="@+id/image_crop"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_sliders"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/image_edit"/>
+                android:id="@+id/video_trim"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

@@ -70,7 +70,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, FullImageActivity.class);
+                Intent intent;
+                if (allMedia.get(0).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                    intent = new Intent(mContext, FullImageActivity.class);
+                } else {
+                    intent = new Intent(mContext, FullVideoActivity.class);
+                }
                 intent.putExtra("id", allMedia.get(position).path);
                 intent.putExtra("position", position);
                 intent.putExtra("list", allMedia);

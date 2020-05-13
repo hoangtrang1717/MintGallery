@@ -1,14 +1,18 @@
 package com.chocomint.mintery;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -47,7 +51,7 @@ public class FullImageSlider extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-        return view ==((CoordinatorLayout) object);
+        return view ==((ConstraintLayout) object);
     }
 
     @Override
@@ -58,19 +62,19 @@ public class FullImageSlider extends PagerAdapter {
 
     @NonNull
     @Override
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    public Object instantiateItem(@NonNull final ViewGroup container, int position) {
         View itemview = null;
         if (arrayList.get(position).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
             itemview = layoutInflater.inflate(R.layout.full_image_layout, container, false);
-            PhotoView fullImage = (PhotoView) itemview.findViewById(R.id.image);
+            final PhotoView fullImage = (PhotoView) itemview.findViewById(R.id.image);
             fullImage.setMaximumScale(5);
 
             Glide.with(context.getApplicationContext()).load(arrayList.get(position).path).into(fullImage);
 
             fullImage.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "Slider clicked", Toast.LENGTH_LONG).show();
+                public void onClick(View view) {
+                    container.callOnClick();
                 }
             });
         } else {
@@ -89,6 +93,12 @@ public class FullImageSlider extends PagerAdapter {
             exoPlayer.prepare(mediaSource);
             exoPlayer.setPlayWhenReady(true);
 
+            itemview.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    container.callOnClick();
+                }
+            });
         }
 
         container.addView(itemview);

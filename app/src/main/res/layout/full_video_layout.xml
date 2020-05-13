@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,44 +8,13 @@
     tools:context=".FullImageActivity">
 
     <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/video_view"
-        app:controller_layout_id="@layout/video_seekbar"/>
+        app:controller_layout_id="@layout/video_seekbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/full_image_bottomtab"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_gravity="bottom"
-        android:backgroundTint="#B3FFFFFF">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:background="#B3FFFFFF">
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_scissors"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/video_trim"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_share"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/image_share"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_trash"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/image_delete"/>
-        </LinearLayout>
-    </com.google.android.material.bottomappbar.BottomAppBar>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
