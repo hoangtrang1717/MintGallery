@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.exifinterface.media.ExifInterface;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,12 +20,14 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
 
 public class MediaDetailActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     Media media;
-    TextView date, size, title, path, resolution;
+    TextView date, size, title, path, location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,8 @@ public class MediaDetailActivity extends AppCompatActivity {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         date.setText(simpleDateFormat.format(media.dateModified));
         path.setText(media.path);
+        title.setText(media.name);
+        size.setText(media.size + " MB");
     }
 
     private void getView() {
@@ -50,7 +56,7 @@ public class MediaDetailActivity extends AppCompatActivity {
         size = findViewById(R.id.text_size);
         path = findViewById(R.id.text_path);
         title = findViewById(R.id.text_title);
-        resolution = findViewById(R.id.text_resolution);
+        location = findViewById(R.id.text_location);
     }
 
     @Override
@@ -71,14 +77,19 @@ public class MediaDetailActivity extends AppCompatActivity {
             try {
                 inputStream = getContentResolver().openInputStream(uri);
                 ExifInterface exifInterface = new ExifInterface(inputStream);
-                int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
-                int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
-                publishProgress(width + " x " + height);
-//                String gpsInfo = exifInterface.getAttribute(ExifInterface.TAG_GPS_AREA_INFORMATION);
-////                Log.d("latlong", "" + latLong);
-//                Log.d("width", String.valueOf(width));
-//                Log.d("height", String.valueOf(height));
-//                Log.d("position", gpsInfo != null ? gpsInfo : "Không có");
+                double[] latlong = exifInterface.getLatLong();
+                if (Geocoder.isPresent() && latlong != null && latlong.length > 0) {
+                    Geocoder geocoder = new Geocoder(MediaDetailActivity .this, Locale.getDefault());
+                    List<Address> address = geocoder.getFromLocation(latlong[0], latlong[1], 1);
+                    if (address != null && address.size() > 0) {
+                        Address address1 = address.get(0);
+                        String add = "";
+                        add += address1.getMaxAddressLineIndex() > 0 && address1.getAddressLine(0).length() > 0 ? (address1.getAddressLine(0) + ",") : "";
+                        add += address1.getLocality() != null ? (address1.getLocality() + ",") : "";
+                        add += address1.getCountryName() != null ? address1.getCountryName() : "";
+                        publishProgress(add);
+                    }
+                }
             } catch (IOException e) {
                 Log.d("error load detail", e.getMessage());
                 return false;
@@ -95,7 +106,7 @@ public class MediaDetailActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(String... values) {
             if (values[0] != null) {
-                resolution.setText(values[0]);
+                location.setText(values[0]);
             }
             super.onProgressUpdate(values);
         }

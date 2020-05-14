@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +20,11 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
+import com.github.aakira.playermanager.ExoPlayerManager;
+import com.github.chrisbanes.photoview.OnScaleChangedListener;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.github.rubensousa.previewseekbar.PreviewView;
+import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -35,7 +41,7 @@ public class FullImageSlider extends PagerAdapter {
     ArrayList<Media> arrayList;
     LayoutInflater layoutInflater;
     String data;
-    ExoPlayer exoPlayer;
+    PlayerManager playerManager;
 
     public FullImageSlider(Context c, ArrayList<Media> list, String path){
         this.context = c;
@@ -56,7 +62,6 @@ public class FullImageSlider extends PagerAdapter {
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        releasePlayer();
         ((ViewPager) container).removeView((View) object);
     }
 
@@ -68,6 +73,7 @@ public class FullImageSlider extends PagerAdapter {
             itemview = layoutInflater.inflate(R.layout.full_image_layout, container, false);
             final PhotoView fullImage = (PhotoView) itemview.findViewById(R.id.image);
             fullImage.setMaximumScale(5);
+            fullImage.setMinimumScale(-5);
 
             Glide.with(context.getApplicationContext()).load(arrayList.get(position).path).into(fullImage);
 
@@ -80,18 +86,11 @@ public class FullImageSlider extends PagerAdapter {
         } else {
             itemview = layoutInflater.inflate(R.layout.full_video_layout, container, false);
             PlayerView playerView = itemview.findViewById(R.id.video_view);
-            releasePlayer();
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(itemview.getContext(), new DefaultTrackSelector());
-            playerView.setPlayer(exoPlayer);
-
-            String userAgent = Util.getUserAgent(itemview.getContext(), "VideoPlayer");
-            ExtractorMediaSource mediaSource = new ExtractorMediaSource(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(position).id)),
-                    new DefaultDataSourceFactory(itemview.getContext(), userAgent),
-                    new DefaultExtractorsFactory(),
-                    null,
-                    null);
-            exoPlayer.prepare(mediaSource);
-            exoPlayer.setPlayWhenReady(true);
+            PreviewTimeBar previewTimeBar = playerView.findViewById(R.id.exo_progress);
+            ImageView imageView = playerView.findViewById(R.id.image_preview);
+            playerManager = new PlayerManager(playerView, previewTimeBar, imageView);
+            playerManager.play(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(position).id)));
+            playerManager.onStart();
 
             itemview.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -99,16 +98,19 @@ public class FullImageSlider extends PagerAdapter {
                     container.callOnClick();
                 }
             });
+
+
         }
 
         container.addView(itemview);
         return itemview;
     }
 
-    private void releasePlayer() {
-        if (exoPlayer != null) {
-            exoPlayer.release();
-            exoPlayer = null;
-        }
+    public void onStopVideo() {
+        playerManager.onStop();
+    }
+
+    public boolean onPauseVideo() {
+        return playerManager.pause();
     }
 }

@@ -103,7 +103,9 @@ public class VideoFragment extends Fragment {
             String[] videoColumns = { MediaStore.Video.VideoColumns._ID,
                     MediaStore.Video.VideoColumns.DATE_MODIFIED,
                     MediaStore.Video.VideoColumns.DURATION,
-                    MediaStore.Video.VideoColumns.DATA
+                    MediaStore.Video.VideoColumns.DATA,
+                    MediaStore.Video.VideoColumns.DISPLAY_NAME,
+                    MediaStore.Video.VideoColumns.SIZE
             };
 
             Cursor videocursor = getActivity().getApplication().getContentResolver().query(
@@ -118,6 +120,8 @@ public class VideoFragment extends Fragment {
             int video_duration_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DURATION);
             int video_date_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATE_MODIFIED);
             int video_data_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
+            int video_size_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE);
+            int video_name_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DISPLAY_NAME);
 
             int videoCount = videocursor.getCount();
             Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
@@ -129,10 +133,14 @@ public class VideoFragment extends Fragment {
                 calendar.setTimeInMillis(currDate*1000L);
                 Date day = calendar.getTime();
 
+                Long size = videocursor.getLong(video_size_column_index);
+                String sizeStr = String.format("%.2f", (float) size / (1024 * 1024));
+                String name = videocursor.getString(video_name_column_index);
+
                 Long duration = videocursor.getLong(video_duration_column_index);
 
                 String filePath = videocursor.getString(video_data_column_index);
-                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration));
+                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr));
             }
             videocursor.close();
             Collections.sort(arrayList, new SortByModified());

@@ -109,7 +109,9 @@ public class PhotoFragment extends Fragment {
             String[] imageColumns = { MediaStore.Images.ImageColumns._ID,
                     MediaStore.Images.ImageColumns.DATE_MODIFIED,
                     MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                    MediaStore.Images.ImageColumns.DATA
+                    MediaStore.Images.ImageColumns.DATA,
+                    MediaStore.Images.ImageColumns.SIZE,
+                    MediaStore.Images.ImageColumns.DISPLAY_NAME
             };
 
             Cursor imagecursor = getActivity().getApplication().getContentResolver().query(
@@ -123,6 +125,8 @@ public class PhotoFragment extends Fragment {
             int image_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID);
             int date_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_MODIFIED);
             int data_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
+            int size_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.SIZE);
+            int name_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
 
             Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
             int count = imagecursor.getCount();
@@ -134,8 +138,12 @@ public class PhotoFragment extends Fragment {
                 calendar.setTimeInMillis(currDate*1000L);
                 Date day = calendar.getTime();
 
+                Long size = imagecursor.getLong(size_column_index);
+                String sizeStr = String.format("%.2f", (float) size / (1024 * 1024));
+                String name = imagecursor.getString(name_column_index);
+
                 String filePath = imagecursor.getString(data_column_index);
-                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0));
+                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr));
             }
             imagecursor.close();
             Collections.sort(arrayList, new SortByModified());

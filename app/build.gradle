@@ -44,4 +44,5 @@ dependencies {
     implementation 'com.github.rubensousa:previewseekbar:2.0.0'
     implementation 'com.github.rubensousa:previewseekbar-exoplayer:2.8.1.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.8.4'
+    implementation 'com.github.aakira:exoplayer-manager:0.13.0@aar'
 }

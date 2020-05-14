@@ -32,14 +32,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:orientation="horizontal"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginHorizontal="32dp"
+        android:background="@android:color/transparent"
         android:id="@+id/layout_date"
         android:weightSum="4">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins_semibold"
             android:text="Date"
@@ -48,7 +49,7 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins"
@@ -64,16 +65,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/layout_date"
+        app:layout_constraintTop_toBottomOf="@id/layout_date"
         android:orientation="horizontal"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="32dp"
+        android:background="@android:color/transparent"
         android:id="@+id/layout_size"
         android:weightSum="4">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins_semibold"
             android:text="Size"
@@ -82,7 +84,7 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins"
@@ -98,50 +100,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/layout_size"
+        app:layout_constraintTop_toBottomOf="@+id/layout_size"
         android:orientation="horizontal"
-        android:layout_marginTop="48dp"
-        android:id="@+id/layout_resolution"
-        android:weightSum="4">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
-            android:background="@android:color/transparent"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="Resolution"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:fontFamily="@font/poppins"
-            android:text="Resolution"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:id="@+id/text_resolution"
-            android:layout_weight="3"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/layout_resolution"
-        android:orientation="horizontal"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="32dp"
+        android:background="@android:color/transparent"
         android:id="@+id/layout_path"
         android:weightSum="4">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins_semibold"
             android:text="Path"
@@ -150,7 +119,7 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins"
@@ -166,16 +135,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/layout_path"
+        app:layout_constraintTop_toBottomOf="@+id/layout_path"
         android:orientation="horizontal"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="32dp"
+        android:background="@android:color/transparent"
         android:weightSum="4"
         android:id="@+id/layout_title">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins_semibold"
             android:text="Title"
@@ -184,7 +154,7 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:fontFamily="@font/poppins"
@@ -192,6 +162,50 @@
             android:textColor="@android:color/black"
             android:textSize="14sp"
             android:id="@+id/text_title"
+            android:layout_weight="3"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="32dp"
+        android:background="@android:color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_title"
+        android:id="@+id/layout_line"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout_line"
+        android:orientation="horizontal"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="32dp"
+        android:background="@android:color/transparent"
+        android:weightSum="4">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Location"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/poppins"
+            android:text="No location"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:id="@+id/text_location"
             android:layout_weight="3"/>
 
     </LinearLayout>

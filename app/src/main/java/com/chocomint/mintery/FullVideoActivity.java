@@ -13,12 +13,19 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.github.rubensousa.previewseekbar.PreviewLoader;
+import com.github.rubensousa.previewseekbar.PreviewView;
+import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 
 import java.util.ArrayList;
@@ -31,8 +38,11 @@ public class FullVideoActivity extends AppCompatActivity {
     ArrayList<Media> arrayList;
     BottomAppBar bottomAppBar;
     int CurrentPosition;
+    PreviewTimeBar seekBar;
+    ImageView imagePreview;
+    FrameLayout previewFrame;
 
-    ImageButton shareBtn, deleteBtn, trimBtn;
+    ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +52,7 @@ public class FullVideoActivity extends AppCompatActivity {
         getView();
 
         String path = getIntent().getExtras().getString("id");
-        slider = (ViewPager) findViewById(R.id.image_viewpaprer);
+        slider = (ViewPager) findViewById(R.id.video_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
         imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
@@ -66,7 +76,9 @@ public class FullVideoActivity extends AppCompatActivity {
 
         slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                imageSlider.onStopVideo();
+            }
 
             @Override
             public void onPageSelected(int position) {
@@ -81,6 +93,17 @@ public class FullVideoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 new ShareThread().execute();
+            }
+        });
+
+        pauseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (imageSlider.onPauseVideo()) {
+                    pauseBtn.setImageResource(R.drawable.ic_pause);
+                } else {
+                    pauseBtn.setImageResource(R.drawable.ic_play);
+                }
             }
         });
 
@@ -99,13 +122,27 @@ public class FullVideoActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        imageSlider.onPauseVideo();
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        imageSlider.onStopVideo();
+        super.onStop();
+    }
+
     private void getView() {
         shareBtn = findViewById(R.id.image_share);
         deleteBtn = findViewById(R.id.image_delete);
         trimBtn = findViewById(R.id.video_trim);
+        pauseBtn = findViewById(R.id.video_pause);
         bottomAppBar = findViewById(R.id.full_video_bottomtab);
         video_toolbar = (Toolbar) findViewById(R.id.video_toolbar);
         this.setSupportActionBar(video_toolbar);
+        this.getSupportActionBar().setTitle("");
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -121,6 +158,7 @@ public class FullVideoActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.detail:
                 Intent intent = new Intent(this, MediaDetailActivity.class);
+                intent.putExtra("media", arrayList.get(CurrentPosition));
                 startActivity(intent);
                 return true;
             case R.id.img_favorite:
@@ -147,6 +185,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 shareIntent.setType("video/*");
                 startActivity(Intent.createChooser(shareIntent, "Share this video"));
             } catch (ActivityNotFoundException e) {
+                Log.d("Error share", e.getMessage());
                 return false;
             }
             return true;
