@@ -31,7 +31,7 @@ Android Java - Mint Gallery
  20. Edit: ảnh - crop
  21. Edit: ảng - rotate
  22. Set wallpaper(HY -done)
- 23, Set lock screen
+ 23. Set lock screen
  24. Share ảnh, video (MT - done)
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
