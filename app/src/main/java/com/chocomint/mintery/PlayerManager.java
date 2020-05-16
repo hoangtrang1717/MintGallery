@@ -81,7 +81,6 @@ public class PlayerManager implements PreviewLoader {
 
     public boolean pause() {
         player.setPlayWhenReady(!player.getPlayWhenReady());
-        player.getPlaybackState();
         return player.getPlayWhenReady();
     }
 

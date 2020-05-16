@@ -31,16 +31,11 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import java.util.ArrayList;
 
 public class FullVideoActivity extends AppCompatActivity {
-    Context context = this;
-    ViewPager slider;
     Toolbar video_toolbar;
-    FullImageSlider imageSlider;
     ArrayList<Media> arrayList;
     BottomAppBar bottomAppBar;
     int CurrentPosition;
-    PreviewTimeBar seekBar;
-    ImageView imagePreview;
-    FrameLayout previewFrame;
+    FullVideoFragment videoFragment, videoFragmentNext;
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
 
@@ -51,43 +46,50 @@ public class FullVideoActivity extends AppCompatActivity {
 
         getView();
 
-        String path = getIntent().getExtras().getString("id");
-        slider = (ViewPager) findViewById(R.id.video_viewpaprer);
+        String id = getIntent().getExtras().getString("id");
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
-        imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
-        slider.setAdapter(imageSlider);
-        slider.setCurrentItem(CurrentPosition);
 
-        slider.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getSupportActionBar().isShowing()) {
-                    getSupportActionBar().hide();
-                    bottomAppBar.setVisibility(View.INVISIBLE);
-                    slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
-                } else {
-                    getSupportActionBar().show();
-                    bottomAppBar.setVisibility(View.VISIBLE);
-                    slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
-                }
-            }
-        });
+        videoFragment = new FullVideoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", arrayList.get(CurrentPosition).id);
+        videoFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().add(R.id.video_frame, videoFragment).commit();
 
-        slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                imageSlider.onStopVideo();
-            }
 
-            @Override
-            public void onPageSelected(int position) {
-                CurrentPosition = position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) { }
-        });
+//        imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
+//        slider.setAdapter(imageSlider);
+//        slider.setCurrentItem(CurrentPosition);
+//
+//        slider.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (getSupportActionBar().isShowing()) {
+//                    getSupportActionBar().hide();
+//                    bottomAppBar.setVisibility(View.INVISIBLE);
+//                    slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
+//                } else {
+//                    getSupportActionBar().show();
+//                    bottomAppBar.setVisibility(View.VISIBLE);
+//                    slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
+//                }
+//            }
+//        });
+//
+//        slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                imageSlider.onStopVideo();
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                CurrentPosition = position;
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) { }
+//        });
 
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,11 +101,11 @@ public class FullVideoActivity extends AppCompatActivity {
         pauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (imageSlider.onPauseVideo()) {
-                    pauseBtn.setImageResource(R.drawable.ic_pause);
-                } else {
-                    pauseBtn.setImageResource(R.drawable.ic_play);
-                }
+//                if (imageSlider.onPauseVideo()) {
+//                    pauseBtn.setImageResource(R.drawable.ic_pause);
+//                } else {
+//                    pauseBtn.setImageResource(R.drawable.ic_play);
+//                }
             }
         });
 
@@ -120,18 +122,6 @@ public class FullVideoActivity extends AppCompatActivity {
                 Toast.makeText( view.getContext(), "Hit trim", Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        imageSlider.onPauseVideo();
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        imageSlider.onStopVideo();
-        super.onStop();
     }
 
     private void getView() {
@@ -172,6 +162,16 @@ public class FullVideoActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void hideActionBar() {
+        if (getSupportActionBar().isShowing()) {
+            getSupportActionBar().hide();
+            bottomAppBar.setVisibility(View.INVISIBLE);
+        } else {
+            getSupportActionBar().show();
+            bottomAppBar.setVisibility(View.VISIBLE);
         }
     }
 

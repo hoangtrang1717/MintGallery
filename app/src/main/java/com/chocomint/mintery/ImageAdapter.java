@@ -1,7 +1,6 @@
 package com.chocomint.mintery;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.MediaStore;

@@ -34,14 +34,18 @@ public class VideoFragment extends Fragment {
     ArrayList<Media> arrayList;
     ImageAdapter adapter;
 
-    private final int REQUEST_READ_EXTERNAL = 1;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_video_layout, null);
         recyclerView = layout_photo.findViewById(R.id.video_recycle);
-        arrayList = new ArrayList<>();
+
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            arrayList = (ArrayList<Media>) bundle.getSerializable("list");
+        }
+
         adapter = new ImageAdapter(getActivity(), arrayList);
         recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
         recyclerView.setAdapter(adapter);
@@ -52,102 +56,7 @@ public class VideoFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        new LoadImageAndVideo().execute();
         super.onCreate(savedInstanceState);
-    }
-
-    private class LoadImageAndVideo extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                fetchVideoFromGallery();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            adapter.notifyDataSetChanged();
-            super.onPostExecute(aVoid);
-        }
-    }
-
-    public boolean checkPermission(String permission) {
-        if (ContextCompat.checkSelfPermission(getActivity(), permission) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL);
-            return false;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_READ_EXTERNAL: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    new LoadImageAndVideo().execute();
-                }
-            }
-        }
-    }
-
-    private void fetchVideoFromGallery() {
-        try {
-            String[] videoColumns = { MediaStore.Video.VideoColumns._ID,
-                    MediaStore.Video.VideoColumns.DATE_MODIFIED,
-                    MediaStore.Video.VideoColumns.DURATION,
-                    MediaStore.Video.VideoColumns.DATA,
-                    MediaStore.Video.VideoColumns.DISPLAY_NAME,
-                    MediaStore.Video.VideoColumns.SIZE
-            };
-
-            Cursor videocursor = getActivity().getApplication().getContentResolver().query(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    videoColumns,
-                    null,
-                    null, // Selection args (none).
-                    MediaStore.Video.VideoColumns.DATE_MODIFIED + " DESC" // Sort order.
-            );
-
-            int video_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns._ID);
-            int video_duration_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DURATION);
-            int video_date_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATE_MODIFIED);
-            int video_data_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
-            int video_size_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE);
-            int video_name_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DISPLAY_NAME);
-
-            int videoCount = videocursor.getCount();
-            Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
-            for (int i = 0; i < videoCount; i++) {
-                videocursor.moveToPosition(i);
-                int id = videocursor.getInt(video_column_index);
-
-                Long currDate = videocursor.getLong(video_date_column_index);
-                calendar.setTimeInMillis(currDate*1000L);
-                Date day = calendar.getTime();
-
-                Long size = videocursor.getLong(video_size_column_index);
-                String sizeStr = String.format("%.2f", (float) size / (1024 * 1024));
-                String name = videocursor.getString(video_name_column_index);
-
-                Long duration = videocursor.getLong(video_duration_column_index);
-
-                String filePath = videocursor.getString(video_data_column_index);
-                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr));
-            }
-            videocursor.close();
-            Collections.sort(arrayList, new SortByModified());
-        } catch (Exception e) {
-            Log.d("Error getting video", e.getMessage());
-            e.printStackTrace();
-        }
     }
 }
 

@@ -5,6 +5,6 @@ import java.util.Comparator;
 public class SortByModified implements Comparator<Media> {
     @Override
     public int compare(Media media, Media t1) {
-        return Long.compare(media.duration, t1.duration);
+        return t1.dateModified.compareTo(media.dateModified);
     }
 }
