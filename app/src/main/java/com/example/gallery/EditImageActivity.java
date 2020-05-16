@@ -31,6 +31,7 @@ import com.example.gallery.Interface.BrushFragmentListener;
 import com.example.gallery.Interface.EditImageFragmentListener;
 import com.example.gallery.Interface.EmojiFragmentListener;
 import com.example.gallery.Interface.FilterListFragmentListener;
+import com.example.gallery.Interface.TextFragmentListener;
 import com.example.gallery.Utils.BitmapUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -51,7 +52,7 @@ import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
-public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, BrushFragmentListener, EmojiFragmentListener, AddStickerListener {
+public class EditImageActivity extends AppCompatActivity implements FilterListFragmentListener, EditImageFragmentListener, TextFragmentListener, BrushFragmentListener, EmojiFragmentListener, AddStickerListener {
     public static final int PERMISSION_PICK_IMAGE = 100;
     public static String path = null;
     public static int CurPosition;
@@ -60,7 +61,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     PhotoEditorView imageView;
     PhotoEditor photoEditor;
 
-    CardView btnFiltersList, btnEditList, btnBrush, btnEmoji, btnSticker;
+    CardView btnFiltersList, btnEditList, btnBrush, btnEmoji, btnSticker, btnText;
 
     CoordinatorLayout coordinatorLayout;
 
@@ -105,6 +106,7 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         btnBrush=(CardView)findViewById(R.id.btnBrush);
         btnEmoji=(CardView)findViewById(R.id.btnEmoji);
         btnSticker=(CardView)findViewById(R.id.btnSticker);
+        btnText=(CardView)findViewById(R.id.btnText);
 
         btnEditList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +149,15 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
                 StickerFragment stickerFragment = StickerFragment.getInstance();
                 stickerFragment.setListener(EditImageActivity.this);
                 stickerFragment.show(getSupportFragmentManager(),stickerFragment.getTag());
+            }
+        });
+        btnText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextFragment textFragment = TextFragment.getInstance();
+                textFragment.setListner(EditImageActivity.this);
+                textFragment.show(getSupportFragmentManager(),textFragment.getTag());
+
             }
         });
         loadImg();
@@ -385,5 +396,10 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
     public void onAddSticker(int sticker) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(),sticker);
         photoEditor.addImage(Bitmap.createScaledBitmap(bitmap, 300, 300, false));
+    }
+
+    @Override
+    public void onAddTextButtonClick(String text, int color) {
+        photoEditor.addText(text,color);
     }
 }
