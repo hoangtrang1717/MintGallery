@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     Fragment photoFrag, videoFrag, albumFrag;
     Toolbar mainToolbar;
     TextView toolBarText;
-    ArrayList<Media> arrayList, photoList, videoList;
+    ArrayList<Media> arrayList;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currentFrag = VIDEO_FRAG;
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("list", videoList);
+                bundle.putSerializable("list", arrayList);
                 videoFrag.setArguments(bundle);
                 toolBarText.setText("Videos");
                 videoTabbar.setColorFilter(getResources().getColor(R.color.primary));
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currentFrag = PHOTO_FRAG;
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("list", photoList);
+                bundle.putSerializable("list", arrayList);
                 photoFrag.setArguments(bundle);
                 toolBarText.setText("Photos");
                 photoTabbar.setColorFilter(getResources().getColor(R.color.primary));
@@ -99,8 +99,6 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, photoFrag).commit();
             }
         });
-
-
     }
 
     private void getView() {
@@ -109,11 +107,15 @@ public class MainActivity extends AppCompatActivity {
         photoTabbar = findViewById(R.id.photo_tabbar);
         mainToolbar = findViewById(R.id.main_toolbar);
         toolBarText = findViewById(R.id.toolbar_text);
-        photoList = new ArrayList<>();
-        videoList = new ArrayList<>();
         photoFrag = new PhotoFragment();
         videoFrag = new VideoFragment();
         albumFrag = new AlbumFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new LoadImageAndVideo().execute();
     }
 
     @Override
@@ -152,26 +154,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            photoList = (ArrayList<Media>) arrayList.clone();
-            photoList.removeIf(new Predicate<Media>() {
-                @Override
-                public boolean test(Media media) {
-                    if (media.type != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-            videoList = (ArrayList<Media>) arrayList.clone();
-            videoList.removeIf(new Predicate<Media>() {
-                @Override
-                public boolean test(Media media) {
-                    if (media.type != MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
             photoTabbar.callOnClick();
             super.onPostExecute(aVoid);
         }
@@ -244,7 +226,8 @@ public class MainActivity extends AppCompatActivity {
                 String name = imagecursor.getString(name_column_index);
 
                 String filePath = imagecursor.getString(data_column_index);
-                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr));
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr);
+                arrayList.add(media);
             }
             imagecursor.close();
 
@@ -287,7 +270,8 @@ public class MainActivity extends AppCompatActivity {
                 Long duration = videocursor.getLong(video_duration_column_index);
 
                 String filePath = videocursor.getString(video_data_column_index);
-                arrayList.add(new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr));
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr);
+                arrayList.add(media);
             }
             videocursor.close();
 

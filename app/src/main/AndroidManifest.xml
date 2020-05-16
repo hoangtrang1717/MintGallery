@@ -18,7 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CropImageActivity"></activity>
+        <activity android:name=".DeleteMainActivity"></activity>
         <activity android:name=".FullVideoActivity" />
         <activity
             android:name=".MediaDetailActivity"
@@ -34,9 +34,9 @@
         <activity
             android:name=".FullImageActivity"
             android:label="" />
-
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

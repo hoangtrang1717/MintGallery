@@ -1,8 +1,10 @@
 package com.chocomint.mintery;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,9 +15,11 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,12 +37,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
-public class PhotoFragment extends Fragment {
+public class PhotoFragment extends Fragment implements ChooseFileCallback {
     Context context;
     RecyclerView recyclerView;
-    ArrayList<Media> arrayList;
+    ArrayList<Media> arrayList, photoList;
     ImageAdapter adapter;
+    ChooseFileAdapter chooseFileAdapter;
+    String from;
+    ArrayList<Media> fileChoose;
 
     @Nullable
     @Override
@@ -49,12 +57,29 @@ public class PhotoFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
+            from = bundle.getString("from", "");
             arrayList = (ArrayList<Media>) bundle.getSerializable("list");
+            photoList = (ArrayList<Media>) arrayList.clone();
+            photoList.removeIf(new Predicate<Media>() {
+                @Override
+                public boolean test(Media media) {
+                    if (media.type != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
+        fileChoose = new ArrayList<>();
 
-        adapter = new ImageAdapter(getActivity(), arrayList);
+        if (from.compareTo("DELETE") == 0) {
+            chooseFileAdapter = new ChooseFileAdapter(getActivity(), photoList, arrayList, this);
+            recyclerView.setAdapter(chooseFileAdapter);
+        } else {
+            adapter = new ImageAdapter(getActivity(), photoList, arrayList);
+            recyclerView.setAdapter(adapter);
+        }
         recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
-        recyclerView.setAdapter(adapter);
 
         return layout_photo;
     }
@@ -63,5 +88,42 @@ public class PhotoFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void chooseFile(int position, boolean add) {
+        if (add) {
+            fileChoose.add(photoList.get(position));
+        } else {
+            fileChoose.remove(photoList.get(position));
+        }
+    }
+
+    public void SharePhoto() {
+        new PhotoFragment.ShareThread().execute();
+    }
+
+    private class ShareThread extends AsyncTask <Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                if (fileChoose != null && fileChoose.size() > 0) {
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                    ArrayList<Uri> files = new ArrayList<>();
+                    for (Media media : fileChoose) {
+                        files.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(media.id)));
+                    }
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, files);
+                    shareIntent.setType("image/*");
+                    startActivity(Intent.createChooser(shareIntent, "Share images"));
+                } else {
+                    Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG).show();
+                }
+            } catch (ActivityNotFoundException e) {
+                return false;
+            }
+            return true;
+        }
     }
 }
