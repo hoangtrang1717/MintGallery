@@ -398,8 +398,9 @@ public class EditImageActivity extends AppCompatActivity implements FilterListFr
         photoEditor.addImage(Bitmap.createScaledBitmap(bitmap, 300, 300, false));
     }
 
+
     @Override
-    public void onAddTextButtonClick(String text, int color) {
-        photoEditor.addText(text,color);
+    public void onAddTextButtonClick(Typeface typeface, String text, int color) {
+        photoEditor.addText(typeface,text,color);
     }
 }
