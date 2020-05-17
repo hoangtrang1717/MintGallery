@@ -48,6 +48,7 @@ public class DeleteMainActivity extends AppCompatActivity {
     int type, position;
 
     private final int REQUEST_READ_EXTERNAL = 1;
+    private final int REQUEST_WRITE_EXTERNAL = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +142,9 @@ public class DeleteMainActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.delete_toolbar:
-                Toast.makeText(this, "Delete", Toast.LENGTH_LONG).show();
+                if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL)) {
+                    deleteFiles();
+                }
                 return true;
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
@@ -151,11 +154,21 @@ public class DeleteMainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean checkPermission(String permission) {
+    private void deleteFiles() {
+        if (currentFrag == PHOTO_FRAG) {
+            PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+            photoFragment.DeletePhotos();
+        } else if (currentFrag == VIDEO_FRAG) {
+            VideoFragment photoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
+            photoFragment.DeleteVideos();
+        }
+    }
+
+    public boolean checkPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(DeleteMainActivity.this, permission) == PackageManager.PERMISSION_GRANTED) {
             return true;
         } else {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL);
+            requestPermissions(new String[]{permission}, requestCode);
             return false;
         }
     }
@@ -164,10 +177,9 @@ public class DeleteMainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case REQUEST_READ_EXTERNAL: {
+            case REQUEST_WRITE_EXTERNAL: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    new DeleteMainActivity.LoadImageAndVideo().execute();
-                    break;
+                    deleteFiles();
                 }
             }
             default: return;

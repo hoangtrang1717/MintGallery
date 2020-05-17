@@ -35,7 +35,8 @@ import java.util.function.Predicate;
 public class VideoFragment extends Fragment implements ChooseFileCallback {
     Context context;
     RecyclerView recyclerView;
-    ArrayList<Media> arrayList, videoList, fileChoose;
+    ArrayList<Media> arrayList, videoList;
+    ArrayList<String> fileChoose;
     ImageAdapter adapter;
     ChooseFileAdapter chooseFileAdapter;
     String from;
@@ -82,12 +83,20 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
         super.onCreate(savedInstanceState);
     }
 
+    public void adapterNotify() {
+        if (from.compareTo("DELETE") == 0 && chooseFileAdapter != null) {
+            chooseFileAdapter.notifyDataSetChanged();
+        } else if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void chooseFile(int position, boolean add) {
         if (add) {
-            fileChoose.add(videoList.get(position));
+            fileChoose.add(String.valueOf(videoList.get(position).id));
         } else {
-            fileChoose.remove(videoList.get(position));
+            fileChoose.remove(String.valueOf(videoList.get(position).id));
         }
     }
 
@@ -103,8 +112,8 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                     Intent shareIntent = new Intent();
                     shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
                     ArrayList<Uri> files = new ArrayList<>();
-                    for (Media media : fileChoose) {
-                        files.add(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(media.id)));
+                    for (String id : fileChoose) {
+                        files.add(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
                     }
                     shareIntent.putExtra(Intent.EXTRA_STREAM, files);
                     shareIntent.setType("video/*");
@@ -116,6 +125,34 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                 return false;
             }
             return true;
+        }
+    }
+
+    public void DeleteVideos() {
+        new VideoFragment.DeleteThread().execute();
+    }
+
+    private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                for (String id : fileChoose) {
+                    getActivity().getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id), null, null);
+                }
+            } catch (Throwable e) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean) {
+                getActivity().onBackPressed();
+            } else {
+                Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
+            }
         }
     }
 }

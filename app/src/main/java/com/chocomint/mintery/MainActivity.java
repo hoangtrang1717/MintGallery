@@ -1,6 +1,7 @@
 package com.chocomint.mintery;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.icu.text.UnicodeSetSpanner;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     final int ALBUM_FRAG = 2;
     final int VIDEO_FRAG = 3;
     int currentFrag;
+    String back;
 
     private final int REQUEST_READ_EXTERNAL = 1;
 
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         getView();
-        new MainActivity.LoadImageAndVideo().execute();
+        currentFrag = PHOTO_FRAG;
         setSupportActionBar(mainToolbar);
 
         // set listener cho tabbar
@@ -82,7 +85,11 @@ public class MainActivity extends AppCompatActivity {
                 toolBarText.setText("Videos");
                 videoTabbar.setColorFilter(getResources().getColor(R.color.primary));
                 photoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, videoFrag).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, videoFrag, "video").commit();
+                VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
+                if (videoFragment != null) {
+                    videoFragment.adapterNotify();
+                }
             }
         });
 
@@ -96,7 +103,11 @@ public class MainActivity extends AppCompatActivity {
                 toolBarText.setText("Photos");
                 photoTabbar.setColorFilter(getResources().getColor(R.color.primary));
                 videoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, photoFrag).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, photoFrag, "photo").commit();
+                PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+                if (photoFragment != null) {
+                    photoFragment.adapterNotify();
+                }
             }
         });
     }
@@ -154,9 +165,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            photoTabbar.callOnClick();
+            switch (currentFrag) {
+                case PHOTO_FRAG:
+                    photoTabbar.callOnClick();
+                    break;
+                case VIDEO_FRAG:
+                    videoTabbar.callOnClick();
+                    break;
+                case ALBUM_FRAG:
+                    albumTabbar.callOnClick();
+                    break;
+                default:
+                    photoTabbar.callOnClick();
+            }
             super.onPostExecute(aVoid);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public boolean checkPermission(String permission) {

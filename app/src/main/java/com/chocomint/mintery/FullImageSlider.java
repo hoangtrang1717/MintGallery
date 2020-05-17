@@ -20,7 +20,6 @@ public class FullImageSlider extends PagerAdapter {
     ArrayList<Media> arrayList;
     LayoutInflater layoutInflater;
     String data;
-    PlayerManager playerManager;
 
     public FullImageSlider(Context c, ArrayList<Media> list, String path){
         this.context = c;
@@ -32,6 +31,15 @@ public class FullImageSlider extends PagerAdapter {
     @Override
     public int getCount() {
         return arrayList.size();
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        if (arrayList.contains(object)) {
+            return arrayList.indexOf(object);
+        } else {
+            return POSITION_NONE;
+        }
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.chocomint.mintery;
 
+import android.net.Uri;
+import android.provider.MediaStore;
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;

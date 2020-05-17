@@ -2,11 +2,13 @@ package com.chocomint.mintery;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -30,6 +32,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,14 +49,13 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
     ImageAdapter adapter;
     ChooseFileAdapter chooseFileAdapter;
     String from;
-    ArrayList<Media> fileChoose;
+    ArrayList<String> fileChoose;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_photo_layout, null);
         recyclerView = layout_photo.findViewById(R.id.photo_reycle);
-
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -90,12 +92,20 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         super.onCreate(savedInstanceState);
     }
 
+    public void adapterNotify() {
+        if (from.compareTo("DELETE") == 0 && chooseFileAdapter != null) {
+            chooseFileAdapter.notifyDataSetChanged();
+        } else if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void chooseFile(int position, boolean add) {
         if (add) {
-            fileChoose.add(photoList.get(position));
+            fileChoose.add(String.valueOf(photoList.get(position).id));
         } else {
-            fileChoose.remove(photoList.get(position));
+            fileChoose.remove(String.valueOf(photoList.get(position)));
         }
     }
 
@@ -111,8 +121,8 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                     Intent shareIntent = new Intent();
                     shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
                     ArrayList<Uri> files = new ArrayList<>();
-                    for (Media media : fileChoose) {
-                        files.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(media.id)));
+                    for (String id : fileChoose) {
+                        files.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
                     }
                     shareIntent.putExtra(Intent.EXTRA_STREAM, files);
                     shareIntent.setType("image/*");
@@ -124,6 +134,34 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                 return false;
             }
             return true;
+        }
+    }
+
+    public void DeletePhotos() {
+        new PhotoFragment.DeleteThread().execute();
+    }
+
+    private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                for (String id : fileChoose) {
+                    getActivity().getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id), null, null);
+                }
+            } catch (Throwable e) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean) {
+                getActivity().onBackPressed();
+            } else {
+                Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
+            }
         }
     }
 }

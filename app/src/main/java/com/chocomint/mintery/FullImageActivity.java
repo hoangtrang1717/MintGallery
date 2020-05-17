@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -39,7 +41,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class FullImageActivity extends AppCompatActivity {
+public class FullImageActivity extends AppCompatActivity implements CallbackFunction {
 
     Context context = this;
     ViewPager slider;
@@ -88,9 +90,7 @@ public class FullImageActivity extends AppCompatActivity {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
             @Override
-            public void onPageSelected(int position) {
-                CurrentPosition = position;
-            }
+            public void onPageSelected(int position) { CurrentPosition = position; }
 
             @Override
             public void onPageScrollStateChanged(int state) { }
@@ -126,7 +126,11 @@ public class FullImageActivity extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText( view.getContext(), "Hit delete", Toast.LENGTH_LONG).show();
+                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                if (delete > 0) {
+                    arrayList.remove(CurrentPosition);
+                    imageSlider.notifyDataSetChanged();
+                }
             }
         });
     }
@@ -196,7 +200,23 @@ public class FullImageActivity extends AppCompatActivity {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 if (resultCode == RESULT_OK) {
                     Uri resultUri = result.getUri();
-                    Log.d("uri", resultUri.toString());
+                    String uriToString = resultUri.toString();
+                    try {
+                        Bitmap bitmap = null;
+                        if (Build.VERSION.SDK_INT < 28) {
+
+                            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
+                        } else {
+                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), resultUri);
+                            bitmap = ImageDecoder.decodeBitmap(source);
+                        }
+                        String format = uriToString.substring(uriToString.lastIndexOf('.') + 1);
+                        SavePhoto savePhoto = new SavePhoto(bitmap, this.getBaseContext(), null, "image/jpg", this);
+                        savePhoto.saveImage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.d("Error create new photo", e.getMessage());
+                    }
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     Exception error = result.getError();
                     Log.d("Error crop image", error.getMessage());
@@ -205,6 +225,11 @@ public class FullImageActivity extends AppCompatActivity {
             }
             default: return;
         }
+    }
+
+    @Override
+    public void onAddPhotoSuccess() {
+        Log.d("xong roi ne", "huhu");
     }
 
     private class ShareThread extends AsyncTask <Void, Void, Boolean> {
