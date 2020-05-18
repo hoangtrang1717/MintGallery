@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.lang.Object;
 
 import static com.example.gallery.R.id.info;
 
@@ -60,9 +62,7 @@ public class FullImageActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPageSelected(int position) {
-                CurrentPosition = position;
-            }
+            public void onPageSelected(int position) { CurrentPosition = position; }
             @Override
             public void onPageScrollStateChanged(int state) {
 
@@ -73,6 +73,23 @@ public class FullImageActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.image_menu_toolbar, menu);
+        int i;
+        for(i = 0; i < menu.size(); i++)
+        {
+            if(menu.getItem(i).getItemId() == R.id.img_favorite)
+            {
+                MenuItem item = menu.getItem(i);
+                ExifInterface exif = null;
+                try {
+                    exif = new ExifInterface(arrayList.get(CurrentPosition).getPath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(exif.getAttribute("UserComment").compareTo("Favorite") == 0) {
+                    item.setIcon(R.drawable.ic_favorite_bottom_nav);
+                }
+            }
+        }
         return true;
     }
     @Override
@@ -99,7 +116,8 @@ public class FullImageActivity extends AppCompatActivity {
                 Toast.makeText(FullImageActivity.this, "Wallpaper clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.img_favorite:
-                Toast.makeText(FullImageActivity.this, "Favorite clicked", Toast.LENGTH_LONG).show();
+                Favor(item);
+                //Toast.makeText(FullImageActivity.this, "Favorite clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.home:
             case android.R.id.home:
@@ -110,6 +128,34 @@ public class FullImageActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void Favor(MenuItem item) {
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(arrayList.get(CurrentPosition).getPath());
+        } catch (IOException e) {
+            e.printStackTrace(); return;
+        }
+        if(exif.getAttribute("UserComment").compareTo("Favorite") == 0) {
+            exif.setAttribute("UserComment", "Not favorite");
+            item.setIcon(R.drawable.ic_favorite);
+        }
+        else if(exif.getAttribute("UserComment").compareTo("Not favorite") == 0) {
+            exif.setAttribute("UserComment", "Favorite");
+            item.setIcon(R.drawable.ic_favorite_bottom_nav);
+        }
+        else
+        {
+            exif.setAttribute("UserComment", "Favorite");
+            item.setIcon(R.drawable.ic_favorite_bottom_nav);
+        }
+        try {
+            exif.saveAttributes();
+        } catch (IOException e) {
+            e.printStackTrace(); return;
+        }
+        Toast.makeText(FullImageActivity.this, exif.getAttribute("UserComment"), Toast.LENGTH_LONG).show();
     }
 
     /*private void DeleteImage() {
