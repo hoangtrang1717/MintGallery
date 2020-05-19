@@ -20,8 +20,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -32,13 +30,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.viewpager.widget.ViewPager;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageOptions;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,6 +48,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     ArrayList<Media> arrayList;
     BottomAppBar bottomTab;
     int CurrentPosition;
+    Menu menuImage;
 
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
@@ -92,7 +89,10 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
             @Override
-            public void onPageSelected(int position) { CurrentPosition = position; }
+            public void onPageSelected(int position) {
+                CurrentPosition = position;
+                setFavoriteIcon();
+            }
 
             @Override
             public void onPageScrollStateChanged(int state) { }
@@ -165,7 +165,9 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        menuImage = menu;
         getMenuInflater().inflate(R.menu.image_menu_toolbar, menu);
+        setFavoriteIcon();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -180,7 +182,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 startActivity(intent);
                 return true;
             case R.id.img_favorite:
-                Toast.makeText(FullImageActivity.this, "Favorite clicked", Toast.LENGTH_LONG).show();
+                new FavoriteThread().execute(arrayList.get(CurrentPosition).isFavorite);
                 return true;
             case R.id.wallpaper:
                 new SetWallpaperThread().execute();
@@ -193,6 +195,15 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void setFavoriteIcon() {
+        MenuItem menuItem =  menuImage.findItem(R.id.img_favorite);
+        if (arrayList.get(CurrentPosition).isFavorite) {
+            menuItem.setIcon(R.drawable.ic_heart_sharp);
+        } else {
+            menuItem.setIcon(R.drawable.ic_heart_outline);
         }
     }
 
@@ -245,7 +256,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
     @Override
     public void onAddPhotoSuccess() {
-        Log.d("xong roi ne", "huhu");
+        onBackPressed();
     }
 
     private class ShareThread extends AsyncTask <Void, Void, Boolean> {
@@ -287,5 +298,41 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
             return false;
         }
         return true;
+    }
+
+    private class FavoriteThread extends AsyncTask <Boolean, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Boolean... booleans) {
+            try {
+                ExifInterface exifInterface = new ExifInterface(arrayList.get(CurrentPosition).path);
+                if (booleans != null && booleans[0]) {
+                    exifInterface.setAttribute("USER_COMMENT", "");
+                } else {
+                    exifInterface.setAttribute("USER_COMMENT", "Favorite");
+                }
+                exifInterface.saveAttributes();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean) {
+                MenuItem menuItem =  menuImage.findItem(R.id.img_favorite);
+                if(arrayList.get(CurrentPosition).setFavorite()) {
+                    menuItem.setIcon(R.drawable.ic_heart_sharp);
+                } else {
+                    menuItem.setIcon(R.drawable.ic_heart_outline);
+                }
+                imageSlider.notifyDataSetChanged();
+            } else {
+                Toast.makeText(FullImageActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

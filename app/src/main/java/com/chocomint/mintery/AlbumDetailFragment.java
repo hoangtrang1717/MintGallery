@@ -62,7 +62,7 @@ public class AlbumDetailFragment extends Fragment {
                 String name = filter.getString(name_column_index_1);
 
                 String filePath = filter.getString(data_column_index_1);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0]);
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0], false);
                 arrayList.add(media);
             }
 
@@ -105,7 +105,7 @@ public class AlbumDetailFragment extends Fragment {
                 Long duration = videocursor.getLong(video_duration_column_index);
 
                 String filePath = videocursor.getString(video_data_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, strings[0]);
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, strings[0], false);
                 arrayList.add(media);
             }
             videocursor.close();

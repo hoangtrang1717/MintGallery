@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -258,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String filePath = imagecursor.getString(data_column_index);
                 String album = imagecursor.getString(album_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album);
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, getFavoriteStatus(filePath));
                 photoList.add(media);
             }
             imagecursor.close();
@@ -305,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String filePath = videocursor.getString(video_data_column_index);
                 String album = videocursor.getString(video_album_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album);
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, getFavoriteStatus(filePath));
                 videoList.add(media);
             }
             videocursor.close();
@@ -332,6 +334,16 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d("Error getting data", e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private boolean getFavoriteStatus(String path) throws IOException {
+        ExifInterface exifInterface = new ExifInterface(path);
+        String tag = exifInterface.getAttribute("USER_COMMENT");
+        if (tag != null && tag.compareTo("Favorite") == 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 }
