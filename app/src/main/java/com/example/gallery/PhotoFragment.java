@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Checkable;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -58,6 +61,8 @@ public class PhotoFragment extends Fragment {
                     public void run() {
                         System.out.println(adapter);
                         gridView.setAdapter(adapter);
+                        gridView.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE_MODAL);                  //
+                        gridView.setMultiChoiceModeListener(new MultiChoiceModeListener());           //
                     }
                 });
             }
@@ -195,6 +200,39 @@ public class PhotoFragment extends Fragment {
         }catch (Exception e) {
             System.out.println("aaaaaaaaaaa");
             e.printStackTrace();
+        }
+    }
+
+    public class MultiChoiceModeListener implements GridView.MultiChoiceModeListener
+    {
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.setTitle("Select Items");
+            mode.setSubtitle("One item selected");
+            return true;
+        }
+
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return true;
+        }
+
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return true;
+        }
+
+        public void onDestroyActionMode(ActionMode mode) {
+        }
+
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
+                                              boolean checked) {
+            int selectCount = gridView.getCheckedItemCount();
+            switch (selectCount) {
+                case 1:
+                    mode.setSubtitle("One item selected");
+                    break;
+                default:
+                    mode.setSubtitle("" + selectCount + " items selected");
+                    break;
+            }
         }
     }
 }
