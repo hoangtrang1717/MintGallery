@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
                 currentFrag = PHOTO_FRAG;
                 photoFrag = new PhotoFragment();
                 Bundle bundle = new Bundle();
-                Log.d("size", String.valueOf(arrayList.size()));
                 bundle.putSerializable("list", arrayList);
                 photoFrag.setArguments(bundle);
                 toolBarText.setText("Photos");
@@ -171,11 +170,6 @@ public class MainActivity extends AppCompatActivity {
             }
             super.onPostExecute(aVoid);
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public boolean checkPermission(String permission) {

@@ -51,7 +51,7 @@ public class MediaDetailActivity extends AppCompatActivity {
     }
 
     private void getView() {
-        media = (Media) getIntent().getSerializableExtra("media");
+        media = (Media) getIntent().getExtras().getSerializable("media");
         date = findViewById(R.id.text_modified);
         size = findViewById(R.id.text_size);
         path = findViewById(R.id.text_path);

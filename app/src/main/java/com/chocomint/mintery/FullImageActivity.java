@@ -136,6 +136,9 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                         int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
                         if (delete > 0) {
                             arrayList.remove(CurrentPosition);
+                            if (arrayList.size() < 1) {
+                                onBackPressed();
+                            }
                             imageSlider.notifyDataSetChanged();
                         }
                     }});
@@ -171,7 +174,9 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         switch (item.getItemId()) {
             case R.id.detail:
                 Intent intent = new Intent(this, MediaDetailActivity.class);
-                intent.putExtra("media", arrayList.get(CurrentPosition));
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("media", arrayList.get(CurrentPosition));
+                intent.putExtras(bundle);
                 startActivity(intent);
                 return true;
             case R.id.img_favorite:
@@ -216,7 +221,6 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                     try {
                         Bitmap bitmap = null;
                         if (Build.VERSION.SDK_INT < 28) {
-
                             bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
                         } else {
                             ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), resultUri);

@@ -1,6 +1,7 @@
 package com.chocomint.mintery;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -8,6 +9,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -32,12 +34,14 @@ import java.util.ArrayList;
 
 public class FullVideoActivity extends AppCompatActivity {
     Toolbar video_toolbar;
+    ViewPager slider;
+    FullImageSlider imageSlider;
     ArrayList<Media> arrayList;
     BottomAppBar bottomAppBar;
     int CurrentPosition;
-    FullVideoFragment videoFragment, videoFragmentNext;
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
+    boolean isPlaying;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,54 +50,46 @@ public class FullVideoActivity extends AppCompatActivity {
 
         getView();
 
-        String id = getIntent().getExtras().getString("id");
+        isPlaying = true;
+        String path = getIntent().getExtras().getString("id");
+        slider = (ViewPager) findViewById(R.id.video_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
+        imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
+        slider.setAdapter(imageSlider);
+        slider.setCurrentItem(CurrentPosition);
+        slider.setOffscreenPageLimit(1);
+        imageSlider.setCurrentVideo(CurrentPosition);
 
-        videoFragment = new FullVideoFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("id", arrayList.get(CurrentPosition).id);
-        videoFragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().add(R.id.video_frame, videoFragment).commit();
+        slider.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideActionBar();
+            }
+        });
 
+        slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
 
-//        imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
-//        slider.setAdapter(imageSlider);
-//        slider.setCurrentItem(CurrentPosition);
-//
-//        slider.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (getSupportActionBar().isShowing()) {
-//                    getSupportActionBar().hide();
-//                    bottomAppBar.setVisibility(View.INVISIBLE);
-//                    slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
-//                } else {
-//                    getSupportActionBar().show();
-//                    bottomAppBar.setVisibility(View.VISIBLE);
-//                    slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
-//                }
-//            }
-//        });
-//
-//        slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                imageSlider.onStopVideo();
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                CurrentPosition = position;
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) { }
-//        });
+            @Override
+            public void onPageSelected(int position) {
+                imageSlider.stopVideo(CurrentPosition);
+                CurrentPosition = position;
+                imageSlider.playVideo(position);
+                if (!isPlaying) {
+                    pauseBtn.setImageResource(R.drawable.ic_pause);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) { }
+        });
 
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pauseVideo();
                 new ShareThread().execute();
             }
         });
@@ -101,24 +97,45 @@ public class FullVideoActivity extends AppCompatActivity {
         pauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if (imageSlider.onPauseVideo()) {
-//                    pauseBtn.setImageResource(R.drawable.ic_pause);
-//                } else {
-//                    pauseBtn.setImageResource(R.drawable.ic_play);
-//                }
+                isPlaying = imageSlider.pauseVideo(CurrentPosition);
+                if (isPlaying) {
+                    pauseBtn.setImageResource(R.drawable.ic_pause);
+                } else {
+                    pauseBtn.setImageResource(R.drawable.ic_play);
+                }
             }
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText( view.getContext(), "Hit delete", Toast.LENGTH_LONG).show();
+                pauseVideo();
+                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullVideoActivity.this);
+                myAlertDialog.setTitle("Delete Video");
+                myAlertDialog.setMessage("Do you want to delete it?");
+                myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                        if (delete > 0) {
+                            arrayList.remove(CurrentPosition);
+                            if (arrayList.size() < 1) {
+                                onBackPressed();
+                            }
+                            imageSlider.stopVideo(CurrentPosition);
+                            imageSlider.notifyDataSetChanged();
+                        }
+                    }});
+                myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                    }});
+                myAlertDialog.show();
             }
         });
 
         trimBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pauseVideo();
                 Toast.makeText( view.getContext(), "Hit trim", Toast.LENGTH_LONG).show();
             }
         });
@@ -138,6 +155,12 @@ public class FullVideoActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        pauseVideo();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.video_menu_toolbar, menu);
         return super.onCreateOptionsMenu(menu);
@@ -145,10 +168,14 @@ public class FullVideoActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        pauseVideo();
         switch (item.getItemId()) {
             case R.id.detail:
                 Intent intent = new Intent(this, MediaDetailActivity.class);
-                intent.putExtra("media", arrayList.get(CurrentPosition));
+                Bundle bundle = new Bundle();
+                Media media = new Media(arrayList.get(CurrentPosition));
+                bundle.putSerializable("media", media);
+                intent.putExtras(bundle);
                 startActivity(intent);
                 return true;
             case R.id.img_favorite:
@@ -172,6 +199,13 @@ public class FullVideoActivity extends AppCompatActivity {
         } else {
             getSupportActionBar().show();
             bottomAppBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void pauseVideo() {
+        if (isPlaying) {
+            isPlaying = imageSlider.pauseVideo(CurrentPosition);
+            pauseBtn.setImageResource(R.drawable.ic_play);
         }
     }
 

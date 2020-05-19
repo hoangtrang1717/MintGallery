@@ -34,6 +34,8 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import java.io.Serializable;
+
 
 public class PlayerManager implements PreviewLoader {
 
@@ -48,6 +50,8 @@ public class PlayerManager implements PreviewLoader {
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
             if (playbackState == Player.STATE_READY && playWhenReady) {
                 previewTimeBar.hidePreview();
+            } else if (playbackState == Player.STATE_ENDED) {
+                player.seekTo(0);
             }
         }
     };

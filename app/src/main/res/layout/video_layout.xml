@@ -15,16 +15,10 @@
         android:theme="@style/ThemeOverlay.AppCompat.Light">
     </androidx.appcompat.widget.Toolbar>
 
-<!--    <androidx.viewpager.widget.ViewPager-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:id="@+id/video_viewpaprer"/>-->
-
-    <FrameLayout
+    <androidx.viewpager.widget.ViewPager
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/video_frame"
-        android:background="@android:color/white" />
+        android:layout_height="wrap_content"
+        android:id="@+id/video_viewpaprer"/>
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/full_video_bottomtab"

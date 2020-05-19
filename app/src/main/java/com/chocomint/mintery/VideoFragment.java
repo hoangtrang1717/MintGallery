@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -44,11 +45,9 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_video_layout, null);
-        recyclerView = layout_photo.findViewById(R.id.video_recycle);
+        View layout_photo = null;
 
         fileChoose = new ArrayList<>();
-
         Bundle bundle = getArguments();
         if (bundle != null) {
             from = bundle.getString("from", "");
@@ -63,16 +62,21 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                     return false;
                 }
             });
+            if (videoList != null && videoList.size() > 0) {
+                layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_video_layout, null);
+                recyclerView = layout_photo.findViewById(R.id.video_recycle);
+                if (from.compareTo("DELETE") == 0) {
+                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, arrayList, this);
+                    recyclerView.setAdapter(chooseFileAdapter);
+                } else {
+                    adapter = new ImageAdapter(getActivity(), videoList, arrayList);
+                    recyclerView.setAdapter(adapter);
+                }
+                recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
+            } else {
+                layout_photo = (ConstraintLayout) inflater.inflate(R.layout.video_no_item, null);
+            }
         }
-
-        if (from.compareTo("DELETE") == 0) {
-            chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, arrayList, this);
-            recyclerView.setAdapter(chooseFileAdapter);
-        } else {
-            adapter = new ImageAdapter(getActivity(), videoList, arrayList);
-            recyclerView.setAdapter(adapter);
-        }
-        recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
 
         return layout_photo;
     }
