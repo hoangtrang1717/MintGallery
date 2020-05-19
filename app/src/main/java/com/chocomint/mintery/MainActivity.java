@@ -44,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
     Fragment photoFrag, videoFrag, albumFrag;
     Toolbar mainToolbar;
     TextView toolBarText;
-    ArrayList<Media> arrayList;
+    ArrayList<Media> photoList, videoList;
+    ArrayList<String> albumList, thumbnailAlbum;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
     final int VIDEO_FRAG = 3;
     int currentFrag;
-    String back;
 
     private final int REQUEST_READ_EXTERNAL = 1;
 
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 currentFrag = VIDEO_FRAG;
                 videoFrag = new VideoFragment();
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("list", arrayList);
+                bundle.putSerializable("list", videoList);
                 videoFrag.setArguments(bundle);
                 toolBarText.setText("Videos");
                 videoTabbar.setColorFilter(getResources().getColor(R.color.primary));
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 currentFrag = PHOTO_FRAG;
                 photoFrag = new PhotoFragment();
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("list", arrayList);
+                bundle.putSerializable("list", photoList);
                 photoFrag.setArguments(bundle);
                 toolBarText.setText("Photos");
                 photoTabbar.setColorFilter(getResources().getColor(R.color.primary));
@@ -196,10 +196,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchImageFromGallery() {
-        if (arrayList != null) {
-            arrayList.clear();
+        if (photoList != null) {
+            photoList.clear();
         } else {
-            arrayList = new ArrayList<>();
+            photoList = new ArrayList<>();
+        }
+        if (videoList != null) {
+            videoList.clear();
+        } else {
+            videoList = new ArrayList<>();
+        }
+        if (albumList != null) {
+            albumList.clear();
+        } else {
+            albumList = new ArrayList<>();
+        }
+        if (thumbnailAlbum != null) {
+            thumbnailAlbum.clear();
+        } else {
+            thumbnailAlbum = new ArrayList<>();
         }
         try {
             String[] imageColumns = { MediaStore.Images.ImageColumns._ID,
@@ -207,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
                     MediaStore.Images.ImageColumns.DISPLAY_NAME,
                     MediaStore.Images.ImageColumns.DATA,
                     MediaStore.Images.ImageColumns.SIZE,
-                    MediaStore.Images.ImageColumns.DISPLAY_NAME
+                    MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                    MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME
             };
 
             Cursor imagecursor = this.getApplication().getContentResolver().query(
@@ -223,8 +239,10 @@ public class MainActivity extends AppCompatActivity {
             int data_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
             int size_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.SIZE);
             int name_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
+            int album_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
 
             Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
+            String prevAlbum = "";
             int count = imagecursor.getCount();
             for (int i = 0; i < count; i++) {
                 imagecursor.moveToPosition(i);
@@ -239,8 +257,9 @@ public class MainActivity extends AppCompatActivity {
                 String name = imagecursor.getString(name_column_index);
 
                 String filePath = imagecursor.getString(data_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr);
-                arrayList.add(media);
+                String album = imagecursor.getString(album_column_index);
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album);
+                photoList.add(media);
             }
             imagecursor.close();
 
@@ -249,7 +268,8 @@ public class MainActivity extends AppCompatActivity {
                     MediaStore.Video.VideoColumns.DURATION,
                     MediaStore.Video.VideoColumns.DATA,
                     MediaStore.Video.VideoColumns.DISPLAY_NAME,
-                    MediaStore.Video.VideoColumns.SIZE
+                    MediaStore.Video.VideoColumns.SIZE,
+                    MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME
             };
 
             Cursor videocursor = this.getApplication().getContentResolver().query(
@@ -266,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
             int video_data_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
             int video_size_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE);
             int video_name_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DISPLAY_NAME);
+            int video_album_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
 
             int videoCount = videocursor.getCount();
             for (int i = 0; i < videoCount; i++) {
@@ -283,12 +304,31 @@ public class MainActivity extends AppCompatActivity {
                 Long duration = videocursor.getLong(video_duration_column_index);
 
                 String filePath = videocursor.getString(video_data_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr);
-                arrayList.add(media);
+                String album = videocursor.getString(video_album_column_index);
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album);
+                videoList.add(media);
             }
             videocursor.close();
 
-            Collections.sort(arrayList, new SortByModified());
+            String[] albumColumn = { "DISTINCT " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME };
+
+            Cursor albumCursor = this.getApplication().getContentResolver().query(
+                    MediaStore.Files.getContentUri("external"),
+                    albumColumn,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
+                            " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO,
+                    null, // Selection args (none).
+                    null
+            );
+
+            int album_column_index_1 = albumCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME);
+            int albumCount = albumCursor.getCount();
+            for (int i = 0; i < albumCount; i++) {
+                albumCursor.moveToPosition(i);
+                String name = albumCursor.getString(album_column_index_1);
+                albumList.add(name);
+            }
+            albumCursor.close();
         } catch (Exception e) {
             Log.d("Error getting data", e.getMessage());
             e.printStackTrace();

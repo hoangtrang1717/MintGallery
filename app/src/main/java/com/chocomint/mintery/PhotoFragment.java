@@ -46,7 +46,7 @@ import java.util.function.Predicate;
 public class PhotoFragment extends Fragment implements ChooseFileCallback {
     Context context;
     RecyclerView recyclerView;
-    ArrayList<Media> arrayList, photoList;
+    ArrayList<Media> photoList;
     ImageAdapter adapter;
     ChooseFileAdapter chooseFileAdapter;
     String from;
@@ -61,25 +61,15 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         Bundle bundle = getArguments();
         if (bundle != null) {
             from = bundle.getString("from", "");
-            arrayList = (ArrayList<Media>) bundle.getSerializable("list");
-            photoList = (ArrayList<Media>) arrayList.clone();
-            photoList.removeIf(new Predicate<Media>() {
-                @Override
-                public boolean test(Media media) {
-                    if (media.type != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            photoList = (ArrayList<Media>) bundle.getSerializable("list");
             if (photoList != null && photoList.size() > 0) {
                 layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_photo_layout, null);
                 recyclerView = layout_photo.findViewById(R.id.photo_reycle);
                 if (from.compareTo("DELETE") == 0) {
-                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), photoList, arrayList, this);
+                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), photoList, this);
                     recyclerView.setAdapter(chooseFileAdapter);
                 } else {
-                    adapter = new ImageAdapter(getActivity(), photoList, arrayList);
+                    adapter = new ImageAdapter(getActivity(), photoList);
                     recyclerView.setAdapter(adapter);
                 }
 

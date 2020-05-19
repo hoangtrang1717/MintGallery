@@ -19,9 +19,10 @@ public class Media implements Serializable {
     Long duration;
     String name;
     String size;
+    String album;
     PlayerManager playerManager;
 
-    public Media(int id, String path, int type, Date dateModified, Long duration, String name, String size) {
+    public Media(int id, String path, int type, Date dateModified, Long duration, String name, String size, String album) {
         this.id = id;
         this.path = path;
         this.type = type;
@@ -29,6 +30,7 @@ public class Media implements Serializable {
         this.duration = duration;
         this.name = name;
         this.size = size;
+        this.album = album;
     }
 
     public Media(Media m) {

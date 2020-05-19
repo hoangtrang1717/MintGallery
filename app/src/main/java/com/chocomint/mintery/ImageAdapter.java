@@ -21,13 +21,12 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> {
-    private ArrayList<Media> allMedia, fullList;
+    private ArrayList<Media> allMedia;
     private Context mContext;
 
-    public ImageAdapter(Context mContext, ArrayList<Media> data, ArrayList<Media> fullList) {
+    public ImageAdapter(Context mContext, ArrayList<Media> data) {
         this.mContext = mContext;
         this.allMedia = data;
-        this.fullList = fullList;
     }
 
     @NonNull
@@ -89,7 +88,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
             @Override
             public boolean onLongClick(View view) {
                 Intent intent = new Intent(mContext, DeleteMainActivity.class);
-                intent.putExtra("fullList", fullList);
+                intent.putExtra("fullList", allMedia);
                 intent.putExtra("type", allMedia.get(position).type);
                 intent.putExtra("position", position);
                 mContext.startActivity(intent);

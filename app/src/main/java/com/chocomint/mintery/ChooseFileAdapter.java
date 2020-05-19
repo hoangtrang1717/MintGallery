@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.HolderView> {
-    private ArrayList<Media> allMedia, fullList;
+    private ArrayList<Media> allMedia;
     private Context mContext;
     private ChooseFileCallback chooseFileCallback;
 
-    public ChooseFileAdapter(Context mContext, ArrayList<Media> data, ArrayList<Media> fullList, ChooseFileCallback chooseFileCallback) {
+    public ChooseFileAdapter(Context mContext, ArrayList<Media> data, ChooseFileCallback chooseFileCallback) {
         this.mContext = mContext;
         this.allMedia = data;
-        this.fullList = fullList;
         this.chooseFileCallback = chooseFileCallback;
     }
 

@@ -36,7 +36,7 @@ import java.util.function.Predicate;
 public class VideoFragment extends Fragment implements ChooseFileCallback {
     Context context;
     RecyclerView recyclerView;
-    ArrayList<Media> arrayList, videoList;
+    ArrayList<Media> videoList;
     ArrayList<String> fileChoose;
     ImageAdapter adapter;
     ChooseFileAdapter chooseFileAdapter;
@@ -51,25 +51,15 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
         Bundle bundle = getArguments();
         if (bundle != null) {
             from = bundle.getString("from", "");
-            arrayList = (ArrayList<Media>) bundle.getSerializable("list");
-            videoList = (ArrayList<Media>) arrayList.clone();
-            videoList.removeIf(new Predicate<Media>() {
-                @Override
-                public boolean test(Media media) {
-                    if (media.type != MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            videoList = (ArrayList<Media>) bundle.getSerializable("list");
             if (videoList != null && videoList.size() > 0) {
                 layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_video_layout, null);
                 recyclerView = layout_photo.findViewById(R.id.video_recycle);
                 if (from.compareTo("DELETE") == 0) {
-                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, arrayList, this);
+                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, this);
                     recyclerView.setAdapter(chooseFileAdapter);
                 } else {
-                    adapter = new ImageAdapter(getActivity(), videoList, arrayList);
+                    adapter = new ImageAdapter(getActivity(), videoList);
                     recyclerView.setAdapter(adapter);
                 }
                 recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
