@@ -1,12 +1,14 @@
 package com.chocomint.mintery;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -155,13 +157,26 @@ public class DeleteMainActivity extends AppCompatActivity {
     }
 
     private void deleteFiles() {
-        if (currentFrag == PHOTO_FRAG) {
-            PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
-            photoFragment.DeletePhotos();
-        } else if (currentFrag == VIDEO_FRAG) {
-            VideoFragment photoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
-            photoFragment.DeleteVideos();
-        }
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DeleteMainActivity.this);
+        myAlertDialog.setTitle(currentFrag == PHOTO_FRAG ? "Delete photos" : "Delete videos");
+        myAlertDialog.setMessage("Do you want to delete all of them?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (currentFrag == PHOTO_FRAG) {
+                    PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+                    photoFragment.DeletePhotos();
+                } else if (currentFrag == VIDEO_FRAG) {
+                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
+                    videoFragment.DeleteVideos();
+                }
+            }
+        });
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) { }
+        });
+        myAlertDialog.show();
     }
 
     public boolean checkPermission(String permission, int requestCode) {

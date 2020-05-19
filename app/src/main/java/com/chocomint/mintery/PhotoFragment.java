@@ -57,6 +57,8 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         View layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_photo_layout, null);
         recyclerView = layout_photo.findViewById(R.id.photo_reycle);
 
+        fileChoose = new ArrayList<>();
+
         Bundle bundle = getArguments();
         if (bundle != null) {
             from = bundle.getString("from", "");
@@ -72,7 +74,6 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                 }
             });
         }
-        fileChoose = new ArrayList<>();
 
         if (from.compareTo("DELETE") == 0) {
             chooseFileAdapter = new ChooseFileAdapter(getActivity(), photoList, arrayList, this);
@@ -81,6 +82,7 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
             adapter = new ImageAdapter(getActivity(), photoList, arrayList);
             recyclerView.setAdapter(adapter);
         }
+
         recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
 
         return layout_photo;
@@ -90,14 +92,6 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-    }
-
-    public void adapterNotify() {
-        if (from.compareTo("DELETE") == 0 && chooseFileAdapter != null) {
-            chooseFileAdapter.notifyDataSetChanged();
-        } else if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
     }
 
     @Override

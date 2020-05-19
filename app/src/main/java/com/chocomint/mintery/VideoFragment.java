@@ -47,6 +47,7 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
         View layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_video_layout, null);
         recyclerView = layout_photo.findViewById(R.id.video_recycle);
 
+        fileChoose = new ArrayList<>();
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -63,7 +64,6 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                 }
             });
         }
-        fileChoose = new ArrayList<>();
 
         if (from.compareTo("DELETE") == 0) {
             chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, arrayList, this);
@@ -81,14 +81,6 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-    }
-
-    public void adapterNotify() {
-        if (from.compareTo("DELETE") == 0 && chooseFileAdapter != null) {
-            chooseFileAdapter.notifyDataSetChanged();
-        } else if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -126,11 +128,21 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
-                if (delete > 0) {
-                    arrayList.remove(CurrentPosition);
-                    imageSlider.notifyDataSetChanged();
-                }
+                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
+                myAlertDialog.setTitle("Delete Photo");
+                myAlertDialog.setMessage("Do you want to delete it?");
+                myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                        if (delete > 0) {
+                            arrayList.remove(CurrentPosition);
+                            imageSlider.notifyDataSetChanged();
+                        }
+                    }});
+                myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                    }});
+                myAlertDialog.show();
             }
         });
     }

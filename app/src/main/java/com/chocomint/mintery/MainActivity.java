@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 currentFrag = VIDEO_FRAG;
+                videoFrag = new VideoFragment();
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("list", arrayList);
                 videoFrag.setArguments(bundle);
@@ -86,10 +87,6 @@ public class MainActivity extends AppCompatActivity {
                 videoTabbar.setColorFilter(getResources().getColor(R.color.primary));
                 photoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, videoFrag, "video").commit();
-                VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
-                if (videoFragment != null) {
-                    videoFragment.adapterNotify();
-                }
             }
         });
 
@@ -97,17 +94,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 currentFrag = PHOTO_FRAG;
+                photoFrag = new PhotoFragment();
                 Bundle bundle = new Bundle();
+                Log.d("size", String.valueOf(arrayList.size()));
                 bundle.putSerializable("list", arrayList);
                 photoFrag.setArguments(bundle);
                 toolBarText.setText("Photos");
                 photoTabbar.setColorFilter(getResources().getColor(R.color.primary));
                 videoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, photoFrag, "photo").commit();
-                PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
-                if (photoFragment != null) {
-                    photoFragment.adapterNotify();
-                }
             }
         });
     }
@@ -150,10 +145,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class LoadImageAndVideo extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
 
         @Override
         protected Void doInBackground(Void... voids) {
