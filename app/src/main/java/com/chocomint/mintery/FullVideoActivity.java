@@ -39,6 +39,8 @@ public class FullVideoActivity extends AppCompatActivity {
     ArrayList<Media> arrayList;
     BottomAppBar bottomAppBar;
     int CurrentPosition;
+    FavoriteDatabase favoriteDatabase;
+    Menu menuVideo;
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
@@ -49,6 +51,7 @@ public class FullVideoActivity extends AppCompatActivity {
         setContentView(R.layout.video_layout);
 
         getView();
+        favoriteDatabase = new FavoriteDatabase(FullVideoActivity.this);
 
         isPlaying = true;
         String path = getIntent().getExtras().getString("id");
@@ -80,6 +83,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 if (!isPlaying) {
                     pauseBtn.setImageResource(R.drawable.ic_pause);
                 }
+                setFavoriteIcon();
             }
 
             @Override
@@ -141,6 +145,12 @@ public class FullVideoActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        favoriteDatabase.close();
+    }
+
     private void getView() {
         shareBtn = findViewById(R.id.image_share);
         deleteBtn = findViewById(R.id.image_delete);
@@ -162,7 +172,9 @@ public class FullVideoActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        menuVideo = menu;
         getMenuInflater().inflate(R.menu.video_menu_toolbar, menu);
+        setFavoriteIcon();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -179,7 +191,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.img_favorite:
-                Toast.makeText(FullVideoActivity.this, "Favorite clicked", Toast.LENGTH_LONG).show();
+                new FavoriteThread().execute(arrayList.get(CurrentPosition).isFavorite);
                 return true;
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
@@ -189,6 +201,15 @@ public class FullVideoActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void setFavoriteIcon() {
+        MenuItem menuItem =  menuVideo.findItem(R.id.img_favorite);
+        if (arrayList.get(CurrentPosition).isFavorite) {
+            menuItem.setIcon(R.drawable.ic_heart_sharp);
+        } else {
+            menuItem.setIcon(R.drawable.ic_heart_outline);
         }
     }
 
@@ -223,6 +244,36 @@ public class FullVideoActivity extends AppCompatActivity {
                 return false;
             }
             return true;
+        }
+    }
+
+    private class FavoriteThread extends AsyncTask <Boolean, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Boolean... booleans) {
+            boolean isDone;
+            if (booleans != null && booleans[0]) {
+                isDone = favoriteDatabase.deleteFavorite(arrayList.get(CurrentPosition).id, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
+            } else {
+                isDone = favoriteDatabase.insertFavorite(arrayList.get(CurrentPosition).id, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
+            }
+            return isDone;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean) {
+                MenuItem menuItem =  menuVideo.findItem(R.id.img_favorite);
+                if(arrayList.get(CurrentPosition).setFavorite()) {
+                    menuItem.setIcon(R.drawable.ic_heart_sharp);
+                } else {
+                    menuItem.setIcon(R.drawable.ic_heart_outline);
+                }
+                imageSlider.notifyDataSetChanged();
+            } else {
+                Toast.makeText(FullVideoActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

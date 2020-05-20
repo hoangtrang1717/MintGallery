@@ -49,6 +49,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     BottomAppBar bottomTab;
     int CurrentPosition;
     Menu menuImage;
+    FavoriteDatabase favoriteDatabase;
 
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
@@ -60,6 +61,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         setContentView(R.layout.image_layout);
 
         getView();
+        favoriteDatabase = new FavoriteDatabase(FullImageActivity.this);
 
         String path = getIntent().getExtras().getString("id");
         slider = (ViewPager) findViewById(R.id.image_viewpaprer);
@@ -148,6 +150,12 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 myAlertDialog.show();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        favoriteDatabase.close();
     }
 
     private void getView() {
@@ -304,19 +312,13 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
         @Override
         protected Boolean doInBackground(Boolean... booleans) {
-            try {
-                ExifInterface exifInterface = new ExifInterface(arrayList.get(CurrentPosition).path);
-                if (booleans != null && booleans[0]) {
-                    exifInterface.setAttribute("USER_COMMENT", "");
-                } else {
-                    exifInterface.setAttribute("USER_COMMENT", "Favorite");
-                }
-                exifInterface.saveAttributes();
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
+            boolean isDone;
+            if (booleans != null && booleans[0]) {
+                isDone = favoriteDatabase.deleteFavorite(arrayList.get(CurrentPosition).id, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
+            } else {
+                isDone = favoriteDatabase.insertFavorite(arrayList.get(CurrentPosition).id, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
             }
+            return isDone;
         }
 
         @Override

@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     TextView toolBarText;
     ArrayList<Media> photoList, videoList;
     ArrayList<String> albumList, thumbnailAlbum;
+    FavoriteDatabase favoriteDatabase;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         getView();
         currentFrag = PHOTO_FRAG;
         setSupportActionBar(mainToolbar);
+        favoriteDatabase = new FavoriteDatabase(MainActivity.this);
 
         // set listener cho tabbar
         albumTabbar.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +125,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         new LoadImageAndVideo().execute();
+    }
+
+    @Override
+    protected void onDestroy() {
+        favoriteDatabase.close();
+        super.onDestroy();
     }
 
     @Override
@@ -249,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < count; i++) {
                 imagecursor.moveToPosition(i);
                 int id = imagecursor.getInt(image_column_index);
+                boolean favorite = favoriteDatabase.readFavorite(id, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
 
                 Long currDate = imagecursor.getLong(date_column_index);
                 calendar.setTimeInMillis(currDate*1000L);
@@ -260,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String filePath = imagecursor.getString(data_column_index);
                 String album = imagecursor.getString(album_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, getFavoriteStatus(filePath));
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, favorite);
                 photoList.add(media);
             }
             imagecursor.close();
@@ -294,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < videoCount; i++) {
                 videocursor.moveToPosition(i);
                 int id = videocursor.getInt(video_column_index);
+                boolean favorite = favoriteDatabase.readFavorite(id, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
 
                 Long currDate = videocursor.getLong(video_date_column_index);
                 calendar.setTimeInMillis(currDate*1000L);
@@ -307,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String filePath = videocursor.getString(video_data_column_index);
                 String album = videocursor.getString(video_album_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, getFavoriteStatus(filePath));
+                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, favorite);
                 videoList.add(media);
             }
             videocursor.close();
