@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,11 +70,17 @@ public class MainActivity extends AppCompatActivity {
         albumTabbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.e("ALBUM", albumList.toString() );
+                Log.d("thumbnail", thumbnailAlbum.toString());
                 currentFrag = ALBUM_FRAG;
+                albumFrag = new AlbumFragment();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("list", albumList);
+                albumFrag.setArguments(bundle);
                 toolBarText.setText("Album");
                 videoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
                 photoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, albumFrag).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_album, albumFrag).commit();
             }
         });
 
@@ -313,12 +320,13 @@ public class MainActivity extends AppCompatActivity {
             videocursor.close();
 
             String[] albumColumn = { "DISTINCT " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME };
+            String mediaQuery = MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
+                    " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 
             Cursor albumCursor = this.getApplication().getContentResolver().query(
                     MediaStore.Files.getContentUri("external"),
                     albumColumn,
-                    MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
-                            " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO,
+                    mediaQuery,
                     null, // Selection args (none).
                     null
             );
@@ -329,6 +337,23 @@ public class MainActivity extends AppCompatActivity {
                 albumCursor.moveToPosition(i);
                 String name = albumCursor.getString(album_column_index_1);
                 albumList.add(name);
+                String[] query = { "MAX(" + MediaStore.Files.FileColumns.DATE_MODIFIED + ")",
+                        MediaStore.Files.FileColumns.DATA
+                };
+                Cursor filter = this.getApplication().getContentResolver().query(
+                        MediaStore.Files.getContentUri("external"),
+                        query,
+                        "(" + mediaQuery + ") AND " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME + " = ?",
+                        new String[] {name},
+                        null // Sort order.
+                );
+
+                int data_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+
+                filter.moveToPosition(0);
+                String filePath = filter.getString(data_column_index_1);
+                thumbnailAlbum.add(filePath);
+                filter.close();
             }
             albumCursor.close();
         } catch (Exception e) {
