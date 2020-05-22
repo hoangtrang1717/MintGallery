@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -15,11 +16,14 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.icu.text.UnicodeSetSpanner;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -31,7 +35,9 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -39,7 +45,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.function.Predicate;
 
-public class MainActivity extends AppCompatActivity {
+import static java.io.File.separator;
+
+public class MainActivity extends AppCompatActivity implements CallbackFunction {
 
     ImageButton photoTabbar, videoTabbar;
     FloatingActionButton albumTabbar;
@@ -49,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Media> photoList, videoList;
     ArrayList<String> albumList, thumbnailAlbum;
     FavoriteDatabase favoriteDatabase;
+    boolean isOpenedCamera;
+    File photoFile;
+    Uri photoURI;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
@@ -56,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
     int currentFrag;
 
     private final int REQUEST_READ_EXTERNAL = 1;
+    private final int REQUEST_WRITE_EXTERNAL = 2;
+    private final int REQUEST_CAMERA = 3;
+    private final int REQUEST_TAKE_PHOTO = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         getView();
+        isOpenedCamera = false;
         currentFrag = PHOTO_FRAG;
         setSupportActionBar(mainToolbar);
         favoriteDatabase = new FavoriteDatabase(MainActivity.this);
@@ -143,7 +158,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.camera_toolbar:
-                Toast.makeText(this, "Hit camera", Toast.LENGTH_LONG).show();
+                if (checkPermission(Manifest.permission.CAMERA, REQUEST_CAMERA) && checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL)) {
+                    dispatchTakePictureIntent();
+                    isOpenedCamera = true;
+                }
                 return true;
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
@@ -153,11 +171,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_TAKE_PHOTO: {
+                isOpenedCamera = false;
+                if (resultCode == RESULT_OK) {
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
+                        SavePhoto savePhoto = new SavePhoto(bitmap, MainActivity.this, null, "image/jpg", this);
+                        savePhoto.saveImage();
+                        deleteTempFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    deleteTempFile();
+                }
+                break;
+            }
+            default: return;
+        }
+    }
+
+    @Override
+    public void onAddPhotoSuccess() {
+        Log.d("xong r ne", "haha");
+    }
+
     private class LoadImageAndVideo extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL)) {
                 fetchImageFromGallery();
             }
             return null;
@@ -182,11 +230,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean checkPermission(String permission) {
+    public boolean checkPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_GRANTED) {
             return true;
         } else {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL);
+            requestPermissions(new String[]{permission}, requestCode);
             return false;
         }
     }
@@ -201,7 +249,70 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
             }
+            case REQUEST_CAMERA: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL) && !isOpenedCamera) {
+                        isOpenedCamera = true;
+                        dispatchTakePictureIntent();
+                    }
+                    break;
+                }
+            }
+            case REQUEST_WRITE_EXTERNAL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (checkPermission(Manifest.permission.CAMERA, REQUEST_CAMERA) && !isOpenedCamera) {
+                        isOpenedCamera = true;
+                        dispatchTakePictureIntent();
+                    }
+                    break;
+                }
+            }
             default: return;
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "Mintery_" + timeStamp + "_";
+        File storageDir = getExternalCacheDir();
+        if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+        Log.d("file", storageDir.getAbsolutePath());
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        return image;
+    }
+
+    private void deleteTempFile() {
+        if (!photoFile.delete()) {
+            Log.d("Error delete temp file", "Cannot delete");
+        }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            photoFile = null;
+            try {
+                photoFile = createImageFile();
+                if (photoFile != null) {
+                    photoURI = FileProvider.getUriForFile(this,
+                            "com.chocomint.mintery.provider",
+                            photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                }
+            } catch (IOException ex) {
+                Toast.makeText(this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -344,16 +455,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d("Error getting data", e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    private boolean getFavoriteStatus(String path) throws IOException {
-        ExifInterface exifInterface = new ExifInterface(path);
-        String tag = exifInterface.getAttribute("USER_COMMENT");
-        if (tag != null && tag.compareTo("Favorite") == 0) {
-            return true;
-        } else {
-            return false;
         }
     }
 }
