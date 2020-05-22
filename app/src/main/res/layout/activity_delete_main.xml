@@ -40,7 +40,6 @@
         app:fabAlignmentMode="center"
         app:fabAttached="true"
         app:layout_scrollFlags="scroll|enterAlways" >
-        <!--            app:navigationIcon="@drawable/photo_tabbar"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     boolean isOpenedCamera;
     File photoFile;
     Uri photoURI;
+    boolean isHasNewPhoto, isHasNewVideo;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     private final int REQUEST_WRITE_EXTERNAL = 2;
     private final int REQUEST_CAMERA = 3;
     private final int REQUEST_TAKE_PHOTO = 4;
+    private final int REQUEST_TAKE_VIDEO = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
 
         getView();
         isOpenedCamera = false;
+        isHasNewPhoto = false;
+        isHasNewVideo = false;
         currentFrag = PHOTO_FRAG;
         setSupportActionBar(mainToolbar);
         favoriteDatabase = new FavoriteDatabase(MainActivity.this);
@@ -159,8 +163,12 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
         switch (item.getItemId()) {
             case R.id.camera_toolbar:
                 if (checkPermission(Manifest.permission.CAMERA, REQUEST_CAMERA) && checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL)) {
-                    dispatchTakePictureIntent();
                     isOpenedCamera = true;
+                    if (currentFrag == PHOTO_FRAG) {
+                        dispatchTakePictureIntent();
+                    } else if (currentFrag == VIDEO_FRAG) {
+                        dispatchTakeVideoIntent();
+                    }
                 }
                 return true;
             case R.id.about_us:
@@ -183,12 +191,24 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                         SavePhoto savePhoto = new SavePhoto(bitmap, MainActivity.this, null, "image/jpg", this);
                         savePhoto.saveImage();
                         deleteTempFile();
+                        isHasNewPhoto = true;
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
                     }
                 } else {
                     deleteTempFile();
+                }
+                break;
+            }
+            case REQUEST_TAKE_VIDEO: {
+                isOpenedCamera = false;
+                if (resultCode == RESULT_OK) {
+                    isHasNewVideo = true;
+                } else if (resultCode == RESULT_CANCELED) {
+                    Toast.makeText(this, "You have cancelled capture video.", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
                 }
                 break;
             }
@@ -225,6 +245,22 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     break;
                 default:
                     photoTabbar.callOnClick();
+            }
+            if (isHasNewPhoto) {
+                isHasNewPhoto = false;
+                Intent intent = new Intent(MainActivity.this, FullImageActivity.class);
+                intent.putExtra("id", photoList.get(0).path);
+                intent.putExtra("position", 0);
+                intent.putExtra("list", photoList);
+                startActivity(intent);
+            }
+            if (isHasNewVideo) {
+                isHasNewVideo = false;
+                Intent intent = new Intent(MainActivity.this, FullVideoActivity.class);
+                intent.putExtra("id", videoList.get(0).path);
+                intent.putExtra("position", 0);
+                intent.putExtra("list", videoList);
+                startActivity(intent);
             }
             super.onPostExecute(aVoid);
         }
@@ -279,7 +315,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
-        Log.d("file", storageDir.getAbsolutePath());
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -299,7 +334,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
             photoFile = null;
             try {
                 photoFile = createImageFile();
@@ -313,6 +347,15 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             } catch (IOException ex) {
                 Toast.makeText(this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    private void dispatchTakeVideoIntent() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+            startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
         }
     }
 
