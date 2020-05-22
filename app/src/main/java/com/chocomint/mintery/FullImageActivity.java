@@ -54,6 +54,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
+    private final int REQUEST_FULL_IMAGE = 6;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,7 +117,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText( view.getContext(), "Hit edit", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(FullImageActivity.this, EditImageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("path", arrayList.get(CurrentPosition).path);
+                intent.putExtra("pos", CurrentPosition);
+                startActivity(intent);
             }
         });
 
@@ -264,6 +269,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
     @Override
     public void onAddPhotoSuccess() {
+        setResult(RESULT_OK);
         onBackPressed();
     }
 

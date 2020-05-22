@@ -44,6 +44,7 @@ public class FullVideoActivity extends AppCompatActivity {
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
+    private final int REQUEST_FULL_VIDEO = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

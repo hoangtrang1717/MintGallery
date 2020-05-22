@@ -35,16 +35,16 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/mintery_about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mintery"
-            android:textSize="36sp"
-            android:textColor="@android:color/black"
             android:fontFamily="@font/poppins_semibold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            android:text="Mintery"
+            android:textColor="@android:color/black"
+            android:textSize="36sp"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:id="@+id/mintery_about"/>
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

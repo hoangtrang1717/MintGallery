@@ -24,6 +24,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
     private ArrayList<Media> allMedia;
     private Context mContext;
 
+    private final int REQUEST_FULL_IMAGE = 6;
+    private final int REQUEST_FULL_VIDEO = 7;
+
     public ImageAdapter(Context mContext, ArrayList<Media> data) {
         this.mContext = mContext;
         this.allMedia = data;
