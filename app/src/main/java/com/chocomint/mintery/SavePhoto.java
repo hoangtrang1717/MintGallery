@@ -32,6 +32,14 @@ public class SavePhoto {
         this.callbackFunction = callbackFunction;
     }
 
+    public SavePhoto(Context context, String fileName, String mimeType, CallbackFunction callbackFunction) {
+        this.context = context;
+        this.fileName = fileName;
+        this.mimeType = mimeType;
+        this.format = mimeType.substring(mimeType.indexOf('/') + 1);
+        this.callbackFunction = callbackFunction;
+    }
+
     public void saveImage() throws FileNotFoundException {
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             ContentValues values = contentValues();
