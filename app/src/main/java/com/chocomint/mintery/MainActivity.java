@@ -411,7 +411,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             int videoCount = videocursor.getCount();
 
             if (photoList != null) {
-                if (count != photoList.size()) {
                     photoList.clear();
                     // get all photo
                     int image_column_index = imagecursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID);
@@ -440,11 +439,9 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                         Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, favorite);
                         photoList.add(media);
                     }
-                }
                 imagecursor.close();
             }
             if (videoList != null) {
-                if (videoCount != videoList.size()) {
                     videoList.clear();
                     //get all video
                     int video_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns._ID);
@@ -475,7 +472,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                         Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, favorite);
                         videoList.add(media);
                     }
-                }
                 videocursor.close();
             }
             if (albumList != null) {
