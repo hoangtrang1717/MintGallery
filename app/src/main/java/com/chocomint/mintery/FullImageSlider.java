@@ -72,7 +72,7 @@ public class FullImageSlider extends PagerAdapter {
             itemview = layoutInflater.inflate(R.layout.full_image_layout, container, false);
             final PhotoView fullImage = (PhotoView) itemview.findViewById(R.id.image);
             fullImage.setMaximumScale(5);
-            fullImage.setMinimumScale(-5);
+            fullImage.setMinimumScale(0.5f);
 
             Glide.with(context.getApplicationContext()).load(arrayList.get(position).path).into(fullImage);
 

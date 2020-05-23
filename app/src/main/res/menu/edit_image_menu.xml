@@ -4,13 +4,13 @@
     <item
     android:id="@+id/edit_undo"
     android:title="Camera"
-    android:icon="@drawable/ic_rotate_ccw"
+    android:icon="@drawable/ic_corner_up_left"
     app:showAsAction="always" />
 
     <item
         android:id="@+id/edit_redo"
         android:title="Setting"
-        android:icon="@drawable/ic_rotate_cw"
+        android:icon="@drawable/ic_corner_up_right"
         app:showAsAction="always" />
 
     <item

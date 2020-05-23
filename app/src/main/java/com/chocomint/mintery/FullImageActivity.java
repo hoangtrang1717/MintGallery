@@ -35,6 +35,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,8 +107,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
             public void onClick(View view) {
                 Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
                 if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-                            .start(FullImageActivity.this);
+//                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
+//                            .start(FullImageActivity.this);
+                    Intent intent = new Intent(FullImageActivity.this, CropImageActivity.class);
+                    intent.putExtra("uri", Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)).toString());
+                    startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
                 } else {
                     requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
                 }
@@ -238,19 +242,10 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE: {
-                CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 if (resultCode == RESULT_OK) {
-                    Uri resultUri = result.getUri();
-                    String uriToString = resultUri.toString();
                     try {
-                        Bitmap bitmap = null;
-                        if (Build.VERSION.SDK_INT < 28) {
-                            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
-                        } else {
-                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), resultUri);
-                            bitmap = ImageDecoder.decodeBitmap(source);
-                        }
-                        String format = uriToString.substring(uriToString.lastIndexOf('.') + 1);
+                        byte[] byteArray = data.getByteArrayExtra("bitmap");
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                         SavePhoto savePhoto = new SavePhoto(bitmap, this.getBaseContext(), null, "image/jpg", this);
                         savePhoto.saveImage();
                     } catch (IOException e) {
@@ -258,8 +253,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                         Log.d("Error create new photo", e.getMessage());
                     }
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Exception error = result.getError();
-                    Log.d("Error crop image", error.getMessage());
+                    Log.d("Error crop image", "");
                 }
                 break;
             }
