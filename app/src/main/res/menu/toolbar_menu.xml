@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/camera_toolbar"
+        android:title="Camera"
+        android:icon="@drawable/camera_toolbar"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/setting_toolbar"
+        android:title="Setting"
+        android:icon="@drawable/settings_toolbar"
+        app:showAsAction="always" >
+        <menu>
+            <item android:id="@+id/setting"
+                android:title="Settings"
+                app:showAsAction="ifRoom"/>
+            <item
+                android:id="@+id/about_us"
+                android:title="About us"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+</menu>
