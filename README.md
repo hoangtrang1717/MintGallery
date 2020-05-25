@@ -18,7 +18,7 @@ Android Java - Mint Gallery
  7. Xem Album
  8. Xóa Album
  9. Chụp ảnh (DT - done)
- 10. Quay video
+ 10. Quay video ( MT - done)
  11. Xem thông tin ảnh (HY - done)
  12. Edit: ảnh - filter (HY -done)
  13. Edit: ảnh - contrast, brightness, saturation (HY - done)
@@ -29,11 +29,11 @@ Android Java - Mint Gallery
  18. Edit: ảnh - sticker (HY - done)
  19. Edit: ảnh - text (HY - done)
  20. Edit: ảnh - crop (MT - done)
- 21. Edit: ảnh - rotate (MT - done)
+ 21. Edit: ảnh - rotate, flip (MT - done)
  22. Set wallpaper(MT - done)
  23. Set lock screen
  24. Share ảnh, video (MT - done)
- 25. Sort by date modified (MT, HT - done)
+ 25. Thêm, xóa yêu thích ( MT,TT - done)
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
  2. 02/05 - 08/05 https://docs.google.com/document/d/1W-ZXX68kKPAlfJkMtbK6QEE6smI5GLrK6PI2rwHbmyw/edit?usp=sharing
