@@ -1,5 +1,5 @@
 # MintGallery - Ứng dụng Album ảnh
-Android Java - Mint Gallery
+Android Java - MintGallery
 
 ### Thông tin thành viên
  - 1753098 - Lương Minh Tâm
@@ -9,34 +9,34 @@ Android Java - Mint Gallery
  - 1753115 - Trương Trần Hải Yến
 
 ### Các chức năng của ứng dụng
- 1. Xem Image (HY - done)
- 2. Xem Full Image(HY - done)
- 3. Zoom ảnh (HY - done)
- 4. Xóa Image, video (TT - done)
- 5. Xem list video (MT - done)
- 6. Xem Full Video (MT - done)
- 7. Xem Album
- 8. Xóa Album
- 9. Tạo album mới
- 10. Chụp ảnh (DT - done)
- 11. Quay video ( MT - done)
- 12. Xem thông tin chi tiết (HY, MT - done)
- 13. Edit: ảnh - filter (HY -done)
- 14. Edit: ảnh - contrast, brightness, saturation (HY - done)
- 15. Edit: ảnh - Brush(HY - done)
- 16. Edit: ảnh - Emoji(HY - done)
- 17. Edit: ảnh - undo - redo (HY - done)
- 18. Edit: ảnh - sticker (HY - done)
- 19. Edit: ảnh - text (HY - done)
- 20. Crop (MT - done)
- 21. Rotate, flip (MT - done)
- 22. Save ảnh (HY, MT - done)
- 23. Set wallpaper(MT - done)
- 24. Set lock screen
- 25. Share ảnh, video (MT - done)
- 26. Thêm, xóa yêu thích ( MT,TT - done)
- 27. Ghép ảnh
- 28. Trim video
+- [X] 1. Xem Image (HY)
+- [X] 2. Xem Full Image (HY)
+- [X] 3. Zoom ảnh (HY)
+- [X] 4. Xóa Image, video (TT)
+- [X] 5. Xem list video (MT)
+- [X] 6. Xem Full Video (MT)
+- [ ] 7. Xem Album
+- [ ] 8. Xóa Album
+- [ ] 9. Tạo album mới
+- [X] 10. Chụp ảnh (DT)
+- [X] 11. Quay video (MT)
+- [X] 12. Xem thông tin chi tiết (HY, MT)
+- [X] 13. Edit: ảnh - Filter (HY)
+- [X] 14. Edit: ảnh - Contrast, brightness, saturation (HY)
+- [X] 15. Edit: ảnh - Brush(HY)
+- [X] 16. Edit: ảnh - Emoji(HY)
+- [X] 17. Edit: ảnh - Undo - redo (HY)
+- [X] 18. Edit: ảnh - Sticker (HY)
+- [X] 19. Edit: ảnh - Text (HY)
+- [X] 20. Crop (MT)
+- [X] 21. Rotate, flip (MT)
+- [X] 22. Save ảnh (HY, MT)
+- [X] 23. Set wallpaper(MT)
+- [ ] 24. Set lock screen
+- [X] 25. Share ảnh, video (MT)
+- [X] 26. Thêm, xóa yêu thích (MT,TT)
+- [ ] 27. Ghép ảnh
+- [ ] 28. Trim video
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
  2. 02/05 - 08/05 https://docs.google.com/document/d/1W-ZXX68kKPAlfJkMtbK6QEE6smI5GLrK6PI2rwHbmyw/edit?usp=sharing
