@@ -50,6 +50,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     int CurrentPosition;
     Menu menuImage;
     FavoriteDatabase favoriteDatabase;
+    private int lastPosition = 0; ////testing
 
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
@@ -66,7 +67,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         String path = getIntent().getExtras().getString("id");
         slider = (ViewPager) findViewById(R.id.image_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
-        CurrentPosition = getIntent().getExtras().getInt("position");
+        CurrentPosition = getIntent().getExtras().getInt("position"); lastPosition = CurrentPosition; ////testing
         imageSlider = new FullImageSlider(FullImageActivity.this, arrayList, path);
         slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
@@ -92,11 +93,26 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
             @Override
             public void onPageSelected(int position) {
+                //Toast.makeText( FullImageActivity.this, "LAST AND CURRENT: " + lastPosition + " " + position, Toast.LENGTH_LONG).show();
+                if(arrayList.get(position).id == 0) {
+                    if (lastPosition > position) {
+                        if(position == 0)
+                        {
+                            slider.setCurrentItem(1);
+                            return;
+                        }
+                        //Toast.makeText( FullImageActivity.this, "LEFT", Toast.LENGTH_LONG).show();
+                        slider.setCurrentItem(position - 1);
+                        return;
+                    }else if (lastPosition < position) {
+                        //Toast.makeText( FullImageActivity.this, "RIGHT", Toast.LENGTH_LONG).show();
+                        slider.setCurrentItem(position + 1);
+                        return;
+                    }
+                }
                 CurrentPosition = position;
                 setFavoriteIcon();
-                if(arrayList.get(position).id == 0) {
-                    slider.setCurrentItem(CurrentPosition + 1);
-                }
+                lastPosition = position;
             }
 
             @Override
