@@ -54,7 +54,7 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
         if(viewType == ITEM_VIEW_TYPE_HEADER) {
             View view;
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            view = inflater.inflate(R.layout.item_header, parent, false);
+            view = inflater.inflate(R.layout.item_choose_header, parent, false);
 
             return new ChooseFileAdapter.HolderView(view);
         }
@@ -71,6 +71,13 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
     @Override
     public void onBindViewHolder(@NonNull final ChooseFileAdapter.HolderView holder, final int position) {
         if (isHeader(position)) {
+            holder.thumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(mContext, "YAY", Toast.LENGTH_LONG).show();
+                }
+            });
+
             if(position == 0)
             {
                 Date today = Calendar.getInstance().getTime();
@@ -91,6 +98,7 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
                     return;
                 }
             }
+
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             cal.setTime(allMedia.get(position).dateModified);
             int year = cal.get(Calendar.YEAR);

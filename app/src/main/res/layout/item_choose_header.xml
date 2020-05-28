@@ -30,6 +30,7 @@
         android:layout_marginTop="0dp"
         app:srcCompat="@drawable/camera_toolbar"
         tools:layout_editor_absoluteX="28dp"
-        tools:layout_editor_absoluteY="60dp" />
+        tools:layout_editor_absoluteY="60dp"
+        android:contentDescription="TODO" />
 
 </RelativeLayout>
