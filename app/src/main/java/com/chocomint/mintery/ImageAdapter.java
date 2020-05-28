@@ -8,9 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -110,8 +108,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
 
         public HolderView(@NonNull View itemView) {
             super(itemView);
-            time = itemView.findViewById(R.id.video_time);
-            thumbnail = itemView.findViewById(R.id.image_item);
+            time = itemView.findViewById(R.id.album_title);
+            thumbnail = itemView.findViewById(R.id.thumbnail_image);
             view = itemView.findViewById(R.id.item_holder);
         }
     }

@@ -19,7 +19,7 @@
         android:button="@drawable/checkbox_selector"/>
 
     <TextView
-        android:id="@+id/video_time"
+        android:id="@+id/album_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
@@ -37,7 +37,7 @@
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/image_item"
+        android:id="@+id/thumbnail_image"
         android:padding="2dp"/>
 
 </com.chocomint.mintery.SquareLayout>

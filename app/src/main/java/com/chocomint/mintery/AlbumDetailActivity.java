@@ -21,8 +21,9 @@ public class AlbumDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_detail);
-
-        new LoadDataThread().execute("Camera");
+        String albumTitle = getIntent().getExtras().getString("title");
+        Log.e("ALBUM", albumTitle);
+        //new LoadDataThread().execute(albumTitle);
     }
 
     private class LoadDataThread extends AsyncTask<String, Void, Void> {
