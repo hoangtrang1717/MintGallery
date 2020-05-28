@@ -100,8 +100,8 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
 
         public HolderView(@NonNull View itemView) {
             super(itemView);
-            time = itemView.findViewById(R.id.album_title);
-            thumbnail = itemView.findViewById(R.id.thumbnail_image);
+            time = itemView.findViewById(R.id.video_time);
+            thumbnail = itemView.findViewById(R.id.image_item);
             view = itemView.findViewById(R.id.item_holder);
             radioButton = itemView.findViewById(R.id.radio_choose);
         }
