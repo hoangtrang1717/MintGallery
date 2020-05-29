@@ -1,26 +1,34 @@
 package com.chocomint.mintery;
+
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.hg.gangwar.R;
-import com.hg.gangwar.videoTrimmer.HgLVideoTrimmer;
-import com.hg.gangwar.videoTrimmer.interfaces.OnHgLVideoListener;
-import com.hg.gangwar.videoTrimmer.interfaces.OnTrimVideoListener;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.chocomint.mintery.videoTrimmer.HgLVideoTrimmer;
+import com.chocomint.mintery.videoTrimmer.interfaces.OnHgLVideoListener;
+import com.chocomint.mintery.R;
 
 import java.io.File;
+
+import com.chocomint.mintery.videoTrimmer.interfaces.OnTrimVideoListener;
 
 public class TrimmerActivity extends Activity implements OnTrimVideoListener, OnHgLVideoListener {
 
     private HgLVideoTrimmer mVideoTrimmer;
     private ProgressDialog mProgressDialog;
+    static final String EXTRA_VIDEO_PATH = "EXTRA_VIDEO_PATH";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +37,11 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
 
         Intent extraIntent = getIntent();
         String path = "";
-        int maxDuration = 10;
-
+        int maxDuration = 10 ;
         if (extraIntent != null) {
-            path = extraIntent.getStringExtra(MainActivity.EXTRA_VIDEO_PATH);
-            maxDuration = extraIntent.getIntExtra(MainActivity.VIDEO_TOTAL_DURATION, 10);
+            path = extraIntent.getStringExtra(EXTRA_VIDEO_PATH);
+            MediaPlayer mp = MediaPlayer.create(this,Uri.fromFile(new File(path)));
+            maxDuration = mp.getDuration();
         }
 
         //setting progressbar
@@ -49,11 +57,11 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
              * get total duration of video file
              */
             Log.e("tg", "maxDuration = " + maxDuration);
-            //mVideoTrimmer.setMaxDuration(maxDuration);
             mVideoTrimmer.setMaxDuration(maxDuration);
             mVideoTrimmer.setOnTrimVideoListener(this);
             mVideoTrimmer.setOnHgLVideoListener(this);
-            //mVideoTrimmer.setDestinationPath("/storage/emulated/0/DCIM/CameraCustom/");
+            //mVideoTrimmer.setDestinationPath(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)+"/TRIM");
+            mVideoTrimmer.setDestinationPath("/storage/emulated/0/DCIM/Trim/");
             mVideoTrimmer.setVideoURI(Uri.parse(path));
             mVideoTrimmer.setVideoInformationVisibility(true);
         }
@@ -71,51 +79,14 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Toast.makeText(TrimmerActivity.this, getString(R.string.video_saved_at, contentUri.getPath()), Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(TrimmerActivity.this, getString(R.string.video_saved_at, contentUri.getPath()), Toast.LENGTH_SHORT).show();
             }
         });
-
-        try {
-
-
-            String path = contentUri.getPath();
-            File file = new File(path);
-            Log.e("tg", " path1 = " + path + " uri1 = " + Uri.fromFile(file));
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(file));
-            intent.setDataAndType(Uri.fromFile(file), "video/*");
-            startActivity(intent);
-            finish();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        Intent intent = new Intent(Intent.ACTION_VIEW, contentUri);
+        intent.setDataAndType(contentUri, "video/mp4");
+        startActivity(intent);
+        finish();
     }
-
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] proj = {MediaStore.Images.Media.DATA};
-        CursorLoader loader = new CursorLoader(TrimmerActivity.this, contentUri, proj, null, null, null);
-        Cursor cursor = loader.loadInBackground();
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String result = cursor.getString(column_index);
-        cursor.close();
-        return result;
-    }
-
-
-    private void playUriOnVLC(Uri uri) {
-
-        int vlcRequestCode = 42;
-        Intent vlcIntent = new Intent(Intent.ACTION_VIEW);
-        vlcIntent.setPackage("org.videolan.vlc");
-        vlcIntent.setDataAndTypeAndNormalize(uri, "video/*");
-        vlcIntent.putExtra("title", "Kung Fury");
-        vlcIntent.putExtra("from_start", false);
-        vlcIntent.putExtra("position", 90000l);
-        startActivityForResult(vlcIntent, vlcRequestCode);
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -138,7 +109,7 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Toast.makeText(TrimmerActivity.this, message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(TrimmerActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -148,7 +119,7 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Toast.makeText(TrimmerActivity.this, "onVideoPrepared", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TrimmerActivity.this, "onVideoPrepared", Toast.LENGTH_SHORT).show();
             }
         });
     }
