@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,7 +31,11 @@ import com.github.rubensousa.previewseekbar.PreviewView;
 import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
+import life.knowledge4.videotrimmer.utils.FileUtils;
 
 public class FullVideoActivity extends AppCompatActivity {
     Toolbar video_toolbar;
@@ -55,7 +60,7 @@ public class FullVideoActivity extends AppCompatActivity {
         favoriteDatabase = new FavoriteDatabase(FullVideoActivity.this);
 
         isPlaying = true;
-        String path = getIntent().getExtras().getString("id");
+        final String path = getIntent().getExtras().getString("id");
         slider = (ViewPager) findViewById(R.id.video_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
@@ -140,8 +145,10 @@ public class FullVideoActivity extends AppCompatActivity {
         trimBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseVideo();
-                Toast.makeText( view.getContext(), "Hit trim", Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(getApplicationContext(), TrimmerActivity.class);
+                intent.putExtra("EXTRA_VIDEO_PATH", FileUtils.getPath(getApplicationContext(), Uri.fromFile(new File(path))));
+                startActivity(intent);
             }
         });
     }
