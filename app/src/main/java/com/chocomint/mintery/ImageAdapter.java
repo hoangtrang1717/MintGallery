@@ -129,6 +129,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
+                Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                cal.setTime(allMedia.get(position).dateModified);
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH) + 1;
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                Toast.makeText(mContext, day+ "/" + month +"/" + year, Toast.LENGTH_LONG).show();
+                 */
                 Intent intent;
                 if (allMedia.get(0).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
                     intent = new Intent(mContext, FullImageActivity.class);

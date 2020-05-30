@@ -32,6 +32,9 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
     private ArrayList<Media> allMedia;
     private Context mContext;
     private ChooseFileCallback chooseFileCallback;
+    int allClicked_day = 0;
+    int allClicked_month = 0;
+    int allClicked_year = 0;
 
     public ChooseFileAdapter(Context mContext, ArrayList<Media> data, ChooseFileCallback chooseFileCallback) {
         this.mContext = mContext;
@@ -74,10 +77,16 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
             holder.thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "YAY", Toast.LENGTH_LONG).show();
+                    Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                    cal.setTime(allMedia.get(position).dateModified);
+                    int year = cal.get(Calendar.YEAR);
+                    int month = cal.get(Calendar.MONTH) + 1;
+                    int day = cal.get(Calendar.DAY_OF_MONTH);
+                    allClicked_year = year; allClicked_month = month; allClicked_day = day;
+                    Toast.makeText(mContext, day+ "/" + month +"/" + year, Toast.LENGTH_LONG).show();
+                    notifyDataSetChanged();
                 }
             });
-
             if(position == 0)
             {
                 Date today = Calendar.getInstance().getTime();
@@ -153,6 +162,21 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
                 chooseFileCallback.chooseFile(position, b);
             }
         });
+
+        //Toast.makeText(mContext, "YEY", Toast.LENGTH_LONG).show();
+        Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+        cal.setTime(allMedia.get(position).dateModified);
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        if(year == allClicked_year && month == allClicked_month && day == allClicked_day)
+        {
+            holder.radioButton.setChecked(true);
+        }
+        else
+        {
+            holder.radioButton.setChecked(false);
+        }
     }
 
     @Override
