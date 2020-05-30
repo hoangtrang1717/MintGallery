@@ -59,7 +59,6 @@ public class CropImageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 cropImageView.setAspectRatio(1, 1);
                 cropImageView.setFixedAspectRatio(true);
-                //btnCrop11.setFo
             }
         });
         btnCrop23.setOnClickListener(new View.OnClickListener() {
