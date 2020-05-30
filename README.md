@@ -36,7 +36,7 @@ Android Java - MintGallery
 - [X] 25. Share ảnh, video (MT)
 - [X] 26. Thêm, xóa yêu thích (MT,TT)
 - [ ] 27. Ghép ảnh
-- [ ] 28. Trim video
+- [X] 28. Trim video (DT)
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
  2. 02/05 - 08/05 https://docs.google.com/document/d/1W-ZXX68kKPAlfJkMtbK6QEE6smI5GLrK6PI2rwHbmyw/edit?usp=sharing
