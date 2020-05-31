@@ -55,7 +55,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
-    private final int REQUEST_FULL_IMAGE = 6;
+    private final int REQUEST_EDIT_IMAGE = 6;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,8 +107,6 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
             public void onClick(View view) {
                 Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
                 if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-//                            .start(FullImageActivity.this);
                     Intent intent = new Intent(FullImageActivity.this, CropImageActivity.class);
                     intent.putExtra("uri", Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)).toString());
                     startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
@@ -124,8 +122,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 Intent intent = new Intent(FullImageActivity.this, EditImageActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("path", arrayList.get(CurrentPosition).path);
-                intent.putExtra("pos", CurrentPosition);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_EDIT_IMAGE);
             }
         });
 
@@ -256,6 +253,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                     Log.d("Error crop image", "");
                 }
                 break;
+            }
+            case REQUEST_EDIT_IMAGE: {
+                if (resultCode == RESULT_OK) {
+                    onBackPressed();
+                }
             }
             default: return;
         }

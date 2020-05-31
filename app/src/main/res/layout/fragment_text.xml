@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#4DFFFFFF"
+    android:padding="16dp"
+    tools:context=".TextFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/editAddText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"
+            android:hint="Enter your text and click + to add"
+            android:fontFamily="@font/poppins"
+            android:textColor="@android:color/black"
+            android:background="@android:color/transparent"
+            android:minLines="1"
+            android:maxLines="4"
+            android:scrollbars="vertical"
+            android:inputType="textMultiLine"
+            android:layout_weight="8.5" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_plus_circle"
+            android:layout_weight="1.5"
+            android:background="@android:color/transparent"
+            android:id="@+id/btnDone"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pick_color_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_eyedrop_outline" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:fontFamily="@font/poppins"
+            android:text="Pick a color"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerFont"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+</LinearLayout>

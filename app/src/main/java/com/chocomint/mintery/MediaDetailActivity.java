@@ -42,7 +42,9 @@ public class MediaDetailActivity extends AppCompatActivity {
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND, WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 
-        new LoadDetail().execute();
+        if (media.type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+            new LoadDetail().execute();
+        }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         date.setText(simpleDateFormat.format(media.dateModified));
         path.setText(media.path);
