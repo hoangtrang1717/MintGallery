@@ -48,7 +48,6 @@ dependencies {
     implementation 'com.github.aakira:exoplayer-manager:0.13.0@aar'
 
     implementation 'ja.burhanrashid52:photoeditor:1.0.0'
-//    compile 'com.github.zomato:androidphotofilters:1.0.2'
     compile 'com.azeesoft.lib.colorpicker:colorpicker:1.0.8@aar'
     compile 'io.github.rockerhieu:emojicon:1.4.1'
 
