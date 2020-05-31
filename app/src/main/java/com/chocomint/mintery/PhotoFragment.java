@@ -112,7 +112,7 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         if (add) {
             fileChoose.add(String.valueOf(photoList.get(position).id));
         } else {
-            fileChoose.remove(String.valueOf(photoList.get(position)));
+            fileChoose.remove(String.valueOf(photoList.get(position).id));
         }
     }
 
@@ -153,6 +153,7 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         protected Boolean doInBackground(Void... voids) {
             try {
                 for (String id : fileChoose) {
+                    System.out.println("FUCK" + id);
                     getActivity().getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id), null, null);
                 }
             } catch (Throwable e) {

@@ -36,7 +36,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
     }
 
     public boolean isHeader(int position) {
-        return allMedia.get(position).id == 0;
+        return allMedia.get(position).path.compareTo("nothing") == 0;
     }
 
     @Override

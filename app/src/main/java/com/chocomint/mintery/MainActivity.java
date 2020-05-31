@@ -307,6 +307,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+            int previous = 0;
+            for(int i = 1; i < photoList.size(); i++) {
+                Media temp = photoList.get(i);
+                if(temp.path.compareTo("nothing") == 0) {
+                    photoList.get(previous).id = i - previous - 1;
+                    previous = i;
+                }
+                if(i == photoList.size() - 1) {
+                    photoList.get(previous).id = i - previous;
+                }
+            }
             //
 
             String[] videoColumns = { MediaStore.Video.VideoColumns._ID,

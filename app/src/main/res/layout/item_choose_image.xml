@@ -8,6 +8,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/quantity"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/number"/>
+
+    <CheckBox
         android:id="@+id/radio_choose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

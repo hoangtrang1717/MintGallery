@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -32,18 +33,17 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
     private ArrayList<Media> allMedia;
     private Context mContext;
     private ChooseFileCallback chooseFileCallback;
-    int allClicked_day = 0;
-    int allClicked_month = 0;
-    int allClicked_year = 0;
+    private DaysChosen chosen;
 
     public ChooseFileAdapter(Context mContext, ArrayList<Media> data, ChooseFileCallback chooseFileCallback) {
         this.mContext = mContext;
         this.allMedia = data;
         this.chooseFileCallback = chooseFileCallback;
+        chosen = new DaysChosen();
     }
 
     public boolean isHeader(int position) {
-        return allMedia.get(position).id == 0;
+        return allMedia.get(position).path.compareTo("nothing") == 0;
     }
 
     @Override
@@ -74,7 +74,24 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
     @Override
     public void onBindViewHolder(@NonNull final ChooseFileAdapter.HolderView holder, final int position) {
         if (isHeader(position)) {
-            holder.thumbnail.setOnClickListener(new View.OnClickListener() {
+            holder.all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                    cal.setTime(allMedia.get(position).dateModified);
+                    int year = cal.get(Calendar.YEAR);
+                    int month = cal.get(Calendar.MONTH) + 1;
+                    int day = cal.get(Calendar.DAY_OF_MONTH);
+                    if(b)
+                        chosen.AddWholeDay(day, month, year, position, allMedia.get(position).id);
+                    else
+                        chosen.RemoveWholeDay(day, month, year);
+                    notifyDataSetChanged();
+                }
+            });
+            holder.number.setText(String.valueOf(allMedia.get(position).id));
+            /*
+            holder.undoAll.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Calendar cal = Calendar.getInstance(TimeZone.getDefault());
@@ -82,11 +99,23 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
                     int year = cal.get(Calendar.YEAR);
                     int month = cal.get(Calendar.MONTH) + 1;
                     int day = cal.get(Calendar.DAY_OF_MONTH);
-                    allClicked_year = year; allClicked_month = month; allClicked_day = day;
-                    Toast.makeText(mContext, day+ "/" + month +"/" + year, Toast.LENGTH_LONG).show();
+                    chosen.RemoveWholeDay(day, month, year);
                     notifyDataSetChanged();
                 }
             });
+            holder.chooseAll.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                    cal.setTime(allMedia.get(position).dateModified);
+                    int year = cal.get(Calendar.YEAR);
+                    int month = cal.get(Calendar.MONTH) + 1;
+                    int day = cal.get(Calendar.DAY_OF_MONTH);
+                    chosen.AddWholeDay(day, month, year, position, allMedia.get(position).id);
+                    notifyDataSetChanged();
+                }
+            });
+             */
             if(position == 0)
             {
                 Date today = Calendar.getInstance().getTime();
@@ -152,13 +181,28 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                holder.radioButton.setChecked(!holder.radioButton.isChecked());
+                boolean temp = !holder.radioButton.isChecked();
+                Toast.makeText(mContext, "YEY", Toast.LENGTH_LONG).show();
+                Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                cal.setTime(allMedia.get(position).dateModified);
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH) + 1;
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                if(temp)
+                    chosen.AddSingle(day, month, year, position);
+                else
+                    chosen.RemoveSingle(day, month, year, position);
+                holder.radioButton.setChecked(temp);
             }
         });
 
         holder.radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b)
+                    System.out.println("ADD: " + position);
+                else
+                    System.out.println("REMOVE: " + position);
                 chooseFileCallback.chooseFile(position, b);
             }
         });
@@ -169,12 +213,12 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DAY_OF_MONTH);
-        if(year == allClicked_year && month == allClicked_month && day == allClicked_day)
-        {
+        if(chosen.seeIfChosen(day, month, year, position)) {
+            System.out.println("Check " + position);
             holder.radioButton.setChecked(true);
         }
-        else
-        {
+        else {
+            System.out.println("UnCheck " + position);
             holder.radioButton.setChecked(false);
         }
     }
@@ -190,6 +234,8 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
         ImageView thumbnail;
         CheckBox radioButton;
         RelativeLayout view;
+        CheckBox all;
+        TextView number;
 
         public HolderView(@NonNull View itemView) {
             super(itemView);
@@ -197,6 +243,155 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
             thumbnail = itemView.findViewById(R.id.image_item);
             view = itemView.findViewById(R.id.item_holder);
             radioButton = itemView.findViewById(R.id.radio_choose);
+            all = itemView.findViewById(R.id.radio_All);
+            number = itemView.findViewById(R.id.quantity);
+        }
+    }
+
+    private class DaysChosen {
+        private ArrayList<SingleDay> sdays;
+        public DaysChosen() {
+            sdays = new ArrayList<>();
+        }
+        public void AddWholeDay(int d, int m, int y, int pos, int length) {
+            for(int i = 0; i < sdays.size(); i++)
+            {
+                SingleDay temp = sdays.get(i);
+                if(temp.day == d && temp.month == m && temp.year == y)
+                {
+                    temp.position.clear();
+                    for(int j = 1; j <= length; j++)
+                    {
+                        temp.position.add(pos + j);
+                    }
+                    for(int o = 0; o < sdays.size(); o++)
+                    {
+                        System.out.println(sdays.get(o).day +"/"+ sdays.get(o).month +"/"+ sdays.get(o).year);
+                        for(int j = 0; j < sdays.get(o).position.size(); j++)
+                        {
+                            System.out.println(sdays.get(o).position.get(j));
+                        }
+                    }
+                    return;
+                }
+            }
+            SingleDay temp = new SingleDay(d, m, y);
+            for(int j = 1; j <= length; j++)
+            {
+                temp.position.add(pos + j);
+            }
+            sdays.add(temp);
+
+            for(int o = 0; o < sdays.size(); o++)
+            {
+                System.out.println(sdays.get(o).day +"/"+ sdays.get(o).month +"/"+ sdays.get(o).year);
+                for(int h = 0; h < sdays.get(o).position.size(); h++)
+                {
+                    System.out.println(sdays.get(o).position.get(h));
+                }
+            }
+        }
+        public void RemoveWholeDay(int d, int m, int y) {
+            for(int i = 0; i < sdays.size(); i++)
+            {
+                SingleDay temp = sdays.get(i);
+                if(temp.day == d && temp.month == m && temp.year == y)
+                {
+                    sdays.remove(i);
+                    System.out.println("REMOVE WHOLE");
+                    for(int o = 0; o < sdays.size(); o++)
+                    {
+                        System.out.println(sdays.get(o).day +"/"+ sdays.get(o).month +"/"+ sdays.get(o).year);
+                        for(int j = 0; j < sdays.get(o).position.size(); j++)
+                        {
+                            System.out.println(sdays.get(o).position.get(j));
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+        public boolean seeIfChosen(int d, int m, int y, int p) {
+            for(int i = 0; i < sdays.size(); i++)
+            {
+                SingleDay temp = sdays.get(i);
+                if(temp.day == d && temp.month == m && temp.year == y)
+                {
+                    for(int j = 0; j < temp.position.size(); j++)
+                    {
+                        if(p == temp.position.get(j))
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public void AddSingle(int d, int m, int y, int p) {
+            for(int i = 0; i < sdays.size(); i++)
+            {
+                SingleDay temp = sdays.get(i);
+                if(temp.day == d && temp.month == m && temp.year == y)
+                {
+                    temp.position.add(p);
+                    for(int o = 0; o < sdays.size(); o++)
+                    {
+                        System.out.println(sdays.get(o).day +"/"+ sdays.get(o).month +"/"+ sdays.get(o).year);
+                        for(int h = 0; h < sdays.get(o).position.size(); h++)
+                        {
+                            System.out.println(sdays.get(o).position.get(h));
+                        }
+                    }
+                    return;
+                }
+            }
+            SingleDay temp = new SingleDay(d, m, y);
+            temp.position.add(p);
+            sdays.add(temp);
+
+            for(int i = 0; i < sdays.size(); i++)
+            {
+                System.out.println(sdays.get(i).day +"/"+ sdays.get(i).month +"/"+ sdays.get(i).year);
+                for(int j = 0; j < sdays.get(i).position.size(); j++)
+                {
+                    System.out.println(sdays.get(i).position.get(j));
+                }
+            }
+        }
+        public void RemoveSingle(int d, int m, int y, int p) {
+            for(int i = 0; i < sdays.size(); i++)
+            {
+                SingleDay temp = sdays.get(i);
+                if(temp.day == d && temp.month == m && temp.year == y)
+                {
+                    for(int j = 0 ; j < temp.position.size(); j++)
+                    {
+                        if(p == temp.position.get(j))
+                        {
+                            int v = temp.position.remove(j);
+                            for(int o = 0; o < sdays.size(); o++)
+                            {
+                                System.out.println(sdays.get(o).day +"/"+ sdays.get(o).month +"/"+ sdays.get(o).year);
+                                for(int h = 0; h < sdays.get(o).position.size(); h++)
+                                {
+                                    System.out.println(sdays.get(o).position.get(h));
+                                }
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private class SingleDay {
+        public int day;
+        public int month;
+        public int year;
+        public ArrayList<Integer> position;
+        public SingleDay(int d, int m, int y) {
+            day = d; month = m; year = y;
+            position = new ArrayList<>();
         }
     }
 }

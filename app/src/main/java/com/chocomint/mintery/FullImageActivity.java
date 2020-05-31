@@ -89,12 +89,14 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
         slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
 
             @Override
             public void onPageSelected(int position) {
-                //Toast.makeText( FullImageActivity.this, "LAST AND CURRENT: " + lastPosition + " " + position, Toast.LENGTH_LONG).show();
-                if(arrayList.get(position).id == 0) {
+                //Toast.makeText( FullImageActivity.this, "LAST AND CURRENT(1): " + lastPosition + " " + position, Toast.LENGTH_LONG).show();
+                if(arrayList.get(position).path.compareTo("nothing") == 0) {
                     if (lastPosition > position) {
                         if(position == 0)
                         {
@@ -151,7 +153,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
             public void onClick(View view) {
                 AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
                 myAlertDialog.setTitle("Delete Photo");
-                myAlertDialog.setMessage("Do you want to delete it?");
+                myAlertDialog.setMessage("Are you sure you want to delete it?");
                 myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
