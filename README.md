@@ -32,20 +32,26 @@ Android Java - MintGallery
 - [X] 21. Rotate, flip (MT)
 - [X] 22. Save ảnh (HY, MT)
 - [X] 23. Set wallpaper(MT)
-- [ ] 24. Set lock screen
+- [X] 24. Set lock screen
 - [X] 25. Share ảnh, video (MT)
 - [X] 26. Thêm, xóa yêu thích (MT,TT)
-- [ ] 27. Ghép ảnh
-- [X] 28. Trim video (DT)
+- [X] 27. Ghép ảnh: replace (HY, TT)
+- [X] 28. Ghép ảnh: border (HY, TT)
+- [X] 29. Ghép ảnh: corner (HY, TT)
+- [X] 30. Trim video (DT)
 ### Công việc từng tuần - Phần trăm
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
  2. 02/05 - 08/05 https://docs.google.com/document/d/1W-ZXX68kKPAlfJkMtbK6QEE6smI5GLrK6PI2rwHbmyw/edit?usp=sharing
  3. 09/05 - 15/05 https://docs.google.com/document/d/1gvQvI2ATLC_5xUMAGHy94zHRMUwilkMVcBBMQwXbDOc/edit?usp=sharing
  4. 16/05 - 22/05 https://docs.google.com/document/d/1fwsaXUOC_4B3VYFnekD8u0Gg-kxYCseT53nUBbgqV_U/edit?usp=sharing
  5. 23/05 - 29/05 https://docs.google.com/document/d/1R1jzWIe1DVotAkKo1OEllUTXKfGroOtgIHxx7VgQTjo/edit?usp=sharing
+ 6. 30/05 - 05/06
 ### Tài liệu tham khảo
  1. Bottom nav https://youtu.be/tPV8xA7m-iw 
  2. Request permission https://developer.android.com/training/permissions/requesting?authuser=1
  3. Image Slider using ViewPage https://youtu.be/DBOIQP3lI_w
- 4. Edit ảnh Filter https://www.androidhive.info/2017/11/android-building-image-filters-like-instagram/
+ 4. Edit ảnh https://github.com/burhanrashid52/PhotoEditor
+ 5. Crop ảnh
+ 6. Ghép ảnh https://github.com/wuapnjie/PuzzleView
+ 7. Trim video 
  
