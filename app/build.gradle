@@ -31,6 +31,8 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.android.support:recyclerview-v7:29.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -48,9 +50,11 @@ dependencies {
     implementation 'com.github.aakira:exoplayer-manager:0.13.0@aar'
 
     implementation 'ja.burhanrashid52:photoeditor:1.0.0'
-    compile 'com.azeesoft.lib.colorpicker:colorpicker:1.0.8@aar'
-    compile 'io.github.rockerhieu:emojicon:1.4.1'
+    implementation 'com.azeesoft.lib.colorpicker:colorpicker:1.0.8@aar'
+    implementation 'io.github.rockerhieu:emojicon:1.4.1'
 
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'info.androidhive:imagefilters:1.0.7'
+
+    implementation 'com.flying.xiaopo:puzzle:2.0.0-alpha'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
