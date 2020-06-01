@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chocomint.mintery.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_holder"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="103dp"
+    android:layout_height="103dp"
     android:foreground="?android:attr/selectableItemBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/quantity"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/number"/>
 
     <CheckBox
         android:id="@+id/radio_choose"
@@ -40,4 +51,4 @@
         android:id="@+id/image_item"
         android:padding="2dp"/>
 
-</com.chocomint.mintery.SquareLayout>
+</RelativeLayout>

@@ -34,8 +34,7 @@
         android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/background_video_color">
+        android:layout_alignParentBottom="true">
 
         <SeekBar
             android:id="@+id/handlerTop"
@@ -69,8 +68,7 @@
             android:id="@+id/lineTop"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@+id/timeLineBar"
-            android:background="@color/line_button"/>
+            android:layout_below="@+id/timeLineBar" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -92,8 +90,7 @@
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:background="@color/line_button"/>
+                android:layout_marginTop="5dp" />
 
             <Button
                 android:id="@+id/btSave"

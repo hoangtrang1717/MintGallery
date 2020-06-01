@@ -43,6 +43,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.function.Predicate;
 
 import static java.io.File.separator;
@@ -439,7 +440,51 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                         Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, favorite);
                         photoList.add(media);
                     }
-                imagecursor.close();
+                    imagecursor.close();
+
+                // Add header media (Truck's)
+                if(photoList.size() != 0) {
+                    Date temp = photoList.get(0).dateModified;
+                    Media tem = new Media(0, "nothing", MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, temp, Long.getLong("123"), "nothing", "nothing", "nothing", false);
+                    photoList.add(0, tem);
+
+                    if(photoList.size() > 2) {
+                        Date prev = photoList.get(1).dateModified;
+
+                        for (int i = 2; i < photoList.size(); i++) {
+                            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                            cal.setTime(photoList.get(i).dateModified);
+                            Calendar cal1 = Calendar.getInstance(TimeZone.getDefault());
+                            cal1.setTime(prev);
+                            int year = cal.get(Calendar.YEAR);
+                            int month = cal.get(Calendar.MONTH) + 1;
+                            int day = cal.get(Calendar.DAY_OF_MONTH);
+                            int year1 = cal1.get(Calendar.YEAR);
+                            int month1 = cal1.get(Calendar.MONTH) + 1;
+                            int day1 = cal1.get(Calendar.DAY_OF_MONTH);
+                            if (month == month1 && day == day1 && year == year1)
+                                continue;
+                            else {
+                                Media ahihi = new Media(0, "nothing", MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, photoList.get(i).dateModified, Long.getLong("123"), "nothing", "nothing", "nothing", false);
+                                prev = photoList.get(i).dateModified;
+                                photoList.add(i, ahihi);
+                                i = i + 1;
+                            }
+                        }
+                    }
+                }
+                int previous = 0;
+                for(int i = 1; i < photoList.size(); i++) {
+                    Media temp = photoList.get(i);
+                    if(temp.path.compareTo("nothing") == 0) {
+                        photoList.get(previous).id = i - previous - 1;
+                        previous = i;
+                    }
+                    if(i == photoList.size() - 1) {
+                        photoList.get(previous).id = i - previous;
+                    }
+                }
+                //
             }
             if (videoList != null) {
                     videoList.clear();

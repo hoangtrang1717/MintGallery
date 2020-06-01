@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,12 +19,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> {
     private ArrayList<Media> allMedia;
     private Context mContext;
 
+    private static final int ITEM_VIEW_TYPE_HEADER = 1;
+    private static final int ITEM_VIEW_TYPE_ITEM = 2;
     private final int REQUEST_FULL_IMAGE = 6;
     private final int REQUEST_FULL_VIDEO = 7;
 
@@ -32,19 +38,70 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
         this.allMedia = data;
     }
 
+    public boolean isHeader(int position) {
+        return allMedia.get(position).path.compareTo("nothing") == 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return isHeader(position) ? ITEM_VIEW_TYPE_HEADER : ITEM_VIEW_TYPE_ITEM;
+    }
+
     @NonNull
     @Override
     public HolderView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        view = inflater.inflate(R.layout.item_image, parent, false);
+        if(viewType == ITEM_VIEW_TYPE_HEADER) {
+            View view;
+            LayoutInflater inflater = LayoutInflater.from(mContext);
+            view = inflater.inflate(R.layout.item_header, parent, false);
 
-        return new HolderView(view);
+            return new HolderView(view);
+        }
+        else {
+            View view;
+            LayoutInflater inflater = LayoutInflater.from(mContext);
+            view = inflater.inflate(R.layout.item_image, parent, false);
+
+            return new HolderView(view);
+        }
     }
 
     @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull HolderView holder, final int position) {
+        if (isHeader(position)) {
+            if(position == 0)
+            {
+                Date today = Calendar.getInstance().getTime();
+                Calendar cal1 = Calendar.getInstance(TimeZone.getDefault());
+                cal1.setTime(today);
+
+                Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                cal.setTime(allMedia.get(position).dateModified);
+
+                int year = cal.get(Calendar.YEAR); int month = cal.get(Calendar.MONTH); int day = cal.get(Calendar.DAY_OF_MONTH);
+                int year1 = cal1.get(Calendar.YEAR); int month1 = cal1.get(Calendar.MONTH); int day1 = cal1.get(Calendar.DAY_OF_MONTH);
+
+                if(year == year1 && month == month1 && day == day1)
+                {
+                    holder.time.setText("Today");
+                    holder.time.setVisibility(View.VISIBLE);
+                    holder.time.bringToFront();
+                    return;
+                }
+            }
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            cal.setTime(allMedia.get(position).dateModified);
+            int year = cal.get(Calendar.YEAR);
+            int month = cal.get(Calendar.MONTH); month = month + 1;
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+
+            String temp = day + "/" + month + "/" + year;
+            holder.time.setText(temp);
+            holder.time.setVisibility(View.VISIBLE);
+            holder.time.bringToFront();
+            return;
+        }
         Glide.with(holder.thumbnail.getContext()).load(allMedia.get(position).path).centerCrop().into(holder.thumbnail);
         if (allMedia.get(position).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
             Long duration = allMedia.get(position).duration;
@@ -109,7 +166,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.HolderView> 
 
         TextView time;
         ImageView thumbnail;
-        SquareLayout view;
+        RelativeLayout view;
 
         public HolderView(@NonNull View itemView) {
             super(itemView);
