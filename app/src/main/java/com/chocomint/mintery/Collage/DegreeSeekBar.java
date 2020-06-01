@@ -41,7 +41,6 @@ public class DegreeSeekBar extends View {
   private int mTextColor = Color.WHITE;
   private int mCenterTextColor = Color.WHITE;
 
-  //阻尼系数的倒数
   private float mDragFactor = 2.1f;
 
   private int mMinReachableDegrees = -45;
