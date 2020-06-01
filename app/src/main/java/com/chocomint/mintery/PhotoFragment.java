@@ -51,13 +51,14 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
     ChooseFileAdapter chooseFileAdapter;
     String from;
     ArrayList<String> fileChoose;
-
+    ArrayList<String> fileChoosePath;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout_photo = null;
 
         fileChoose = new ArrayList<>();
+        fileChoosePath = new ArrayList<>();
         Bundle bundle = getArguments();
         if (bundle != null) {
             from = bundle.getString("from", "");
@@ -92,8 +93,10 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
     public void chooseFile(int position, boolean add) {
         if (add) {
             fileChoose.add(String.valueOf(photoList.get(position).id));
+            fileChoosePath.add(photoList.get(position).path);
         } else {
             fileChoose.remove(String.valueOf(photoList.get(position)));
+            fileChoosePath.remove(photoList.get(position).path);
         }
     }
 
@@ -151,5 +154,35 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                 Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
             }
         }
+    }
+    public void CollagePhoto() {
+        new PhotoFragment.CollageThread().execute();
+    }
+    private class CollageThread extends AsyncTask <Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                if (fileChoose != null && fileChoose.size() >= 2 && fileChoose.size() <= 9 ) {
+                    Intent collageIntent = new Intent(getActivity(),CollageImageActivity.class);
+                    ArrayList<String> files = new ArrayList<>();
+                    files.addAll(fileChoosePath);
+                    System.out.println(files);
+                    collageIntent.putExtra("files", files);
+                    startActivity(collageIntent);
+                    getActivity().finish();
+                } else if(fileChoose != null && fileChoose.size() >= 10 ) {
+                    System.out.println("over 9");
+                } else {
+                    System.out.println("under 2");
+                }
+            } catch (ActivityNotFoundException e) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public int countFileChoose(){
+        return fileChoose.size();
     }
 }

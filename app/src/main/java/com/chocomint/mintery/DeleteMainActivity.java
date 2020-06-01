@@ -144,6 +144,16 @@ public class DeleteMainActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.delete_toolbar:
+                //TODO them button collage nhaaaa
+                /*PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+                assert photoFragment != null;
+                if(photoFragment.countFileChoose() >= 2 && photoFragment.countFileChoose() <= 9) {
+                    photoFragment.CollagePhoto();
+                } else if(photoFragment.countFileChoose() >= 10 ){
+                    Toast.makeText(this, "You choosed over 9 photos", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "You choosed under 2 photos", Toast.LENGTH_LONG).show();
+                }*/
                 if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL)) {
                     deleteFiles();
                 }

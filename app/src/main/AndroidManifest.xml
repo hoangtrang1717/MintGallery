@@ -23,6 +23,8 @@
         <activity android:name=".EditImageActivity" />
         <activity android:name=".DeleteMainActivity" />
         <activity android:name=".FullVideoActivity" />
+        <activity android:name=".CollageImageActivity" />
+        <activity android:name=".Collage.ProcessActivity" />
         <activity
             android:name=".MediaDetailActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />

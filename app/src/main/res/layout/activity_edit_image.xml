@@ -29,13 +29,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#BFFFFFFF"
+        android:id="@+id/edit_frag"
+        app:layout_constraintBottom_toTopOf="@id/bottom_edit"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="@android:color/white"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/bottom_edit">
 
         <LinearLayout
             android:layout_width="wrap_content"

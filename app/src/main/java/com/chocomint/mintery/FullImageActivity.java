@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -51,11 +53,16 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     int CurrentPosition;
     Menu menuImage;
     FavoriteDatabase favoriteDatabase;
+    AlertDialog dialog;
 
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
+    final int SET_WALLPAPER = 1;
+    final int SET_LOCKSCREEN = 2;
+    final int SET_ALL = 3;
+
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
-    private final int REQUEST_FULL_IMAGE = 6;
+    private final int REQUEST_EDIT_IMAGE = 6;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,8 +114,6 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
             public void onClick(View view) {
                 Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
                 if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-//                            .start(FullImageActivity.this);
                     Intent intent = new Intent(FullImageActivity.this, CropImageActivity.class);
                     intent.putExtra("uri", Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)).toString());
                     startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
@@ -124,8 +129,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 Intent intent = new Intent(FullImageActivity.this, EditImageActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("path", arrayList.get(CurrentPosition).path);
-                intent.putExtra("pos", CurrentPosition);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_EDIT_IMAGE);
             }
         });
 
@@ -202,7 +206,35 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 new FavoriteThread().execute(arrayList.get(CurrentPosition).isFavorite);
                 return true;
             case R.id.wallpaper:
-                new SetWallpaperThread().execute();
+                AlertDialog.Builder builder = new AlertDialog.Builder(FullImageActivity.this);
+                View view = getLayoutInflater().inflate(R.layout.set_wallpaper_dialog, null);
+                final Button setWallpaper = view.findViewById(R.id.button_set_wallpaper);
+                final Button setLockscreen = view.findViewById(R.id.button_set_lockscreen);
+                final Button setAll = view.findViewById(R.id.button_set_all);
+                setWallpaper.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SetWallpaperThread().execute(SET_WALLPAPER);
+                        dialog.dismiss();
+                    }
+                });
+                setLockscreen.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SetWallpaperThread().execute(SET_LOCKSCREEN);
+                        dialog.dismiss();
+                    }
+                });
+                setAll.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SetWallpaperThread().execute(SET_ALL);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setView(view);
+                dialog = builder.create();
+                dialog.show();
                 return true;
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
@@ -257,6 +289,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 }
                 break;
             }
+            case REQUEST_EDIT_IMAGE: {
+                if (resultCode == RESULT_OK) {
+                    onBackPressed();
+                }
+            }
             default: return;
         }
     }
@@ -283,29 +320,28 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         }
     }
 
-    private class SetWallpaperThread extends AsyncTask <Void, Void, Boolean> {
+    private class SetWallpaperThread extends AsyncTask <Integer, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
-            return setWallpaper();
-        }
+        protected Boolean doInBackground(Integer... integers) {
+            WallpaperManager wallpaperManager = WallpaperManager.getInstance(FullImageActivity.this);
+            Bitmap bmap2 = BitmapFactory.decodeFile(arrayList.get(CurrentPosition).path);
 
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
+            try {
+                if (integers[0] == SET_WALLPAPER) {
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_SYSTEM);
+                } else if (integers[0] == SET_LOCKSCREEN) {
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_LOCK);
+                } else if (integers[0] == SET_ALL) {
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_SYSTEM);
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_LOCK);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
         }
-    }
-
-    private boolean setWallpaper() {
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(FullImageActivity.this);
-        Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
-        Intent intent = wallpaperManager.getCropAndSetWallpaperIntent(uri);
-        try {
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            return false;
-        }
-        return true;
     }
 
     private class FavoriteThread extends AsyncTask <Boolean, Void, Boolean> {

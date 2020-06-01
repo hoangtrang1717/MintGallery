@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#4DFFFFFF"
+    android:padding="16dp"
+    tools:context=".BrushFragment"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:id="@+id/radio_group">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Brush"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:fontFamily="@font/poppins"
+                android:drawablePadding="8dp"
+                android:drawableLeft="@drawable/checkbox_brush"
+                android:paddingBottom="16dp"
+                android:button="@null"
+                android:checked="true"
+                android:id="@+id/radio_brush"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eraser"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:fontFamily="@font/poppins"
+                android:drawablePadding="8dp"
+                android:drawableLeft="@drawable/checkbox_eraser"
+                android:button="@null"
+                android:id="@+id/radio_eraser"/>
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="32dp"
+            android:clickable="true"
+            android:id="@+id/pick_color">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_eyedrop_outline"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick a color"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins"
+                android:textColor="@android:color/black"
+                android:layout_marginLeft="8dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="16dp">
+        <TextView
+            android:text="Size"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins"
+            android:textColor="@android:color/black"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"/>
+        <SeekBar
+            android:id="@+id/seekbar_brush_size"
+            android:min="1"
+            android:max="100"
+            android:layout_weight="8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+</LinearLayout>
