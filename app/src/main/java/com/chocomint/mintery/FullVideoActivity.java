@@ -5,12 +5,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,12 +29,16 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.chocomint.mintery.videoTrimmer.utils.FileUtils;
 import com.github.rubensousa.previewseekbar.PreviewLoader;
 import com.github.rubensousa.previewseekbar.PreviewView;
 import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class FullVideoActivity extends AppCompatActivity {
     Toolbar video_toolbar;
@@ -41,6 +49,7 @@ public class FullVideoActivity extends AppCompatActivity {
     int CurrentPosition;
     FavoriteDatabase favoriteDatabase;
     Menu menuVideo;
+    private final int REQUEST_WRITE_EXTERNAL = 2;
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
@@ -55,7 +64,7 @@ public class FullVideoActivity extends AppCompatActivity {
         favoriteDatabase = new FavoriteDatabase(FullVideoActivity.this);
 
         isPlaying = true;
-        String path = getIntent().getExtras().getString("id");
+        final String path = getIntent().getExtras().getString("id");
         slider = (ViewPager) findViewById(R.id.video_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
@@ -140,8 +149,15 @@ public class FullVideoActivity extends AppCompatActivity {
         trimBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseVideo();
-                Toast.makeText( view.getContext(), "Hit trim", Toast.LENGTH_LONG).show();
+                if (ContextCompat.checkSelfPermission(FullVideoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL);
+                }
+                if (ContextCompat.checkSelfPermission(FullVideoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                Intent intent = new Intent(getApplicationContext(), TrimmerActivity.class);
+                intent.putExtra("EXTRA_VIDEO_PATH", FileUtils.getPath(getApplicationContext(), Uri.fromFile(new File(path))));
+                startActivity(intent);
             }
         });
     }
