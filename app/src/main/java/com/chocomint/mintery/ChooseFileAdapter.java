@@ -193,9 +193,10 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
                 else
                     chosen.RemoveSingle(day, month, year, position);
                 holder.radioButton.setChecked(temp);
+                chooseFileCallback.chooseFile(position, temp);
             }
         });
-
+        /*
         holder.radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -206,7 +207,7 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
                 chooseFileCallback.chooseFile(position, b);
             }
         });
-
+        */
         //Toast.makeText(mContext, "YEY", Toast.LENGTH_LONG).show();
         Calendar cal = Calendar.getInstance(TimeZone.getDefault());
         cal.setTime(allMedia.get(position).dateModified);
@@ -216,10 +217,12 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<ChooseFileAdapter.Ho
         if(chosen.seeIfChosen(day, month, year, position)) {
             System.out.println("Check " + position);
             holder.radioButton.setChecked(true);
+            chooseFileCallback.chooseFile(position, true);
         }
         else {
             System.out.println("UnCheck " + position);
             holder.radioButton.setChecked(false);
+            chooseFileCallback.chooseFile(position, false);
         }
     }
 
