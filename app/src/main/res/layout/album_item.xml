@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:foreground="?android:attr/selectableItemBackground"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="4dp">
 
     <ImageView
         android:id="@+id/thumbnail_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="2dp"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,8 +19,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#AE939393"
-        android:layout_margin="1dp">
+        android:background="#AE939393">
 
     </FrameLayout>
 

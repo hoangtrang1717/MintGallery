@@ -26,6 +26,7 @@
             android:name=".MediaDetailActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
         <activity android:name=".AboutUsActivity" />
+        <activity android:name=".DetailMediaActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

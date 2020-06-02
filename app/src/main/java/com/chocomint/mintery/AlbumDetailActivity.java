@@ -1,12 +1,24 @@
 package com.chocomint.mintery;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
+import android.Manifest;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,19 +28,83 @@ import java.util.Locale;
 
 public class AlbumDetailActivity extends AppCompatActivity {
     ArrayList<Media> arrayList;
+    ImageButton photoTabbar, videoTabbar;
+    FloatingActionButton albumTabbar;
+    Toolbar mainToolbar;
+    TextView toolBarText;
+    Fragment mediaFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(0,0);
         setContentView(R.layout.activity_album_detail);
+        getView();
+        setSupportActionBar(mainToolbar);
+
         String albumTitle = getIntent().getExtras().getString("title");
-        Log.e("ALBUM", albumTitle);
-        //new LoadDataThread().execute(albumTitle);
+        toolBarText.setText(albumTitle);
+        albumTabbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
+        videoTabbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
+        photoTabbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
+        new LoadDataThread().execute(albumTitle);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        overridePendingTransition(0, 0);
+    }
+
+    private void getView() {
+        albumTabbar = (FloatingActionButton) findViewById(R.id.album_tabbar);
+        videoTabbar = (ImageButton) findViewById(R.id.video_tabbar);
+        photoTabbar = (ImageButton) findViewById(R.id.photo_tabbar);
+        mainToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolBarText = (TextView) findViewById(R.id.toolbar_text);
+        mediaFrag = new AlbumDetailFragment();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.album_detail_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.about_us:
+                startActivity(new Intent(this, AboutUsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private class LoadDataThread extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... strings) {
+
+            arrayList = new ArrayList<Media>();
             String[] query = { MediaStore.Images.ImageColumns._ID,
                     MediaStore.Images.ImageColumns.DATE_MODIFIED,
                     MediaStore.Images.ImageColumns.DISPLAY_NAME,
@@ -118,8 +194,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Log.d("size", String.valueOf(arrayList.size()));
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("list", arrayList);
+            mediaFrag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, mediaFrag, "media").commit();
         }
     }
 }

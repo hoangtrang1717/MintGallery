@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     Toolbar mainToolbar;
     TextView toolBarText;
     ArrayList<Media> photoList, videoList, albumList;
-//    ArrayList<String> albumList, thumbnailAlbum;
+    ArrayList<String> favoriteList;
     FavoriteDatabase favoriteDatabase;
     boolean isOpenedCamera;
     File photoFile;
@@ -147,7 +147,11 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        if (currentFrag == ALBUM_FRAG) {
+            getMenuInflater().inflate(R.menu.album_menu, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -167,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
                 return true;
+            case R.id.createFolder_toolbar:
+                Log.e("ALBUM", "Create album");
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -472,6 +478,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                 String album = videocursor.getString(video_album_column_index);
                 Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, favorite);
                 videoList.add(media);
+
             }
             videocursor.close();
 
@@ -513,8 +520,12 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                 albumList.add(media);
                 filter.close();
             }
-            albumCursor.close();
+            String favoriteThumbnail = favoriteList.get(0);
+            Log.e("ALBUM", favoriteThumbnail);
+            Media favoriteMedia = new Media(favoriteThumbnail, "Favorites");
+            albumList.add(favoriteMedia);
 
+            albumCursor.close();
         } catch (Exception e) {
             Log.d("Error getting data", e.getMessage());
             e.printStackTrace();
