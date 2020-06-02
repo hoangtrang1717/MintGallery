@@ -69,12 +69,31 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                 if (from.compareTo("DELETE") == 0) {
                     chooseFileAdapter = new ChooseFileAdapter(getActivity(), photoList, this);
                     recyclerView.setAdapter(chooseFileAdapter);
+
+                    final GridLayoutManager manager = new GridLayoutManager(this.getActivity(), 4);
+                    recyclerView.setLayoutManager(manager);
+                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return chooseFileAdapter.isHeader(position) ? manager.getSpanCount() : 1;
+
+                        }
+                    });
                 } else {
                     adapter = new ImageAdapter(getActivity(), photoList);
                     recyclerView.setAdapter(adapter);
-                }
 
-                recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
+                    final GridLayoutManager manager = new GridLayoutManager(this.getActivity(), 4);
+                    recyclerView.setLayoutManager(manager);
+                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return adapter.isHeader(position) ? manager.getSpanCount() : 1;
+
+                        }
+                    });
+                }
+                //recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
             } else {
                 layout_photo = (ConstraintLayout) inflater.inflate(R.layout.photo_no_item, null);
             }
@@ -91,6 +110,31 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
 
     @Override
     public void chooseFile(int position, boolean add) {
+        String id = String.valueOf(photoList.get(position).id);
+        String path = photoList.get(position).path;
+        if (add) {
+            boolean temp = true;
+            for(int i = 0; i < fileChoose.size(); i++)
+            {
+                if(fileChoose.get(i).compareTo(id) == 0)
+                    temp = false; break;
+            }
+            if(temp)
+                fileChoose.add(id);
+            temp = true;
+            for(int i = 0; i < fileChoosePath.size(); i++)
+            {
+                if(fileChoosePath.get(i).compareTo(id) == 0)
+                    temp = false; break;
+            }
+            if(temp)
+                fileChoosePath.add(path);
+        }
+        else {
+            fileChoose.remove(id);
+            fileChoosePath.remove(path);
+        }
+        /*
         if (add) {
             fileChoose.add(String.valueOf(photoList.get(position).id));
             fileChoosePath.add(photoList.get(position).path);
@@ -98,6 +142,7 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
             fileChoose.remove(String.valueOf(photoList.get(position)));
             fileChoosePath.remove(photoList.get(position).path);
         }
+        */
     }
 
     public void SharePhoto() {
