@@ -40,14 +40,12 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
 
     Context context = this;
     ViewPager slider;
-    Toolbar img_toolbar;
-    Toolbar video_toolbar;
+    Toolbar media_toolbar;
     FullImageSlider imageSlider;
     ArrayList<Media> arrayList;
     BottomAppBar imageBottomTab, videoBottomTab;
     int CurrentPosition;
-    Menu menuImage;
-    Menu menuVideo;
+    Menu mediaMenu;
     FavoriteDatabase favoriteDatabase;
 
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn, trimBtn, pauseBtn, shareVideoBtn, deleteVideoBtn;
@@ -61,35 +59,35 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
         super.onCreate(savedInstanceState);
         type = getIntent().getExtras().getInt("type");
 
-        if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-            setContentView(R.layout.image_layout);
-            getView();
+        setContentView(R.layout.detail_item_layout);
+        getView();
 
-            favoriteDatabase = new FavoriteDatabase(DetailMediaActivity.this);
-
-            String path = getIntent().getExtras().getString("id");
-            slider = (ViewPager) findViewById(R.id.image_viewpaprer);
-            arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
-            CurrentPosition = getIntent().getExtras().getInt("position");
-            imageSlider = new FullImageSlider(DetailMediaActivity.this, arrayList, path);
-            slider.setAdapter(imageSlider);
-            slider.setCurrentItem(CurrentPosition);
-
-        } else if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-            setContentView(R.layout.video_layout);
-            getView();
-            favoriteDatabase = new FavoriteDatabase(DetailMediaActivity.this);
-
+        if ( type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+            imageBottomTab.setVisibility(View.VISIBLE);
+            videoBottomTab.setVisibility(View.INVISIBLE);
+        } else  if ( type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+            videoBottomTab.setVisibility(View.VISIBLE);
+            imageBottomTab.setVisibility(View.INVISIBLE);
+        }
+        favoriteDatabase = new FavoriteDatabase(DetailMediaActivity.this);
+        String path = getIntent().getExtras().getString("id");
+        slider = (ViewPager) findViewById(R.id.media_viewpaprer);
+        arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
+        CurrentPosition = getIntent().getExtras().getInt("position");
+        imageSlider = new FullImageSlider(DetailMediaActivity.this, arrayList, path);
+        slider.setAdapter(imageSlider);
+        slider.setCurrentItem(CurrentPosition);
+        if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
             isPlaying = true;
-            String path = getIntent().getExtras().getString("id");
-            slider = (ViewPager) findViewById(R.id.video_viewpaprer);
-            arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
-            CurrentPosition = getIntent().getExtras().getInt("position");
-            imageSlider = new FullImageSlider(DetailMediaActivity.this, arrayList, path);
-            slider.setAdapter(imageSlider);
-            slider.setCurrentItem(CurrentPosition);
             slider.setOffscreenPageLimit(1);
             imageSlider.setCurrentVideo(CurrentPosition);
+
+            slider.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    hideActionBar();
+                }
+            });
         }
 
         slider.setOnClickListener(new View.OnClickListener() {
@@ -97,11 +95,18 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
             public void onClick(View view) {
                 if (getSupportActionBar().isShowing()) {
                     getSupportActionBar().hide();
-                    imageBottomTab.setVisibility(View.INVISIBLE);
+                    imageBottomTab.setVisibility(View.GONE);
+                    videoBottomTab.setVisibility(View.GONE);
                     slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
                 } else {
                     getSupportActionBar().show();
-                    imageBottomTab.setVisibility(View.VISIBLE);
+                    if ( type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                        imageBottomTab.setVisibility(View.VISIBLE);
+                        videoBottomTab.setVisibility(View.GONE);
+                    } else  if ( type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                        videoBottomTab.setVisibility(View.VISIBLE);
+                        imageBottomTab.setVisibility(View.GONE);
+                    }
                     slider.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
                 }
             }
@@ -239,33 +244,28 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
     }
 
     protected void setVideo(int position) {
-        setContentView(R.layout.video_layout);
-        getView();
-        favoriteDatabase = new FavoriteDatabase(DetailMediaActivity.this);
-
-        isPlaying = true;
-        String path = arrayList.get(position).path;
-        slider = (ViewPager) findViewById(R.id.video_viewpaprer);
+        videoBottomTab.setVisibility(View.VISIBLE);
+        imageBottomTab.setVisibility(View.INVISIBLE);
+        if (arrayList.get(CurrentPosition).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+            imageSlider.stopVideo(CurrentPosition);
+        }
         CurrentPosition = position;
-        imageSlider = new FullImageSlider(DetailMediaActivity.this, arrayList, path);
-        slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
         slider.setOffscreenPageLimit(1);
         imageSlider.setCurrentVideo(CurrentPosition);
+        imageSlider.playVideo(CurrentPosition);
+        if (!isPlaying) {
+            pauseBtn.setImageResource(R.drawable.ic_pause);
+        }
+        setFavoriteIcon();
     }
 
     protected void setImage(int position) {
-        setContentView(R.layout.image_layout);
-        getView();
-
-        favoriteDatabase = new FavoriteDatabase(DetailMediaActivity.this);
-
-        String path = arrayList.get(position).path;
-        slider = (ViewPager) findViewById(R.id.image_viewpaprer);
+        imageBottomTab.setVisibility(View.VISIBLE);
+        videoBottomTab.setVisibility(View.INVISIBLE);
         CurrentPosition = position;
-        imageSlider = new FullImageSlider(DetailMediaActivity.this, arrayList, path);
-        slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
+        setFavoriteIcon();
     }
 
     @Override
@@ -281,31 +281,23 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
         deleteBtn = findViewById(R.id.image_delete);
         imageBottomTab = findViewById(R.id.full_image_bottomtab);
 
-        shareVideoBtn = findViewById(R.id.image_share);
-        deleteVideoBtn = findViewById(R.id.image_delete);
+        shareVideoBtn = findViewById(R.id.video_share);
+        deleteVideoBtn = findViewById(R.id.video_delete);
         trimBtn = findViewById(R.id.video_trim);
         pauseBtn = findViewById(R.id.video_pause);
         videoBottomTab = findViewById(R.id.full_video_bottomtab);
 
-        if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-            video_toolbar = (Toolbar) findViewById(R.id.video_toolbar);
-            this.setSupportActionBar(video_toolbar);
-            this.getSupportActionBar().setTitle("");
-            this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-            this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        } else {
-            img_toolbar = (Toolbar) findViewById(R.id.image_toolbar);
-            this.setSupportActionBar(img_toolbar);
-            this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-            this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
+        media_toolbar = (Toolbar) findViewById(R.id.media_toolbar);
+        this.setSupportActionBar(media_toolbar);
+        this.getSupportActionBar().setTitle("");
+        this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menuImage = menu;
-        getMenuInflater().inflate(R.menu.image_menu_toolbar, menu);
+        mediaMenu = menu;
+        getMenuInflater().inflate(R.menu.video_menu_toolbar, menu);
         setFavoriteIcon();
         return super.onCreateOptionsMenu(menu);
     }
@@ -338,13 +330,14 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
     }
 
     private void setFavoriteIcon() {
-        MenuItem menuItem =  menuImage.findItem(R.id.img_favorite);
+        MenuItem menuItem =  mediaMenu.findItem(R.id.img_favorite);
         if (arrayList.get(CurrentPosition).isFavorite) {
             menuItem.setIcon(R.drawable.ic_heart_sharp);
         } else {
             menuItem.setIcon(R.drawable.ic_heart_outline);
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -480,7 +473,7 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
-                MenuItem menuItem =  menuImage.findItem(R.id.img_favorite);
+                MenuItem menuItem =  mediaMenu.findItem(R.id.img_favorite);
                 if(arrayList.get(CurrentPosition).setFavorite()) {
                     menuItem.setIcon(R.drawable.ic_heart_sharp);
                 } else {

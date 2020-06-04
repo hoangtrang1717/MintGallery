@@ -42,8 +42,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
         getView();
         setSupportActionBar(mainToolbar);
 
-        String albumTitle = getIntent().getExtras().getString("title");
-        toolBarText.setText(albumTitle);
+
         albumTabbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,7 +63,13 @@ public class AlbumDetailActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String albumTitle = getIntent().getExtras().getString("title");
+        toolBarText.setText(albumTitle);
         new LoadDataThread().execute(albumTitle);
     }
 
