@@ -76,6 +76,23 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         slider = (ViewPager) findViewById(R.id.image_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
+        //
+        int temp = 0;
+        for(int i = 0; i <= CurrentPosition; i++)
+        {
+            if(arrayList.get(i).path.compareTo("nothing") == 0)
+                temp = temp + 1;
+        }
+        CurrentPosition = CurrentPosition - temp;
+        //
+        for(int i = 0; i < arrayList.size(); i++)
+        {
+            if(arrayList.get(i).path.compareTo("nothing") == 0)
+            {
+                arrayList.remove(i);
+            }
+        }
+        //
         imageSlider = new FullImageSlider(FullImageActivity.this, arrayList, path);
         slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
