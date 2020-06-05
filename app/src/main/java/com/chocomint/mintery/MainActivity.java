@@ -228,9 +228,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     }
 
     @Override
-    public void onAddPhotoSuccess() {
-        Log.d("xong r ne", "haha");
-    }
+    public void onAddPhotoSuccess() { }
 
     private class LoadImageAndVideo extends AsyncTask<Void, Void, Void> {
 
@@ -256,22 +254,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     break;
                 default:
                     photoTabbar.callOnClick();
-            }
-            if (isHasNewPhoto) {
-                isHasNewPhoto = false;
-                Intent intent = new Intent(MainActivity.this, FullImageActivity.class);
-                intent.putExtra("id", photoList.get(0).path);
-                intent.putExtra("position", 0);
-                intent.putExtra("list", photoList);
-                startActivityForResult(intent, REQUEST_FULL_IMAGE);
-            }
-            if (isHasNewVideo) {
-                isHasNewVideo = false;
-                Intent intent = new Intent(MainActivity.this, FullVideoActivity.class);
-                intent.putExtra("id", videoList.get(0).path);
-                intent.putExtra("position", 0);
-                intent.putExtra("list", videoList);
-                startActivityForResult(intent, REQUEST_FULL_VIDEO);
             }
             super.onPostExecute(aVoid);
         }

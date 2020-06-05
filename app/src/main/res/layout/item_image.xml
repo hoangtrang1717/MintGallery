@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chocomint.mintery.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_holder"
-    android:layout_width="103dp"
-    android:layout_height="103dp"
-    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -29,4 +28,4 @@
         android:id="@+id/image_item"
         android:padding="2dp"/>
 
-</RelativeLayout>
+</com.chocomint.mintery.SquareLayout>

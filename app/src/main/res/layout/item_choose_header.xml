@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/item_holder"
+    android:id="@+id/item_choose_holder"
+    android:clickable="true"
     android:layout_width="410dp"
     android:layout_height="40dp"
     android:foreground="?android:attr/selectableItemBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/video_time"
-        android:layout_width="335dp"
-        android:layout_height="match_parent"
-        android:fontFamily="@font/poppins"
-        android:textColor="#000000"
-        android:textSize="18dp"
-        android:gravity="center|left"
-        android:paddingLeft="45dp"
-        android:text="TextView"
-        android:textStyle="bold"
-        android:layout_marginLeft="25dp"
-        tools:layout_editor_absoluteX="-2dp"
-        tools:layout_editor_absoluteY="9dp" />
-
     <CheckBox
         android:id="@+id/radio_All"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="10.5dp"
         android:button="@drawable/checkbox_all_selector"
-        />
+        android:visibility="visible"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins"
+        android:paddingLeft="8dp"
         android:textColor="#000000"
         android:textSize="18dp"
-        android:gravity="center|left"
-        android:paddingLeft="1dp"
-        android:paddingTop="7dp"
         android:textStyle="bold"
-        android:layout_marginLeft="25dp"
         android:text="1"
-        />
-</RelativeLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/radio_All" />
+
+    <TextView
+        android:id="@+id/date_modified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:paddingLeft="32dp"
+        android:text="TextView"
+        android:textColor="#000000"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/quantity"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -146,14 +146,12 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
         // currently the SlantPuzzleLayout do not support padding
         puzzleView.setPiecePadding(10);
 
-        ImageView btnReplace = (ImageView) findViewById(R.id.btn_replace);
         ImageView btnRotate = (ImageView) findViewById(R.id.btn_rotate);
         ImageView btnFlipHorizontal = (ImageView) findViewById(R.id.btn_flip_horizontal);
         ImageView btnFlipVertical = (ImageView) findViewById(R.id.btn_flip_vertical);
         ImageView btnBorder = (ImageView) findViewById(R.id.btn_border);
         ImageView btnCorner = (ImageView) findViewById(R.id.btn_corner);
 
-        btnReplace.setOnClickListener(this);
         btnRotate.setOnClickListener(this);
         btnFlipHorizontal.setOnClickListener(this);
         btnFlipVertical.setOnClickListener(this);
@@ -210,9 +208,6 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btn_replace:
-                showSelectedPhotoDialog();
-                break;
             case R.id.btn_rotate:
                 puzzleView.rotate(90f);
                 break;

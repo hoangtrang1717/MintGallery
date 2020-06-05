@@ -143,17 +143,13 @@ public class DeleteMainActivity extends AppCompatActivity {
                     photoFragment.ShareVideo();
                 }
                 return true;
-            case R.id.delete_toolbar:
-                //TODO them button collage nhaaaa
-                /*PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
-                assert photoFragment != null;
-                if(photoFragment.countFileChoose() >= 2 && photoFragment.countFileChoose() <= 9) {
+            case R.id.collage_toolbar:
+                if (currentFrag == PHOTO_FRAG) {
+                    PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
                     photoFragment.CollagePhoto();
-                } else if(photoFragment.countFileChoose() >= 10 ){
-                    Toast.makeText(this, "You choosed over 9 photos", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "You choosed under 2 photos", Toast.LENGTH_LONG).show();
-                }*/
+                }
+                return true;
+            case R.id.delete_toolbar:
                 if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL)) {
                     deleteFiles();
                 }

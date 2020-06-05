@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@drawable/ic_unchoose_all"
         android:state_checked="false"/>
-    <item android:drawable="@drawable/ic_choose_all"
+    <item android:drawable="@drawable/ic_choose"
         android:state_checked="true"/>
     <item android:drawable="@drawable/ic_unchoose_all"/>
 </selector>

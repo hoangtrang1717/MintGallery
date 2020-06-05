@@ -86,6 +86,11 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
         }
     }
 
+    @Override
+    public int findChooseFile(int id) {
+        return fileChoose.indexOf(id);
+    }
+
     public void ShareVideo() {
         new VideoFragment.ShareThread().execute();
     }

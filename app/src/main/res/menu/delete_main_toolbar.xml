@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/collage_toolbar"
+        android:title="Collage"
+        android:icon="@drawable/ic_collage"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/share_toolbar"
         android:title="Share"

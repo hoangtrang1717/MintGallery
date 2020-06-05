@@ -110,39 +110,20 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
 
     @Override
     public void chooseFile(int position, boolean add) {
-        String id = String.valueOf(photoList.get(position).id);
-        String path = photoList.get(position).path;
         if (add) {
-            boolean temp = true;
-            for(int i = 0; i < fileChoose.size(); i++)
-            {
-                if(fileChoose.get(i).compareTo(id) == 0)
-                    temp = false; break;
+            if (fileChoose.indexOf(String.valueOf(photoList.get(position).id)) < 0) {
+                fileChoose.add(String.valueOf(photoList.get(position).id));
+                fileChoosePath.add(photoList.get(position).path);
             }
-            if(temp)
-                fileChoose.add(id);
-            temp = true;
-            for(int i = 0; i < fileChoosePath.size(); i++)
-            {
-                if(fileChoosePath.get(i).compareTo(id) == 0)
-                    temp = false; break;
-            }
-            if(temp)
-                fileChoosePath.add(path);
-        }
-        else {
-            fileChoose.remove(id);
-            fileChoosePath.remove(path);
-        }
-        /*
-        if (add) {
-            fileChoose.add(String.valueOf(photoList.get(position).id));
-            fileChoosePath.add(photoList.get(position).path);
         } else {
-            fileChoose.remove(String.valueOf(photoList.get(position)));
+            fileChoose.remove(String.valueOf(photoList.get(position).id));
             fileChoosePath.remove(photoList.get(position).path);
         }
-        */
+    }
+
+    @Override
+    public int findChooseFile(int id) {
+        return fileChoose.indexOf(String.valueOf(id));
     }
 
     public void SharePhoto() {
@@ -216,18 +197,14 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                     startActivity(collageIntent);
                     getActivity().finish();
                 } else if(fileChoose != null && fileChoose.size() >= 10 ) {
-                    System.out.println("over 9");
+                    Toast.makeText(getContext(), "You must choose at most 9 images.", Toast.LENGTH_LONG).show();
                 } else {
-                    System.out.println("under 2");
+                    Toast.makeText(getContext(), "You must choose at least 2 images.", Toast.LENGTH_LONG).show();
                 }
             } catch (ActivityNotFoundException e) {
                 return false;
             }
             return true;
         }
-    }
-
-    public int countFileChoose(){
-        return fileChoose.size();
     }
 }
