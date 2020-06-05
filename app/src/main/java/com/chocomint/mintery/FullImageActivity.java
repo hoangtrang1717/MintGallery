@@ -44,7 +44,6 @@ import java.util.ArrayList;
 
 public class FullImageActivity extends AppCompatActivity implements CallbackFunction {
 
-    Context context = this;
     ViewPager slider;
     Toolbar img_toolbar;
     FullImageSlider imageSlider;
@@ -129,7 +128,6 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         cropBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
                 if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     Intent intent = new Intent(FullImageActivity.this, CropImageActivity.class);
                     intent.putExtra("uri", Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)).toString());
@@ -292,15 +290,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         switch (requestCode) {
             case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE: {
                 if (resultCode == RESULT_OK) {
-                    try {
-                        byte[] byteArray = data.getByteArrayExtra("bitmap");
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                        SavePhoto savePhoto = new SavePhoto(bitmap, this.getBaseContext(), null, "image/jpg", this);
-                        savePhoto.saveImage();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.d("Error create new photo", e.getMessage());
-                    }
+                    onBackPressed();
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     Log.d("Error crop image", "");
                 }

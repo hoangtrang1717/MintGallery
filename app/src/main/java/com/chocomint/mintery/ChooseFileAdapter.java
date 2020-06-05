@@ -76,7 +76,10 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ((HolderHeaderView) holder).all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    for (int i = position + 1; allMedia.get(i).path.compareTo("nothing") != 0; i++) {
+                    for (int i = position + 1; i < allMedia.size(); i++) {
+                        if (allMedia.get(i).path.compareTo("nothing") == 0) {
+                            break;
+                        }
                         chooseFileCallback.chooseFile(i, b);
                         notifyItemChanged(i);
                     }

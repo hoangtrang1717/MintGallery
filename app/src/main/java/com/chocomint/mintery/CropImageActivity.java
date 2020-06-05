@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,8 +19,9 @@ import android.widget.Toast;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 
-public class CropImageActivity extends AppCompatActivity {
+public class CropImageActivity extends AppCompatActivity implements CallbackFunction {
 
     LinearLayout btnCrop11, btnCrop32, btnCrop23, btnCrop43, btnCrop34, btnCrop169, btnCrop916, btnCropCustom;
     CropImageView cropImageView;
@@ -39,14 +41,14 @@ public class CropImageActivity extends AppCompatActivity {
             @Override
             public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
                 if (result.isSuccessful()) {
-                    ByteArrayOutputStream bStream = new ByteArrayOutputStream();
                     Bitmap bitmap = result.getBitmap();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bStream);
-                    byte[] byteArray = bStream.toByteArray();
-                    Intent intent = new Intent();
-                    intent.putExtra("bitmap", byteArray);
-                    setResult(RESULT_OK, intent);
-                    onBackPressed();
+                    SavePhoto savePhoto = new SavePhoto(bitmap, CropImageActivity.this, null, "image/jpg", CropImageActivity.this);
+                    try {
+                        savePhoto.saveImage();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(CropImageActivity.this, "An unexpected error has occured. Try agian  later.", Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     Toast.makeText(CropImageActivity.this, "An unexpected error has occured. Try agian  later.", Toast.LENGTH_LONG).show();
                 }
@@ -155,5 +157,11 @@ public class CropImageActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onAddPhotoSuccess() {
+        setResult(RESULT_OK);
+        onBackPressed();
     }
 }
