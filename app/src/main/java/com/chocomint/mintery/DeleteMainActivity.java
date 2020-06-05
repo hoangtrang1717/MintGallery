@@ -40,7 +40,7 @@ public class DeleteMainActivity extends AppCompatActivity {
     Fragment photoFrag, videoFrag, albumFrag;
     Toolbar mainToolbar;
     TextView toolBarText;
-    ArrayList<Media> arrayList, photoList, videoList;
+    ArrayList<Media> arrayList;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;

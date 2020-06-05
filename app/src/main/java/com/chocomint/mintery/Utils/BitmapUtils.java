@@ -45,7 +45,6 @@ public class BitmapUtils {
         BitmapFactory.decodeFile(picturePath,options);
         options.inSampleSize =calculateInSampleSize(options,width,height);
         options.inJustDecodeBounds=false;
-        System.out.println("size"+picturePath);
         return BitmapFactory.decodeFile(picturePath,options);
     }
 

@@ -52,6 +52,8 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
     String from;
     ArrayList<String> fileChoose;
     ArrayList<String> fileChoosePath;
+
+    final int REQUEST_SHARE = 1;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -93,7 +95,6 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                         }
                     });
                 }
-                //recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
             } else {
                 layout_photo = (ConstraintLayout) inflater.inflate(R.layout.photo_no_item, null);
             }
@@ -143,14 +144,22 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
                     }
                     shareIntent.putExtra(Intent.EXTRA_STREAM, files);
                     shareIntent.setType("image/*");
-                    startActivity(Intent.createChooser(shareIntent, "Share images"));
+                    startActivityForResult(Intent.createChooser(shareIntent, "Share images"), REQUEST_SHARE);
                 } else {
-                    Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG).show();
+                    return false;
                 }
             } catch (ActivityNotFoundException e) {
                 return false;
             }
             return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (!aBoolean && fileChoose.size() <= 0) {
+                Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -175,6 +184,9 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
+                if (fileChoose.size() <= 0) {
+                    Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG);
+                }
                 getActivity().onBackPressed();
             } else {
                 Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
@@ -190,21 +202,39 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
             try {
                 if (fileChoose != null && fileChoose.size() >= 2 && fileChoose.size() <= 9 ) {
                     Intent collageIntent = new Intent(getActivity(),CollageImageActivity.class);
-                    ArrayList<String> files = new ArrayList<>();
-                    files.addAll(fileChoosePath);
-                    System.out.println(files);
-                    collageIntent.putExtra("files", files);
+                    collageIntent.putExtra("files", fileChoosePath);
                     startActivity(collageIntent);
                     getActivity().finish();
-                } else if(fileChoose != null && fileChoose.size() >= 10 ) {
-                    Toast.makeText(getContext(), "You must choose at most 9 images.", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "You must choose at least 2 images.", Toast.LENGTH_LONG).show();
+                    return false;
                 }
             } catch (ActivityNotFoundException e) {
                 return false;
             }
             return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (!aBoolean) {
+                if(fileChoose != null && fileChoose.size() >= 10 ) {
+                    Toast.makeText(getContext(), "You must choose at most 9 images.", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "You must choose at least 2 images.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case REQUEST_SHARE:
+                getActivity().onBackPressed();
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 }

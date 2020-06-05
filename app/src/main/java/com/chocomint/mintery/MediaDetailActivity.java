@@ -86,7 +86,8 @@ public class MediaDetailActivity extends AppCompatActivity {
                     if (address != null && address.size() > 0) {
                         Address address1 = address.get(0);
                         String add = "";
-                        add += address1.getMaxAddressLineIndex() > 0 && address1.getAddressLine(0).length() > 0 ? (address1.getAddressLine(0) + ",") : "";
+                        add += address1.getMaxAddressLineIndex() > 0 && address1.getAddressLine(0).length() > 0 ?
+                                (address1.getAddressLine(0) + ",") : "";
                         add += address1.getLocality() != null ? (address1.getLocality() + ",") : "";
                         add += address1.getCountryName() != null ? address1.getCountryName() : "";
                         publishProgress(add);

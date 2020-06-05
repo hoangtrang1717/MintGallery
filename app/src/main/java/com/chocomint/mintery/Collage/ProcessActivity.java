@@ -263,7 +263,6 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String path = cursor.getString(columnIndex);
             cursor.close();
-            System.out.println(path);
 
             final Target target = new Target() {
                 @Override public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {

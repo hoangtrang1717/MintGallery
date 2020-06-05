@@ -43,7 +43,6 @@ public class CollageImageActivity extends AppCompatActivity {
         setContentView(R.layout.collage_image_main_layout);
 
         selectedPath = getIntent().getStringArrayListExtra("files");
-        System.out.println(selectedPath);
         for(int i = 0;i<selectedPath.size();i++){
             Bitmap bitmap = BitmapFactory.decodeFile(selectedPath.get(i));
             bitmaps.add(bitmap);
