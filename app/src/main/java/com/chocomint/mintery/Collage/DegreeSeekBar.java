@@ -37,9 +37,9 @@ public class DegreeSeekBar extends View {
   private int mCurrentDegrees = 0;
   private int mPointCount = 51;
 
-  private int mPointColor = Color.WHITE;
-  private int mTextColor = Color.WHITE;
-  private int mCenterTextColor = Color.WHITE;
+  private int mPointColor = Color.BLACK;
+  private int mTextColor = Color.BLACK;
+  private int mCenterTextColor = Color.BLACK;
 
   //阻尼系数的倒数
   private float mDragFactor = 2.1f;

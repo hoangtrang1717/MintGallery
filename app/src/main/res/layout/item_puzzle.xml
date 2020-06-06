@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300dp"
-    android:layout_height="300dp"
-    android:orientation="vertical"
-    android:padding="8dp"
-    >
+<com.chocomint.mintery.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="2dp">
 
     <com.xiaopo.flying.puzzle.SquarePuzzleView
         android:id="@+id/puzzle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
-</FrameLayout>
+        android:layout_height="match_parent" />
+</com.chocomint.mintery.SquareLayout>

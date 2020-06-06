@@ -128,6 +128,9 @@ public class DeleteMainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.delete_main_toolbar, menu);
+        if (currentFrag == PHOTO_FRAG) {
+            menu.setGroupVisible(R.id.collage_group, true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 

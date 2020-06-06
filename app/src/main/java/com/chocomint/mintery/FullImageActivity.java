@@ -41,6 +41,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public class FullImageActivity extends AppCompatActivity implements CallbackFunction {
 
@@ -75,22 +76,26 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         slider = (ViewPager) findViewById(R.id.image_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
+
         //
         int temp = 0;
-        for(int i = 0; i <= CurrentPosition; i++)
+        for(int i = 0; i < CurrentPosition; i++)
         {
-            if(arrayList.get(i).path.compareTo("nothing") == 0)
+            if(arrayList.get(i).path.compareTo("nothing") == 0) {
                 temp = temp + 1;
+            }
         }
         CurrentPosition = CurrentPosition - temp;
         //
-        for(int i = 0; i < arrayList.size(); i++)
-        {
-            if(arrayList.get(i).path.compareTo("nothing") == 0)
-            {
-                arrayList.remove(i);
+        arrayList.removeIf(new Predicate<Media>() {
+            @Override
+            public boolean test(Media media) {
+                if (media.path.compareTo("nothing") == 0) {
+                    return true;
+                }
+                return false;
             }
-        }
+        });
         //
         imageSlider = new FullImageSlider(FullImageActivity.this, arrayList, path);
         slider.setAdapter(imageSlider);
@@ -141,10 +146,14 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(FullImageActivity.this, EditImageActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("path", arrayList.get(CurrentPosition).path);
-                startActivityForResult(intent, REQUEST_EDIT_IMAGE);
+                if (arrayList.get(CurrentPosition).mimeType.contains("gif")) {
+                    Toast.makeText(FullImageActivity.this, "Cannot edit gif.", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent intent = new Intent(FullImageActivity.this, EditImageActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putExtra("path", arrayList.get(CurrentPosition).path);
+                    startActivityForResult(intent, REQUEST_EDIT_IMAGE);
+                }
             }
         });
 

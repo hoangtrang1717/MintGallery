@@ -1,29 +1,27 @@
 package com.chocomint.mintery;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chocomint.mintery.Adapter.PuzzleAdapter;
 import com.chocomint.mintery.Collage.ProcessActivity;
 import com.chocomint.mintery.CollageLayout.straight.StraightLayoutHelper;
-import com.chocomint.mintery.Utils.PuzzleUtils;
 import com.xiaopo.flying.puzzle.PuzzleLayout;
 import com.xiaopo.flying.puzzle.slant.SlantPuzzleLayout;
 
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CollageImageActivity extends AppCompatActivity {
-    private static final String TAG = "CollageImageActivity";
 
     private RecyclerView puzzleList;
 
@@ -32,22 +30,28 @@ public class CollageImageActivity extends AppCompatActivity {
     private List<Bitmap> bitmaps = new ArrayList<>();
     private ArrayMap<String, Bitmap> arrayBitmaps = new ArrayMap<>();
 
-    private ArrayList<String> selectedPath = new ArrayList<>();
-
-    private List<Target> targets = new ArrayList<>();
-
-    private int deviceWidth;
+    private ArrayList<String> selectedPath;
+    private ImageButton btnBack;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.collage_image_main_layout);
 
+        btnBack = findViewById(R.id.back_btn);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+                onBackPressed();
+            }
+        });
+
+        selectedPath = new ArrayList<>();
         selectedPath = getIntent().getStringArrayListExtra("files");
-        for(int i = 0;i<selectedPath.size();i++){
-            Bitmap bitmap = BitmapFactory.decodeFile(selectedPath.get(i));
+        for(String path: selectedPath){
+            Bitmap bitmap = BitmapFactory.decodeFile(path);
             bitmaps.add(bitmap);
         }
-        deviceWidth = getResources().getDisplayMetrics().widthPixels;
 
         initView();
     }
@@ -57,8 +61,7 @@ public class CollageImageActivity extends AppCompatActivity {
 
         puzzleAdapter = new PuzzleAdapter();
         puzzleList.setAdapter(puzzleAdapter);
-        puzzleList.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        puzzleList.setLayoutManager(new GridLayoutManager(this, 2));
         puzzleList.setHasFixedSize(true);
         puzzleAdapter.refreshData(StraightLayoutHelper.getAllThemeLayout(bitmaps.size()), bitmaps);
         puzzleAdapter.setOnItemClickListener(new PuzzleAdapter.OnItemClickListener() {
@@ -86,14 +89,9 @@ public class CollageImageActivity extends AppCompatActivity {
 
         bitmaps.clear();
         bitmaps = null;
-    }
 
-    private void refreshLayout() {
-        puzzleList.post(new Runnable() {
-            @Override public void run() {
-                puzzleAdapter.refreshData(PuzzleUtils.getPuzzleLayouts(bitmaps.size()), bitmaps);
-            }
-        });
+        selectedPath.clear();
+        selectedPath = null;
     }
 }
 

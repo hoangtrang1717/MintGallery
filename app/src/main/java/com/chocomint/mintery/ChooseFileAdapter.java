@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -94,34 +95,9 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             });
             ((HolderHeaderView) holder).number.setText(String.valueOf(allMedia.get(position).id));
 
-            if(position == 0)
-            {
-                Date today = Calendar.getInstance().getTime();
-                Calendar cal1 = Calendar.getInstance(TimeZone.getDefault());
-                cal1.setTime(today);
-
-                Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-                cal.setTime(allMedia.get(position).dateModified);
-
-                int year = cal.get(Calendar.YEAR); int month = cal.get(Calendar.MONTH); int day = cal.get(Calendar.DAY_OF_MONTH);
-                int year1 = cal1.get(Calendar.YEAR); int month1 = cal1.get(Calendar.MONTH); int day1 = cal1.get(Calendar.DAY_OF_MONTH);
-
-                if(year == year1 && month == month1 && day == day1)
-                {
-                    ((HolderHeaderView) holder).time.setText("Today");
-                    ((HolderHeaderView) holder).time.setVisibility(View.VISIBLE);
-                    ((HolderHeaderView) holder).time.bringToFront();
-                    return;
-                }
-            }
-
-            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-            cal.setTime(allMedia.get(position).dateModified);
-            int year = cal.get(Calendar.YEAR);
-            int month = cal.get(Calendar.MONTH); month = month + 1;
-            int day = cal.get(Calendar.DAY_OF_MONTH);
-
-            String temp = day + "/" + month + "/" + year;
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date today = new Date();
+            String temp = today.getDate() == allMedia.get(position).dateModified.getDate() ? "Today" : formatter.format(allMedia.get(position).dateModified);
             ((HolderHeaderView) holder).time.setText(temp);
             ((HolderHeaderView) holder).time.setVisibility(View.VISIBLE);
             ((HolderHeaderView) holder).time.bringToFront();

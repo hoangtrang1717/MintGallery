@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -117,13 +119,12 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initView() {
-        ImageView btnBack = (ImageView) findViewById(R.id.btn_back);
+        ImageButton btnBack = (ImageButton) findViewById(R.id.btn_back);
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 onBackPressed();
             }
         });
-
 
         puzzleView = (PuzzleView) findViewById(R.id.puzzle_view);
         degreeSeekBar = (DegreeSeekBar) findViewById(R.id.degree_seek_bar);
@@ -146,11 +147,11 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
         // currently the SlantPuzzleLayout do not support padding
         puzzleView.setPiecePadding(10);
 
-        ImageView btnRotate = (ImageView) findViewById(R.id.btn_rotate);
-        ImageView btnFlipHorizontal = (ImageView) findViewById(R.id.btn_flip_horizontal);
-        ImageView btnFlipVertical = (ImageView) findViewById(R.id.btn_flip_vertical);
-        ImageView btnBorder = (ImageView) findViewById(R.id.btn_border);
-        ImageView btnCorner = (ImageView) findViewById(R.id.btn_corner);
+        ImageButton btnRotate = (ImageButton) findViewById(R.id.btn_rotate);
+        ImageButton btnFlipHorizontal = (ImageButton) findViewById(R.id.btn_flip_horizontal);
+        ImageButton btnFlipVertical = (ImageButton) findViewById(R.id.btn_flip_vertical);
+        ImageButton btnBorder = (ImageButton) findViewById(R.id.btn_border);
+        ImageButton btnCorner = (ImageButton) findViewById(R.id.btn_corner);
 
         btnRotate.setOnClickListener(this);
         btnFlipHorizontal.setOnClickListener(this);
@@ -158,7 +159,7 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
         btnBorder.setOnClickListener(this);
         btnCorner.setOnClickListener(this);
 
-        TextView btnSave = (TextView) findViewById(R.id.btn_save);
+        Button btnSave = (Button) findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(final View view) {
                 Bitmap saveBitmap = createBitmap(puzzleView);
@@ -173,9 +174,7 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
         degreeSeekBar.setCurrentDegrees(puzzleView.getLineSize());
         degreeSeekBar.setDegreeRange(0, 30);
         degreeSeekBar.setScrollingListener(new DegreeSeekBar.ScrollingListener() {
-            @Override public void onScrollStart() {
-
-            }
+            @Override public void onScrollStart() { }
 
             @Override public void onScroll(int currentDegrees) {
                 switch (controlFlag) {
@@ -188,9 +187,7 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
 
-            @Override public void onScrollEnd() {
-
-            }
+            @Override public void onScrollEnd() { }
         });
     }
     public static Bitmap createBitmap(PuzzleView puzzleView) {
@@ -241,56 +238,9 @@ public class ProcessActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void showSelectedPhotoDialog() {
-        Intent i = new Intent(
-                Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-        startActivityForResult(i, RESULT_LOAD_IMAGE);
-    }
-
-    @SuppressLint("WrongConstant")
-    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String path = cursor.getString(columnIndex);
-            cursor.close();
-
-            final Target target = new Target() {
-                @Override public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                    puzzleView.replace(bitmap);
-                }
-
-                @SuppressLint("WrongConstant")
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                }
-
-                @Override public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-            Picasso.get()
-                    .load("file:///" + path)
-                    .resize(deviceWidth, deviceWidth)
-                    .centerInside()
-                    .config(Bitmap.Config.RGB_565)
-                    .into(target);
-        }
-    }
-
     @Override
     public void onAddPhotoSuccess() {
-        Intent intent = new Intent(this,MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }

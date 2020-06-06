@@ -38,6 +38,7 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 
 public class FullVideoActivity extends AppCompatActivity {
@@ -68,6 +69,26 @@ public class FullVideoActivity extends AppCompatActivity {
         slider = (ViewPager) findViewById(R.id.video_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
+        //
+        int temp = 0;
+        for(int i = 0; i < CurrentPosition; i++)
+        {
+            if(arrayList.get(i).path.compareTo("nothing") == 0) {
+                temp = temp + 1;
+            }
+        }
+        CurrentPosition = CurrentPosition - temp;
+        //
+        arrayList.removeIf(new Predicate<Media>() {
+            @Override
+            public boolean test(Media media) {
+                if (media.path.compareTo("nothing") == 0) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        //
         imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
         slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
@@ -131,12 +152,13 @@ public class FullVideoActivity extends AppCompatActivity {
                     public void onClick(DialogInterface arg0, int arg1) {
                         int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
                         if (delete > 0) {
+                            imageSlider.stopVideo(CurrentPosition);
                             arrayList.remove(CurrentPosition);
                             if (arrayList.size() < 1) {
                                 onBackPressed();
                             }
-                            imageSlider.stopVideo(CurrentPosition);
                             imageSlider.notifyDataSetChanged();
+                            pauseBtn.setImageResource(R.drawable.ic_pause);
                         }
                     }});
                 myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -287,6 +309,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 } else {
                     menuItem.setIcon(R.drawable.ic_heart_outline);
                 }
+                pauseBtn.setImageResource(R.drawable.ic_pause);
                 imageSlider.notifyDataSetChanged();
             } else {
                 Toast.makeText(FullVideoActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();

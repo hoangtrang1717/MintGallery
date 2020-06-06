@@ -58,11 +58,29 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                 if (from.compareTo("DELETE") == 0) {
                     chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, this);
                     recyclerView.setAdapter(chooseFileAdapter);
+
+                    final GridLayoutManager manager = new GridLayoutManager(this.getActivity(), 4);
+                    recyclerView.setLayoutManager(manager);
+                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return chooseFileAdapter.isHeader(position) ? manager.getSpanCount() : 1;
+                        }
+                    });
                 } else {
                     adapter = new ImageAdapter(getActivity(), videoList);
                     recyclerView.setAdapter(adapter);
+
+                    final GridLayoutManager manager = new GridLayoutManager(this.getActivity(), 4);
+                    recyclerView.setLayoutManager(manager);
+                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return adapter.isHeader(position) ? manager.getSpanCount() : 1;
+
+                        }
+                    });
                 }
-                recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
             } else {
                 layout_photo = (ConstraintLayout) inflater.inflate(R.layout.video_no_item, null);
             }
@@ -80,7 +98,9 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
     @Override
     public void chooseFile(int position, boolean add) {
         if (add) {
-            fileChoose.add(String.valueOf(videoList.get(position).id));
+            if (fileChoose.indexOf(String.valueOf(videoList.get(position).id)) < 0) {
+                fileChoose.add(String.valueOf(videoList.get(position).id));
+            }
         } else {
             fileChoose.remove(String.valueOf(videoList.get(position).id));
         }
@@ -88,7 +108,7 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
 
     @Override
     public int findChooseFile(int id) {
-        return fileChoose.indexOf(id);
+        return fileChoose.indexOf(String.valueOf(id));
     }
 
     public void ShareVideo() {
