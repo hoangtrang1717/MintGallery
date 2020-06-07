@@ -80,17 +80,13 @@ public class MediaDetailActivity extends AppCompatActivity {
                 inputStream = getContentResolver().openInputStream(uri);
                 ExifInterface exifInterface = new ExifInterface(inputStream);
                 double[] latlong = exifInterface.getLatLong();
+
                 if (Geocoder.isPresent() && latlong != null && latlong.length > 0) {
-                    Geocoder geocoder = new Geocoder(MediaDetailActivity .this, Locale.getDefault());
+                    Geocoder geocoder = new Geocoder(MediaDetailActivity.this, Locale.getDefault());
                     List<Address> address = geocoder.getFromLocation(latlong[0], latlong[1], 1);
                     if (address != null && address.size() > 0) {
                         Address address1 = address.get(0);
-                        String add = "";
-                        add += address1.getMaxAddressLineIndex() > 0 && address1.getAddressLine(0).length() > 0 ?
-                                (address1.getAddressLine(0) + ",") : "";
-                        add += address1.getLocality() != null ? (address1.getLocality() + ",") : "";
-                        add += address1.getCountryName() != null ? address1.getCountryName() : "";
-                        publishProgress(add);
+                        publishProgress(address1.getAddressLine(address1.getMaxAddressLineIndex()));
                     }
                 }
             } catch (IOException e) {

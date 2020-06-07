@@ -44,7 +44,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name="com.chocomint.mintery.TrimmerActivity"
-            android:theme="@style/Base.Theme.AppCompat" />
+            android:theme="@style/AppTheme" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

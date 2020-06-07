@@ -23,7 +23,12 @@
  */
 package com.chocomint.mintery.videoTrimmer.utils;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -39,6 +44,7 @@ import com.googlecode.mp4parser.authoring.tracks.CroppedTrack;
 import com.chocomint.mintery.videoTrimmer.interfaces.OnTrimVideoListener;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -50,20 +56,58 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import static java.io.File.separator;
+
 
 public class TrimVideoUtils {
 
     private static final String TAG = TrimVideoUtils.class.getSimpleName();
 
-    public static void startTrim(@NonNull File src, @NonNull String dst, long startMs, long endMs, @NonNull OnTrimVideoListener callback) throws IOException {
-        final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-        final String fileName = "MP4_" + timeStamp + ".mp4";
+    public static void startTrim(@NonNull File src, @NonNull String dst, long startMs, long endMs, @NonNull OnTrimVideoListener callback, Context context) throws IOException {
+        final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        final String fileName = "Mintery_" + timeStamp + ".mp4";
         final String filePath = dst + fileName;
 
         File file = new File(filePath);
         file.getParentFile().mkdirs();
         Log.d(TAG, "Generated file path " + filePath);
-        genVideoUsingMp4Parser(src, file, startMs, endMs, callback);
+
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            ContentValues values = contentValues(endMs - startMs);
+            values.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Mintery");
+            values.put(MediaStore.Video.Media.IS_PENDING, true);
+            // RELATIVE_PATH and IS_PENDING are introduced in API 29.
+
+            Uri uri = context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                genVideoUsingMp4Parser(src, new File(getPath(uri, context)), startMs, endMs, callback);
+                values.put(MediaStore.Video.Media.IS_PENDING, false);
+                context.getContentResolver().update(uri, values, null, null);
+            }
+        } else {
+            genVideoUsingMp4Parser(src, file, startMs, endMs, callback);
+            if (file.getAbsolutePath() != null) {
+                ContentValues values = contentValues(endMs - startMs);
+                values.put(MediaStore.Video.Media.DATA, file.getAbsolutePath());
+                context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+            }
+        }
+
+        if (callback != null) {
+            callback.getResult(Uri.parse(file.toString()));
+        }
+    }
+
+    private static String getPath(Uri uri, Context context)
+    {
+        String[] projection = { MediaStore.Video.Media.DATA };
+        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+        if (cursor == null) return null;
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+        cursor.moveToFirst();
+        String s=cursor.getString(column_index);
+        cursor.close();
+        return s;
     }
 
     private static void genVideoUsingMp4Parser(@NonNull File src, @NonNull File dst, long startMs, long endMs, @NonNull OnTrimVideoListener callback) throws IOException {
@@ -124,8 +168,6 @@ public class TrimVideoUtils {
             movie.addTrack(new AppendTrack(new CroppedTrack(track, startSample1, endSample1)));
         }
 
-        File parent = new File(dst.getParent());
-
         if (!dst.exists()) {
             dst.createNewFile();
         }
@@ -138,8 +180,6 @@ public class TrimVideoUtils {
 
         fc.close();
         fos.close();
-        if (callback != null)
-            callback.getResult(Uri.parse(dst.toString()));
     }
 
     private static double correctTimeToSyncSample(@NonNull Track track, double cutHere, boolean next) {
@@ -184,5 +224,14 @@ public class TrimVideoUtils {
         } else {
             return mFormatter.format("%02d:%02d", minutes, seconds).toString();
         }
+    }
+
+    private static ContentValues contentValues(long duration) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+        values.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+        values.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Video.Media.DURATION, duration);
+        return values;
     }
 }

@@ -29,6 +29,7 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
     private HgLVideoTrimmer mVideoTrimmer;
     private ProgressDialog mProgressDialog;
     static final String EXTRA_VIDEO_PATH = "EXTRA_VIDEO_PATH";
+    private String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +38,11 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
 
         Intent extraIntent = getIntent();
         String path = "";
-        int maxDuration = 10 ;
+        int maxDuration = 10;
         if (extraIntent != null) {
             path = extraIntent.getStringExtra(EXTRA_VIDEO_PATH);
-            MediaPlayer mp = MediaPlayer.create(this,Uri.fromFile(new File(path)));
+            id = extraIntent.getStringExtra("id");
+            MediaPlayer mp = MediaPlayer.create(this, Uri.fromFile(new File(path)));
             maxDuration = mp.getDuration();
         }
 
@@ -51,18 +53,14 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
 
         mVideoTrimmer = ((HgLVideoTrimmer) findViewById(R.id.timeLine));
         if (mVideoTrimmer != null) {
-
-
             /**
              * get total duration of video file
              */
-            Log.e("tg", "maxDuration = " + maxDuration);
             mVideoTrimmer.setMaxDuration(maxDuration);
             mVideoTrimmer.setOnTrimVideoListener(this);
             mVideoTrimmer.setOnHgLVideoListener(this);
-            //mVideoTrimmer.setDestinationPath(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)+"/TRIM");
-            mVideoTrimmer.setDestinationPath("/storage/emulated/0/DCIM/Trim/");
-            mVideoTrimmer.setVideoURI(Uri.parse(path));
+            mVideoTrimmer.setSrcPath(path);
+            mVideoTrimmer.setVideoURI(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id));
             mVideoTrimmer.setVideoInformationVisibility(true);
         }
     }
@@ -75,24 +73,14 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
     @Override
     public void getResult(final Uri contentUri) {
         mProgressDialog.cancel();
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(TrimmerActivity.this, getString(R.string.video_saved_at, contentUri.getPath()), Toast.LENGTH_SHORT).show();
-            }
-        });
-        Intent intent = new Intent(Intent.ACTION_VIEW, contentUri);
-        intent.setDataAndType(contentUri, "video/mp4");
-        startActivity(intent);
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
         finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        Log.e("tg", "resultCode = " + resultCode + " data " + data);
     }
 
     @Override
@@ -119,7 +107,7 @@ public class TrimmerActivity extends Activity implements OnTrimVideoListener, On
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(TrimmerActivity.this, "onVideoPrepared", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(TrimmerActivity.this, "onVideoPrepared", Toast.LENGTH_SHORT).show();
             }
         });
     }

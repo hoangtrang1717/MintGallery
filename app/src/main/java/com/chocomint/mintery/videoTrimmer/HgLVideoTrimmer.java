@@ -88,6 +88,7 @@ public class HgLVideoTrimmer extends FrameLayout {
 
     private ProgressBarView mVideoProgressIndicator;
     private Uri mSrc;
+    private String mSrcPath;
     private String mFinalPath;
 
     private int mMaxDuration;
@@ -131,6 +132,10 @@ public class HgLVideoTrimmer extends FrameLayout {
 
         setUpListeners();
         setUpMargins();
+    }
+
+    public void setSrcPath(String path) {
+        this.mSrcPath = path;
     }
 
     private void setUpListeners() {
@@ -194,26 +199,26 @@ public class HgLVideoTrimmer extends FrameLayout {
 
         mRangeSeekBarView.addOnRangeSeekBarListener(mVideoProgressIndicator);
         mRangeSeekBarView.addOnRangeSeekBarListener(new OnRangeSeekBarListener() {
-                                                        @Override
-                                                        public void onCreate(RangeSeekBarView rangeSeekBarView, int index, float value) {
+            @Override
+            public void onCreate(RangeSeekBarView rangeSeekBarView, int index, float value) {
 
-                                                        }
+            }
 
-                                                        @Override
-                                                        public void onSeek(RangeSeekBarView rangeSeekBarView, int index, float value) {
-                                                            onSeekThumbs(index, value);
-                                                        }
+            @Override
+            public void onSeek(RangeSeekBarView rangeSeekBarView, int index, float value) {
+                onSeekThumbs(index, value);
+            }
 
-                                                        @Override
-                                                        public void onSeekStart(RangeSeekBarView rangeSeekBarView, int index, float value) {
+            @Override
+            public void onSeekStart(RangeSeekBarView rangeSeekBarView, int index, float value) {
 
-                                                        }
+            }
 
-                                                        @Override
-                                                        public void onSeekStop(RangeSeekBarView rangeSeekBarView, int index, float value) {
-                                                            onStopSeekThumbs();
-                                                        }
-                                                    });
+            @Override
+            public void onSeekStop(RangeSeekBarView rangeSeekBarView, int index, float value) {
+                onStopSeekThumbs();
+            }
+        });
 
         mHolderTopView.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -278,7 +283,7 @@ public class HgLVideoTrimmer extends FrameLayout {
             mediaMetadataRetriever.setDataSource(getContext(), mSrc);
             long METADATA_KEY_DURATION = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
 
-            final File file = new File(mSrc.getPath());
+            final File file = new File(mSrcPath);
 
             if (mTimeVideo < MIN_TIME_FRAME) {
 
@@ -298,7 +303,7 @@ public class HgLVideoTrimmer extends FrameLayout {
                         @Override
                         public void execute() {
                             try {
-                                TrimVideoUtils.startTrim(file, getDestinationPath(), mStartPosition, mEndPosition, mOnTrimVideoListener);
+                                TrimVideoUtils.startTrim(file, getDestinationPath(), mStartPosition, mEndPosition, mOnTrimVideoListener, getContext());
                             } catch (final Throwable e) {
                                 Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
                             }
@@ -336,7 +341,7 @@ public class HgLVideoTrimmer extends FrameLayout {
     private String getDestinationPath() {
         if (mFinalPath == null) {
             File folder = Environment.getExternalStorageDirectory();
-            mFinalPath = folder.getPath() + File.separator;
+            mFinalPath = folder.getPath() + File.separator + "Mintery" + File.separator;
             Log.d(TAG, "Using default path " + mFinalPath);
         }
         return mFinalPath;

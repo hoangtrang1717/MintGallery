@@ -1,6 +1,7 @@
 package com.chocomint.mintery;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -56,6 +57,7 @@ public class FullVideoActivity extends AppCompatActivity {
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
     private final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
+    private final int REQUEST_TRIM_VIDEO = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +117,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 if (!isPlaying) {
                     pauseBtn.setImageResource(R.drawable.ic_pause);
                 }
+                isPlaying = true;
                 setFavoriteIcon();
             }
 
@@ -156,6 +159,7 @@ public class FullVideoActivity extends AppCompatActivity {
         trimBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pauseVideo();
                 if (ContextCompat.checkSelfPermission(FullVideoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL);
                 }
@@ -163,8 +167,9 @@ public class FullVideoActivity extends AppCompatActivity {
                     return;
                 }
                 Intent intent = new Intent(getApplicationContext(), TrimmerActivity.class);
-                intent.putExtra("EXTRA_VIDEO_PATH", FileUtils.getPath(getApplicationContext(), Uri.fromFile(new File(path))));
-                startActivity(intent);
+                intent.putExtra("EXTRA_VIDEO_PATH", FileUtils.getPath(getApplicationContext(), Uri.fromFile(new File(arrayList.get(CurrentPosition).path))));
+                intent.putExtra("id", String.valueOf(arrayList.get(CurrentPosition).id));
+                startActivityForResult(intent, REQUEST_TRIM_VIDEO);
             }
         });
     }
@@ -240,6 +245,18 @@ public class FullVideoActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_TRIM_VIDEO: {
+                if (resultCode == RESULT_OK) {
+                    onBackPressed();
+                }
+            }
+        }
+    }
+
     private void setFavoriteIcon() {
         MenuItem menuItem =  menuVideo.findItem(R.id.img_favorite);
         if (arrayList.get(CurrentPosition).isFavorite) {
@@ -281,6 +298,7 @@ public class FullVideoActivity extends AppCompatActivity {
                         onBackPressed();
                     }
                     imageSlider.notifyDataSetChanged();
+                    isPlaying = true;
                     pauseBtn.setImageResource(R.drawable.ic_pause);
                 }
             }});
