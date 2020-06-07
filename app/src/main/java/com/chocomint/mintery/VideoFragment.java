@@ -3,6 +3,7 @@ package com.chocomint.mintery;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -130,17 +132,42 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                     shareIntent.setType("video/*");
                     startActivity(Intent.createChooser(shareIntent, "Share videos"));
                 } else {
-                    Toast.makeText(getContext(), "You did not choose any video", Toast.LENGTH_LONG).show();
+                    return false;
                 }
             } catch (ActivityNotFoundException e) {
                 return false;
             }
             return true;
         }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (!aBoolean && fileChoose.size() <= 0) {
+                Toast.makeText(getContext(), "You did not choose any video", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     public void DeleteVideos() {
-        new VideoFragment.DeleteThread().execute();
+        if (fileChoose.size() > 0) {
+            AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(getContext());
+            myAlertDialog.setTitle("Delete videos");
+            myAlertDialog.setMessage("Do you want to delete all of them?");
+            myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    new VideoFragment.DeleteThread().execute();
+                }
+            });
+            myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) { }
+            });
+            myAlertDialog.show();
+        } else {
+            Toast.makeText(getContext(), "You didn't choose any videos.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {

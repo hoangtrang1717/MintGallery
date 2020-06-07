@@ -23,6 +23,7 @@ public class Media implements Serializable {
     PlayerManager playerManager;
     String mimeType;
     boolean isFavorite;
+    int countDate;
 
     public Media(int id, String path, int type, Date dateModified, Long duration, String name, String size, String album, boolean isFavorite) {
         this.id = id;
@@ -34,6 +35,8 @@ public class Media implements Serializable {
         this.size = size;
         this.album = album;
         this.isFavorite = isFavorite;
+        this.mimeType = "";
+        this.countDate = 0;
     }
 
     public Media(Media m) {
@@ -44,6 +47,10 @@ public class Media implements Serializable {
         this.duration = m.duration;
         this.name = m.name;
         this.size = m.size;
+        this.album = m.album;
+        this.isFavorite = m.isFavorite;
+        this.mimeType = m.mimeType;
+        this.countDate = m.countDate;
     }
 
     public void setId(int id) {
@@ -52,6 +59,14 @@ public class Media implements Serializable {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public void setCountDate(int countDate) {
+        this.countDate = countDate;
+    }
+
+    public void changeCountDate(int change) {
+        this.countDate += change;
     }
 
     public boolean setFavorite() {

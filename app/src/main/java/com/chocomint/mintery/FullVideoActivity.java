@@ -34,6 +34,7 @@ import com.github.rubensousa.previewseekbar.PreviewLoader;
 import com.github.rubensousa.previewseekbar.PreviewView;
 import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.material.bottomappbar.BottomAppBar;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class FullVideoActivity extends AppCompatActivity {
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
-    private final int REQUEST_FULL_VIDEO = 7;
+    private final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,27 +145,11 @@ public class FullVideoActivity extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseVideo();
-                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullVideoActivity.this);
-                myAlertDialog.setTitle("Delete Video");
-                myAlertDialog.setMessage("Do you want to delete it?");
-                myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
-                        if (delete > 0) {
-                            imageSlider.stopVideo(CurrentPosition);
-                            arrayList.remove(CurrentPosition);
-                            if (arrayList.size() < 1) {
-                                onBackPressed();
-                            }
-                            imageSlider.notifyDataSetChanged();
-                            pauseBtn.setImageResource(R.drawable.ic_pause);
-                        }
-                    }});
-                myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }});
-                myAlertDialog.show();
+                if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_DELETE);
+                }
             }
         });
 
@@ -243,6 +228,18 @@ public class FullVideoActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_WRITE_EXTERNAL_DELETE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                }
+            }
+        }
+    }
+
     private void setFavoriteIcon() {
         MenuItem menuItem =  menuVideo.findItem(R.id.img_favorite);
         if (arrayList.get(CurrentPosition).isFavorite) {
@@ -267,6 +264,30 @@ public class FullVideoActivity extends AppCompatActivity {
             isPlaying = imageSlider.pauseVideo(CurrentPosition);
             pauseBtn.setImageResource(R.drawable.ic_play);
         }
+    }
+
+    private void showDialogDelete() {
+        pauseVideo();
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullVideoActivity.this);
+        myAlertDialog.setTitle("Delete Video");
+        myAlertDialog.setMessage("Do you want to delete it?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                if (delete > 0) {
+                    imageSlider.stopVideo(CurrentPosition);
+                    arrayList.remove(CurrentPosition);
+                    if (arrayList.size() < 1) {
+                        onBackPressed();
+                    }
+                    imageSlider.notifyDataSetChanged();
+                    pauseBtn.setImageResource(R.drawable.ic_pause);
+                }
+            }});
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+            }});
+        myAlertDialog.show();
     }
 
     private class ShareThread extends AsyncTask<Void, Void, Boolean> {

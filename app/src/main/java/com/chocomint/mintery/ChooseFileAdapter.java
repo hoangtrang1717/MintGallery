@@ -3,6 +3,7 @@ package com.chocomint.mintery;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,6 +78,9 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ((HolderHeaderView) holder).all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (!compoundButton.isPressed()) {
+                        return;
+                    }
                     for (int i = position + 1; i < allMedia.size(); i++) {
                         if (allMedia.get(i).path.compareTo("nothing") == 0) {
                             break;
@@ -90,10 +94,23 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ((HolderHeaderView) holder).view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((HolderHeaderView) holder).all.setChecked(!((HolderHeaderView) holder).all.isChecked());
+                    ((HolderHeaderView) holder).all.performClick();
+                    for (int i = position + 1; i < allMedia.size(); i++) {
+                        if (allMedia.get(i).path.compareTo("nothing") == 0) {
+                            break;
+                        }
+                        chooseFileCallback.chooseFile(i, ((HolderHeaderView) holder).all.isChecked());
+                        notifyItemChanged(i);
+                    }
                 }
             });
             ((HolderHeaderView) holder).number.setText(String.valueOf(allMedia.get(position).id));
+
+            if (allMedia.get(position).id == allMedia.get(position).countDate) {
+                ((HolderHeaderView) holder).all.setChecked(true);
+            } else {
+                ((HolderHeaderView) holder).all.setChecked(false);
+            }
 
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
             Date today = new Date();
@@ -132,14 +149,30 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ((HolderImageView) holder).radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (!compoundButton.isPressed()) {
+                        return;
+                    }
                     chooseFileCallback.chooseFile(position, b);
+                    if (b) {
+                        allMedia.get(allMedia.get(position).countDate).changeCountDate(1);
+                    } else {
+                        allMedia.get(allMedia.get(position).countDate).changeCountDate(-1);
+                    }
+                    notifyItemChanged(allMedia.get(position).countDate);
                 }
             });
 
             ((HolderImageView) holder).view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((HolderImageView) holder).radioButton.setChecked(!((HolderImageView) holder).radioButton.isChecked());
+                    ((HolderImageView) holder).radioButton.performClick();
+                    chooseFileCallback.chooseFile(position, ((HolderImageView) holder).radioButton.isChecked());
+                    if (((HolderImageView) holder).radioButton.isChecked()) {
+                        allMedia.get(allMedia.get(position).countDate).changeCountDate(1);
+                    } else {
+                        allMedia.get(allMedia.get(position).countDate).changeCountDate(-1);
+                    }
+                    notifyItemChanged(allMedia.get(position).countDate);
                 }
             });
 
@@ -185,6 +218,15 @@ public class ChooseFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             thumbnail = itemView.findViewById(R.id.image_item);
             view = itemView.findViewById(R.id.item_holder);
             radioButton = itemView.findViewById(R.id.radio_choose);
+        }
+    }
+
+    private class NotifyChange extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            notifyItemChanged(integers[0]);
+            return null;
         }
     }
 }

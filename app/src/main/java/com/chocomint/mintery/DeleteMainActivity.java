@@ -166,26 +166,13 @@ public class DeleteMainActivity extends AppCompatActivity {
     }
 
     private void deleteFiles() {
-        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DeleteMainActivity.this);
-        myAlertDialog.setTitle(currentFrag == PHOTO_FRAG ? "Delete photos" : "Delete videos");
-        myAlertDialog.setMessage("Do you want to delete all of them?");
-        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (currentFrag == PHOTO_FRAG) {
-                    PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
-                    photoFragment.DeletePhotos();
-                } else if (currentFrag == VIDEO_FRAG) {
-                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
-                    videoFragment.DeleteVideos();
-                }
-            }
-        });
-        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) { }
-        });
-        myAlertDialog.show();
+        if (currentFrag == PHOTO_FRAG) {
+            PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+            photoFragment.DeletePhotos();
+        } else if (currentFrag == VIDEO_FRAG) {
+            VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
+            videoFragment.DeleteVideos();
+        }
     }
 
     public boolean checkPermission(String permission, int requestCode) {

@@ -62,6 +62,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     final int SET_ALL = 3;
 
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
+    final int REQUEST_WRITE_EXTERNAL = 124;
     private final int REQUEST_EDIT_IMAGE = 6;
 
     @Override
@@ -167,24 +168,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
-                myAlertDialog.setTitle("Delete Photo");
-                myAlertDialog.setMessage("Do you want to delete it?");
-                myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
-                        if (delete > 0) {
-                            arrayList.remove(CurrentPosition);
-                            if (arrayList.size() < 1) {
-                                onBackPressed();
-                            }
-                            imageSlider.notifyDataSetChanged();
-                        }
-                    }});
-                myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }});
-                myAlertDialog.show();
+                if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL);
+                }
             }
         });
     }
@@ -290,6 +278,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                             .start(FullImageActivity.this);
                 }
             }
+            case REQUEST_WRITE_EXTERNAL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                }
+            }
         }
     }
 
@@ -318,6 +311,27 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     public void onAddPhotoSuccess() {
         setResult(RESULT_OK);
         onBackPressed();
+    }
+
+    private void showDialogDelete() {
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
+        myAlertDialog.setTitle("Delete Photo");
+        myAlertDialog.setMessage("Do you want to delete it?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                if (delete > 0) {
+                    arrayList.remove(CurrentPosition);
+                    if (arrayList.size() < 1) {
+                        onBackPressed();
+                    }
+                    imageSlider.notifyDataSetChanged();
+                }
+            }});
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+            }});
+        myAlertDialog.show();
     }
 
     private class ShareThread extends AsyncTask <Void, Void, Boolean> {
@@ -385,7 +399,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 }
                 imageSlider.notifyDataSetChanged();
             } else {
-                Toast.makeText(FullImageActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();
+                Toast.makeText(FullImageActivity.this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
             }
         }
     }

@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     File photoFile;
     Uri photoURI;
     boolean isHasNewPhoto, isHasNewVideo;
+    Menu toolbarMenu;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             public void onClick(View view) {
                 currentFrag = VIDEO_FRAG;
                 videoFrag = new VideoFragment();
+                toolbarMenu.setGroupVisible(R.id.camera_group, true);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("list", videoList);
                 videoFrag.setArguments(bundle);
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             public void onClick(View view) {
                 currentFrag = PHOTO_FRAG;
                 photoFrag = new PhotoFragment();
+                toolbarMenu.setGroupVisible(R.id.camera_group, true);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("list", photoList);
                 photoFrag.setArguments(bundle);
@@ -160,7 +163,11 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        toolbarMenu = menu;
+        if (currentFrag != ALBUM_FRAG) {
+            toolbarMenu.setGroupVisible(R.id.camera_group, true);
+        }
+        return super.onCreateOptionsMenu(toolbarMenu);
     }
 
     @Override
@@ -443,6 +450,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     String album = imagecursor.getString(album_column_index);
                     Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, favorite);
                     media.setMimeType(imagecursor.getString(mime_column_index));
+                    media.setCountDate(positionOfDate);
                     photoList.add(media);
                 }
                 photoList.get(positionOfDate).setId(countPhotoInDate);
@@ -498,6 +506,7 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     String album = videocursor.getString(video_album_column_index);
                     Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, favorite);
                     media.setMimeType(videocursor.getString(mime_column_index));
+                    media.setCountDate(positionOfDate);
                     videoList.add(media);
                 }
                 videoList.get(positionOfDate).setId(countVideoInDate);

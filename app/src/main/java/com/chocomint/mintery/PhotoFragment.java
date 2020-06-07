@@ -2,6 +2,7 @@ package com.chocomint.mintery;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -144,7 +146,24 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
     }
 
     public void DeletePhotos() {
-        new PhotoFragment.DeleteThread().execute();
+        if (fileChoose.size() > 0) {
+            AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(getContext());
+            myAlertDialog.setTitle("Delete photos");
+            myAlertDialog.setMessage("Do you want to delete all of them?");
+            myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    new PhotoFragment.DeleteThread().execute();
+                }
+            });
+            myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) { }
+            });
+            myAlertDialog.show();
+        } else {
+            Toast.makeText(getContext(), "You didn't choose any photos.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {
@@ -164,9 +183,6 @@ public class PhotoFragment extends Fragment implements ChooseFileCallback {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
-                if (fileChoose.size() <= 0) {
-                    Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG);
-                }
                 getActivity().onBackPressed();
             } else {
                 Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
