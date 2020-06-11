@@ -28,8 +28,6 @@ import java.util.Locale;
 
 public class AlbumDetailActivity extends AppCompatActivity {
     ArrayList<Media> arrayList;
-    ImageButton photoTabbar, videoTabbar;
-    FloatingActionButton albumTabbar;
     Toolbar mainToolbar;
     TextView toolBarText;
     Fragment mediaFrag;
@@ -41,28 +39,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_album_detail);
         getView();
         setSupportActionBar(mainToolbar);
-
-
-        albumTabbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
-
-        videoTabbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
-
-        photoTabbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
     }
 
     @Override
@@ -80,9 +56,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
     }
 
     private void getView() {
-        albumTabbar = (FloatingActionButton) findViewById(R.id.album_tabbar);
-        videoTabbar = (ImageButton) findViewById(R.id.video_tabbar);
-        photoTabbar = (ImageButton) findViewById(R.id.photo_tabbar);
         mainToolbar = (Toolbar) findViewById(R.id.main_toolbar);
         toolBarText = (TextView) findViewById(R.id.toolbar_text);
         mediaFrag = new AlbumDetailFragment();

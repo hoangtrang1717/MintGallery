@@ -21,7 +21,7 @@
         android:id="@+id/media_viewpaprer"/>
 
     <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/full_image_bottomtab"
+        android:id="@+id/full_media_bottomtab"
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_gravity="bottom"
@@ -37,70 +37,29 @@
                 android:src="@drawable/ic_crop"
                 android:background="@android:color/transparent"
                 android:layout_weight="1"
-                android:id="@+id/image_crop"/>
+                android:id="@+id/firstIcon"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_sliders"
                 android:background="@android:color/transparent"
                 android:layout_weight="1"
-                android:id="@+id/image_edit"/>
+                android:id="@+id/secondIcon"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_share"
                 android:background="@android:color/transparent"
                 android:layout_weight="1"
-                android:id="@+id/image_share"/>
+                android:id="@+id/thirdIcon"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_trash"
                 android:background="@android:color/transparent"
                 android:layout_weight="1"
-                android:id="@+id/image_delete"/>
+                android:id="@+id/fouthIcon"/>
         </LinearLayout>
     </com.google.android.material.bottomappbar.BottomAppBar>
 
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/full_video_bottomtab"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_gravity="bottom"
-        android:backgroundTint="#B3FFFFFF">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:background="#B3FFFFFF">
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_scissors"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/video_trim"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_pause"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/video_pause"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_share"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/video_share"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_trash"
-                android:background="@android:color/transparent"
-                android:layout_weight="1"
-                android:id="@+id/video_delete"/>
-        </LinearLayout>
-    </com.google.android.material.bottomappbar.BottomAppBar>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

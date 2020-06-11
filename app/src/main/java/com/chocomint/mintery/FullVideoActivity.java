@@ -5,12 +5,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +32,7 @@ import com.github.rubensousa.previewseekbar.PreviewLoader;
 import com.github.rubensousa.previewseekbar.PreviewView;
 import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.material.bottomappbar.BottomAppBar;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.ArrayList;
 
@@ -44,6 +48,8 @@ public class FullVideoActivity extends AppCompatActivity {
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
+
+    final int REQUEST_READ_WRITE_EXTERNAL = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,20 +118,27 @@ public class FullVideoActivity extends AppCompatActivity {
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 pauseVideo();
                 AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullVideoActivity.this);
                 myAlertDialog.setTitle("Delete Video");
                 myAlertDialog.setMessage("Do you want to delete it?");
                 myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
-                        int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                        Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
+                        if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
+                                    .start(FullVideoActivity.this);
+                        } else {
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
+                        }
+                        int delete = getContentResolver().delete(uri, null, null);
                         if (delete > 0) {
                             arrayList.remove(CurrentPosition);
                             if (arrayList.size() < 1) {
                                 onBackPressed();
                             }
-                            imageSlider.stopVideo(CurrentPosition);
+//                            imageSlider.stopVideo(CurrentPosition);
                             imageSlider.notifyDataSetChanged();
                         }
                     }});

@@ -374,6 +374,11 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
         } else {
             albumList = new ArrayList<>();
         }
+        if (favoriteList != null) {
+            favoriteList.clear();
+        } else {
+            favoriteList = new ArrayList<>();
+        }
 //        if (thumbnailAlbum != null) {
 //            thumbnailAlbum.clear();
 //        } else {
@@ -424,6 +429,9 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                 String album = imagecursor.getString(album_column_index);
                 Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, favorite);
                 photoList.add(media);
+//                if (favorite) {
+//                    favoriteList.add(filePath);
+//                }
             }
 
             imagecursor.moveToPosition(0);
@@ -478,9 +486,16 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                 String album = videocursor.getString(video_album_column_index);
                 Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, album, favorite);
                 videoList.add(media);
+//                if (favorite) {
+//                    favoriteList.add(filePath);
+//                }
 
             }
             videocursor.close();
+
+//            String favoriteThumbnail = favoriteList.get(0);
+//            Media favoriteMedia = new Media(favoriteThumbnail, "Favorites");
+//            albumList.add(favoriteMedia);
 
             String[] albumColumn = { "DISTINCT " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME};
 
@@ -520,10 +535,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                 albumList.add(media);
                 filter.close();
             }
-            String favoriteThumbnail = favoriteList.get(0);
-            Log.e("ALBUM", favoriteThumbnail);
-            Media favoriteMedia = new Media(favoriteThumbnail, "Favorites");
-            albumList.add(favoriteMedia);
 
             albumCursor.close();
         } catch (Exception e) {
