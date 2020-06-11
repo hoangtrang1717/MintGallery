@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -35,13 +37,14 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public class FullImageActivity extends AppCompatActivity implements CallbackFunction {
 
-    Context context = this;
     ViewPager slider;
     Toolbar img_toolbar;
     FullImageSlider imageSlider;
@@ -50,10 +53,17 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
     int CurrentPosition;
     Menu menuImage;
     FavoriteDatabase favoriteDatabase;
+    AlertDialog dialog;
 
     ImageButton cropBtn, editBtn, shareBtn, deleteBtn;
 
+    final int SET_WALLPAPER = 1;
+    final int SET_LOCKSCREEN = 2;
+    final int SET_ALL = 3;
+
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
+    final int REQUEST_WRITE_EXTERNAL = 124;
+    private final int REQUEST_EDIT_IMAGE = 6;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,6 +77,27 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         slider = (ViewPager) findViewById(R.id.image_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
+
+        //
+        int temp = 0;
+        for(int i = 0; i < CurrentPosition; i++)
+        {
+            if(arrayList.get(i).path.compareTo("nothing") == 0) {
+                temp = temp + 1;
+            }
+        }
+        CurrentPosition = CurrentPosition - temp;
+        //
+        arrayList.removeIf(new Predicate<Media>() {
+            @Override
+            public boolean test(Media media) {
+                if (media.path.compareTo("nothing") == 0) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        //
         imageSlider = new FullImageSlider(FullImageActivity.this, arrayList, path);
         slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
@@ -103,10 +134,10 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         cropBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
                 if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-                            .start(FullImageActivity.this);
+                    Intent intent = new Intent(FullImageActivity.this, CropImageActivity.class);
+                    intent.putExtra("uri", Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)).toString());
+                    startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
                 } else {
                     requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
                 }
@@ -116,7 +147,14 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText( view.getContext(), "Hit edit", Toast.LENGTH_LONG).show();
+                if (arrayList.get(CurrentPosition).mimeType.contains("gif")) {
+                    Toast.makeText(FullImageActivity.this, "Cannot edit gif.", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent intent = new Intent(FullImageActivity.this, EditImageActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putExtra("path", arrayList.get(CurrentPosition).path);
+                    startActivityForResult(intent, REQUEST_EDIT_IMAGE);
+                }
             }
         });
 
@@ -130,24 +168,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
-                myAlertDialog.setTitle("Delete Photo");
-                myAlertDialog.setMessage("Do you want to delete it?");
-                myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
-                        if (delete > 0) {
-                            arrayList.remove(CurrentPosition);
-                            if (arrayList.size() < 1) {
-                                onBackPressed();
-                            }
-                            imageSlider.notifyDataSetChanged();
-                        }
-                    }});
-                myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }});
-                myAlertDialog.show();
+                if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL);
+                }
             }
         });
     }
@@ -193,7 +218,35 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 new FavoriteThread().execute(arrayList.get(CurrentPosition).isFavorite);
                 return true;
             case R.id.wallpaper:
-                new SetWallpaperThread().execute();
+                AlertDialog.Builder builder = new AlertDialog.Builder(FullImageActivity.this);
+                View view = getLayoutInflater().inflate(R.layout.set_wallpaper_dialog, null);
+                final Button setWallpaper = view.findViewById(R.id.button_set_wallpaper);
+                final Button setLockscreen = view.findViewById(R.id.button_set_lockscreen);
+                final Button setAll = view.findViewById(R.id.button_set_all);
+                setWallpaper.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SetWallpaperThread().execute(SET_WALLPAPER);
+                        dialog.dismiss();
+                    }
+                });
+                setLockscreen.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SetWallpaperThread().execute(SET_LOCKSCREEN);
+                        dialog.dismiss();
+                    }
+                });
+                setAll.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SetWallpaperThread().execute(SET_ALL);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setView(view);
+                dialog = builder.create();
+                dialog.show();
                 return true;
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
@@ -225,6 +278,11 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                             .start(FullImageActivity.this);
                 }
             }
+            case REQUEST_WRITE_EXTERNAL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                }
+            }
         }
     }
 
@@ -233,30 +291,17 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE: {
-                CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 if (resultCode == RESULT_OK) {
-                    Uri resultUri = result.getUri();
-                    String uriToString = resultUri.toString();
-                    try {
-                        Bitmap bitmap = null;
-                        if (Build.VERSION.SDK_INT < 28) {
-                            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
-                        } else {
-                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), resultUri);
-                            bitmap = ImageDecoder.decodeBitmap(source);
-                        }
-                        String format = uriToString.substring(uriToString.lastIndexOf('.') + 1);
-                        SavePhoto savePhoto = new SavePhoto(bitmap, this.getBaseContext(), null, "image/jpg", this);
-                        savePhoto.saveImage();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.d("Error create new photo", e.getMessage());
-                    }
+                    onBackPressed();
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Exception error = result.getError();
-                    Log.d("Error crop image", error.getMessage());
+                    Log.d("Error crop image", "");
                 }
                 break;
+            }
+            case REQUEST_EDIT_IMAGE: {
+                if (resultCode == RESULT_OK) {
+                    onBackPressed();
+                }
             }
             default: return;
         }
@@ -264,7 +309,29 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
 
     @Override
     public void onAddPhotoSuccess() {
+        setResult(RESULT_OK);
         onBackPressed();
+    }
+
+    private void showDialogDelete() {
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullImageActivity.this);
+        myAlertDialog.setTitle("Delete Photo");
+        myAlertDialog.setMessage("Do you want to delete it?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                if (delete > 0) {
+                    arrayList.remove(CurrentPosition);
+                    if (arrayList.size() < 1) {
+                        onBackPressed();
+                    }
+                    imageSlider.notifyDataSetChanged();
+                }
+            }});
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+            }});
+        myAlertDialog.show();
     }
 
     private class ShareThread extends AsyncTask <Void, Void, Boolean> {
@@ -283,29 +350,28 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
         }
     }
 
-    private class SetWallpaperThread extends AsyncTask <Void, Void, Boolean> {
+    private class SetWallpaperThread extends AsyncTask <Integer, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
-            return setWallpaper();
-        }
+        protected Boolean doInBackground(Integer... integers) {
+            WallpaperManager wallpaperManager = WallpaperManager.getInstance(FullImageActivity.this);
+            Bitmap bmap2 = BitmapFactory.decodeFile(arrayList.get(CurrentPosition).path);
 
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
+            try {
+                if (integers[0] == SET_WALLPAPER) {
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_SYSTEM);
+                } else if (integers[0] == SET_LOCKSCREEN) {
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_LOCK);
+                } else if (integers[0] == SET_ALL) {
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_SYSTEM);
+                    wallpaperManager.setBitmap(bmap2, null, true, WallpaperManager.FLAG_LOCK);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
         }
-    }
-
-    private boolean setWallpaper() {
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(FullImageActivity.this);
-        Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
-        Intent intent = wallpaperManager.getCropAndSetWallpaperIntent(uri);
-        try {
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            return false;
-        }
-        return true;
     }
 
     private class FavoriteThread extends AsyncTask <Boolean, Void, Boolean> {
@@ -333,7 +399,7 @@ public class FullImageActivity extends AppCompatActivity implements CallbackFunc
                 }
                 imageSlider.notifyDataSetChanged();
             } else {
-                Toast.makeText(FullImageActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();
+                Toast.makeText(FullImageActivity.this, "An unexpected error has occured. Try again later.", Toast.LENGTH_LONG).show();
             }
         }
     }

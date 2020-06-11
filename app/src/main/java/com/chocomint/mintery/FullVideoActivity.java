@@ -1,6 +1,7 @@
 package com.chocomint.mintery;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,13 +30,18 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.chocomint.mintery.videoTrimmer.utils.FileUtils;
 import com.github.rubensousa.previewseekbar.PreviewLoader;
 import com.github.rubensousa.previewseekbar.PreviewView;
 import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
 
 public class FullVideoActivity extends AppCompatActivity {
     Toolbar video_toolbar;
@@ -45,9 +52,12 @@ public class FullVideoActivity extends AppCompatActivity {
     int CurrentPosition;
     FavoriteDatabase favoriteDatabase;
     Menu menuVideo;
+    private final int REQUEST_WRITE_EXTERNAL = 2;
 
     ImageButton shareBtn, deleteBtn, trimBtn, pauseBtn;
     boolean isPlaying;
+    private final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
+    private final int REQUEST_TRIM_VIDEO = 8;
 
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
 
@@ -60,10 +70,30 @@ public class FullVideoActivity extends AppCompatActivity {
         favoriteDatabase = new FavoriteDatabase(FullVideoActivity.this);
 
         isPlaying = true;
-        String path = getIntent().getExtras().getString("id");
+        final String path = getIntent().getExtras().getString("id");
         slider = (ViewPager) findViewById(R.id.video_viewpaprer);
         arrayList = (ArrayList<Media>) getIntent().getSerializableExtra("list");
         CurrentPosition = getIntent().getExtras().getInt("position");
+        //
+        int temp = 0;
+        for(int i = 0; i < CurrentPosition; i++)
+        {
+            if(arrayList.get(i).path.compareTo("nothing") == 0) {
+                temp = temp + 1;
+            }
+        }
+        CurrentPosition = CurrentPosition - temp;
+        //
+        arrayList.removeIf(new Predicate<Media>() {
+            @Override
+            public boolean test(Media media) {
+                if (media.path.compareTo("nothing") == 0) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        //
         imageSlider = new FullImageSlider(FullVideoActivity.this, arrayList, path);
         slider.setAdapter(imageSlider);
         slider.setCurrentItem(CurrentPosition);
@@ -89,6 +119,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 if (!isPlaying) {
                     pauseBtn.setImageResource(R.drawable.ic_pause);
                 }
+                isPlaying = true;
                 setFavoriteIcon();
             }
 
@@ -118,34 +149,12 @@ public class FullVideoActivity extends AppCompatActivity {
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View view) {
-                pauseVideo();
-                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullVideoActivity.this);
-                myAlertDialog.setTitle("Delete Video");
-                myAlertDialog.setMessage("Do you want to delete it?");
-                myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
-                        if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                            CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-                                    .start(FullVideoActivity.this);
-                        } else {
-                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
-                        }
-                        int delete = getContentResolver().delete(uri, null, null);
-                        if (delete > 0) {
-                            arrayList.remove(CurrentPosition);
-                            if (arrayList.size() < 1) {
-                                onBackPressed();
-                            }
-//                            imageSlider.stopVideo(CurrentPosition);
-                            imageSlider.notifyDataSetChanged();
-                        }
-                    }});
-                myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }});
-                myAlertDialog.show();
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_DELETE);
+                }
             }
         });
 
@@ -153,7 +162,16 @@ public class FullVideoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pauseVideo();
-                Toast.makeText( view.getContext(), "Hit trim", Toast.LENGTH_LONG).show();
+                if (ContextCompat.checkSelfPermission(FullVideoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL);
+                }
+                if (ContextCompat.checkSelfPermission(FullVideoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                Intent intent = new Intent(getApplicationContext(), TrimmerActivity.class);
+                intent.putExtra("EXTRA_VIDEO_PATH", FileUtils.getPath(getApplicationContext(), Uri.fromFile(new File(arrayList.get(CurrentPosition).path))));
+                intent.putExtra("id", String.valueOf(arrayList.get(CurrentPosition).id));
+                startActivityForResult(intent, REQUEST_TRIM_VIDEO);
             }
         });
     }
@@ -217,6 +235,30 @@ public class FullVideoActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_WRITE_EXTERNAL_DELETE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_TRIM_VIDEO: {
+                if (resultCode == RESULT_OK) {
+                    onBackPressed();
+                }
+            }
+        }
+    }
+
     private void setFavoriteIcon() {
         MenuItem menuItem =  menuVideo.findItem(R.id.img_favorite);
         if (arrayList.get(CurrentPosition).isFavorite) {
@@ -241,6 +283,31 @@ public class FullVideoActivity extends AppCompatActivity {
             isPlaying = imageSlider.pauseVideo(CurrentPosition);
             pauseBtn.setImageResource(R.drawable.ic_play);
         }
+    }
+
+    private void showDialogDelete() {
+        pauseVideo();
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(FullVideoActivity.this);
+        myAlertDialog.setTitle("Delete Video");
+        myAlertDialog.setMessage("Do you want to delete it?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                if (delete > 0) {
+                    imageSlider.stopVideo(CurrentPosition);
+                    arrayList.remove(CurrentPosition);
+                    if (arrayList.size() < 1) {
+                        onBackPressed();
+                    }
+                    imageSlider.notifyDataSetChanged();
+                    isPlaying = true;
+                    pauseBtn.setImageResource(R.drawable.ic_pause);
+                }
+            }});
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+            }});
+        myAlertDialog.show();
     }
 
     private class ShareThread extends AsyncTask<Void, Void, Boolean> {
@@ -283,6 +350,7 @@ public class FullVideoActivity extends AppCompatActivity {
                 } else {
                     menuItem.setIcon(R.drawable.ic_heart_outline);
                 }
+                pauseBtn.setImageResource(R.drawable.ic_pause);
                 imageSlider.notifyDataSetChanged();
             } else {
                 Toast.makeText(FullVideoActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();

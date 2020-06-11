@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@android:color/white</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/primary</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="popupTheme">@style/MyDarkToolbarStyle</item>
         <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>
@@ -24,6 +24,34 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
+        <item name="android:textViewStyle">@style/PoppinsTextViewStyle</item>
+        <item name="buttonStyle">@style/PoppinsButtonStyle</item>
+    </style>
+
+    <style name="PoppinsTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/poppins</item>
+    </style>
+
+    <style name="PoppinsButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/poppins</item>
+    </style>
+
+    <style name="CustomColorPicker" parent="ColorPicker">
+        <item name="cp_backgroundColor">#fff</item>
+        <item name="cp_hexaDecimalTextColor">@android:color/black</item>
+        <item name="cp_colorComponentsTextColor">@android:color/black</item>
+        <item name="cp_positiveActionTextColor">@color/primary</item>
+        <item name="cp_negativeActionTextColor">@android:color/black</item>
+        <item name="cp_sliderThumbColor">#ffffff</item>
+        <item name="fontFamily">@font/poppins</item>
+    </style>
+
+=    <style name="CollageTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@android:color/black</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="colorAccent">@android:color/white</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:colorControlHighlight">@android:color/white</item>
     </style>
 
 </resources>

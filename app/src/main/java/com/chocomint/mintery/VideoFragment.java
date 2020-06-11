@@ -3,6 +3,7 @@ package com.chocomint.mintery;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -58,11 +60,29 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                 if (from.compareTo("DELETE") == 0) {
                     chooseFileAdapter = new ChooseFileAdapter(getActivity(), videoList, this);
                     recyclerView.setAdapter(chooseFileAdapter);
+
+                    final GridLayoutManager manager = new GridLayoutManager(this.getActivity(), 4);
+                    recyclerView.setLayoutManager(manager);
+                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return chooseFileAdapter.isHeader(position) ? manager.getSpanCount() : 1;
+                        }
+                    });
                 } else {
                     adapter = new ImageAdapter(getActivity(), videoList);
                     recyclerView.setAdapter(adapter);
+
+                    final GridLayoutManager manager = new GridLayoutManager(this.getActivity(), 4);
+                    recyclerView.setLayoutManager(manager);
+                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return adapter.isHeader(position) ? manager.getSpanCount() : 1;
+
+                        }
+                    });
                 }
-                recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
             } else {
                 layout_photo = (ConstraintLayout) inflater.inflate(R.layout.video_no_item, null);
             }
@@ -80,10 +100,17 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
     @Override
     public void chooseFile(int position, boolean add) {
         if (add) {
-            fileChoose.add(String.valueOf(videoList.get(position).id));
+            if (fileChoose.indexOf(String.valueOf(videoList.get(position).id)) < 0) {
+                fileChoose.add(String.valueOf(videoList.get(position).id));
+            }
         } else {
             fileChoose.remove(String.valueOf(videoList.get(position).id));
         }
+    }
+
+    @Override
+    public int findChooseFile(int id) {
+        return fileChoose.indexOf(String.valueOf(id));
     }
 
     public void ShareVideo() {
@@ -105,17 +132,42 @@ public class VideoFragment extends Fragment implements ChooseFileCallback {
                     shareIntent.setType("video/*");
                     startActivity(Intent.createChooser(shareIntent, "Share videos"));
                 } else {
-                    Toast.makeText(getContext(), "You did not choose any video", Toast.LENGTH_LONG).show();
+                    return false;
                 }
             } catch (ActivityNotFoundException e) {
                 return false;
             }
             return true;
         }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (!aBoolean && fileChoose.size() <= 0) {
+                Toast.makeText(getContext(), "You did not choose any video", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     public void DeleteVideos() {
-        new VideoFragment.DeleteThread().execute();
+        if (fileChoose.size() > 0) {
+            AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(getContext());
+            myAlertDialog.setTitle("Delete videos");
+            myAlertDialog.setMessage("Do you want to delete all of them?");
+            myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    new VideoFragment.DeleteThread().execute();
+                }
+            });
+            myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) { }
+            });
+            myAlertDialog.show();
+        } else {
+            Toast.makeText(getContext(), "You didn't choose any videos.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {

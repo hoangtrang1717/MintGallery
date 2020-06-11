@@ -4,7 +4,7 @@
     android:id="@+id/item_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <CheckBox
@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="4dp"
         android:layout_marginTop="4dp"
+        android:checked="false"
         android:button="@drawable/checkbox_selector"/>
 
     <TextView

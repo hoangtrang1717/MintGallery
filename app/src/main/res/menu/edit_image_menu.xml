@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+    android:id="@+id/edit_undo"
+    android:title="Camera"
+    android:icon="@drawable/ic_corner_up_left"
+    app:showAsAction="always" />
+
+    <item
+        android:id="@+id/edit_redo"
+        android:title="Setting"
+        android:icon="@drawable/ic_corner_up_right"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/edit_reset"
+        android:title="RESET"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/edit_save"
+        android:title="SAVE"
+        app:showAsAction="always" >
+    </item>
+</menu>

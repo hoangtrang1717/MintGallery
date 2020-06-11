@@ -40,7 +40,7 @@ public class DeleteMainActivity extends AppCompatActivity {
     Fragment photoFrag, videoFrag, albumFrag;
     Toolbar mainToolbar;
     TextView toolBarText;
-    ArrayList<Media> arrayList, photoList, videoList;
+    ArrayList<Media> arrayList;
 
     final int PHOTO_FRAG = 1;
     final int ALBUM_FRAG = 2;
@@ -128,6 +128,9 @@ public class DeleteMainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.delete_main_toolbar, menu);
+        if (currentFrag == PHOTO_FRAG) {
+            menu.setGroupVisible(R.id.collage_group, true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -141,6 +144,12 @@ public class DeleteMainActivity extends AppCompatActivity {
                 } else if (currentFrag == VIDEO_FRAG) {
                     VideoFragment photoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
                     photoFragment.ShareVideo();
+                }
+                return true;
+            case R.id.collage_toolbar:
+                if (currentFrag == PHOTO_FRAG) {
+                    PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+                    photoFragment.CollagePhoto();
                 }
                 return true;
             case R.id.delete_toolbar:
@@ -157,26 +166,13 @@ public class DeleteMainActivity extends AppCompatActivity {
     }
 
     private void deleteFiles() {
-        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DeleteMainActivity.this);
-        myAlertDialog.setTitle(currentFrag == PHOTO_FRAG ? "Delete photos" : "Delete videos");
-        myAlertDialog.setMessage("Do you want to delete all of them?");
-        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (currentFrag == PHOTO_FRAG) {
-                    PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
-                    photoFragment.DeletePhotos();
-                } else if (currentFrag == VIDEO_FRAG) {
-                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
-                    videoFragment.DeleteVideos();
-                }
-            }
-        });
-        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) { }
-        });
-        myAlertDialog.show();
+        if (currentFrag == PHOTO_FRAG) {
+            PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentByTag("photo");
+            photoFragment.DeletePhotos();
+        } else if (currentFrag == VIDEO_FRAG) {
+            VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentByTag("video");
+            videoFragment.DeleteVideos();
+        }
     }
 
     public boolean checkPermission(String permission, int requestCode) {

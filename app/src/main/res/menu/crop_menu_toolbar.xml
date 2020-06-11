@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/crop_rotate"
+        android:title="Camera"
+        android:icon="@drawable/ic_rotate_ccw"
+        app:showAsAction="always" />
+
+    <item
+        android:title="Flip"
+        android:icon="@drawable/ic_flip"
+        app:showAsAction="always" >
+
+        <menu>
+            <item android:id="@+id/flip_horizontal"
+                android:title="Flip horizontally"
+                app:showAsAction="ifRoom"/>
+            <item
+                android:id="@+id/flip_vertical"
+                android:title="Flip vertically"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/crop_crop"
+        android:title="CROP"
+        app:showAsAction="always" >
+    </item>
+</menu>
