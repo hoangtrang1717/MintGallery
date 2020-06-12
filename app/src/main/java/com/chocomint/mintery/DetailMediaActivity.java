@@ -259,7 +259,7 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
             firstBtn.setImageResource(R.drawable.ic_scissors);
             secondBtn.setImageResource(R.drawable.ic_pause);
         }
-        isPlaying=true;
+        isPlaying = true;
         CurrentPosition = position;
         slider.setCurrentItem(CurrentPosition);
         slider.setOffscreenPageLimit(1);
@@ -285,6 +285,9 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (arrayList.get(CurrentPosition).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+            imageSlider.stopVideo(CurrentPosition);
+        }
         favoriteDatabase.close();
     }
 
@@ -338,8 +341,7 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
 
     private void pauseVideo() {
         if (isPlaying && arrayList.get(CurrentPosition).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-            imageSlider.pauseVideo(CurrentPosition);
-            isPlaying = false;
+            isPlaying = imageSlider.pauseVideo(CurrentPosition);
             secondBtn.setImageResource(R.drawable.ic_play);
         }
     }
@@ -496,7 +498,7 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
                 }
                 imageSlider.notifyDataSetChanged();
             } else {
-                Toast.makeText(DetailMediaActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();
+                Toast.makeText(DetailMediaActivity.this, "An unexpected error has occured.", Toast.LENGTH_LONG).show();
             }
         }
     }
