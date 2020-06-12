@@ -51,5 +51,6 @@ Android Java - MintGallery
  4. Edit ảnh https://github.com/burhanrashid52/PhotoEditor
  5. Crop ảnh
  6. Ghép ảnh https://github.com/wuapnjie/PuzzleView
- 7. Trim video 
+ 7. Trim video
+ 8. Xoá folder https://stackoverflow.com/questions/30259141/how-to-add-apache-commons-collections-in-android-studio-gradle
  
