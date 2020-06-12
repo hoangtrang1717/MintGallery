@@ -6,7 +6,7 @@ Android Java - MintGallery
  - 1753107 - Nguyễn Đức Thông
  - 1753111 - Nguyễn Thị Hoàng Trang
  - 1753115 - Ngô Thanh Trúc
- - 1753115 - Trương Trần Hải Yến
+ - 1753139 - Trương Trần Hải Yến
 
 ### Các chức năng của ứng dụng
 - [X] 1. Xem Image 
