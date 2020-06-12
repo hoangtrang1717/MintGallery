@@ -1,13 +1,26 @@
 package com.chocomint.mintery;
 
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,109 +28,118 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
-public class AlbumDetailFragment extends Fragment {
+public class AlbumDetailFragment extends Fragment  {
+    Context context;
+    RecyclerView recyclerView;
     ArrayList<Media> arrayList;
+    MediaAdapter adapter;
+    ChooseFileAdapter chooseFileAdapter;
+    String from;
+    ArrayList<String> fileChoose;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View layout_photo = null;
+
+        fileChoose = new ArrayList<>();
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            from = bundle.getString("from", "");
+            arrayList = (ArrayList<Media>) bundle.getSerializable("list");
+            if (arrayList != null && arrayList.size() > 0) {
+                layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_detail_album_layout, null);
+                recyclerView = layout_photo.findViewById(R.id.media_reycle);
+                if (from.compareTo("DELETE") == 0) {
+//                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), arrayList, this);
+//                    recyclerView.setAdapter(chooseFileAdapter);
+                } else {
+                    adapter = new MediaAdapter(getActivity(), arrayList);
+                    recyclerView.setAdapter(adapter);
+                }
+
+                recyclerView.setLayoutManager(new GridLayoutManager(this.getActivity(), 4));
+            } else {
+                layout_photo = (ConstraintLayout) inflater.inflate(R.layout.no_item, null);
+            }
+        }
+
+        return layout_photo;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-        new LoadDataThread().execute("Camera");
+    }
+//
+//    @Override
+//    public void chooseFile(int position, boolean add) {
+//        if (add) {
+//            fileChoose.add(String.valueOf(arrayList.get(position).id));
+//        } else {
+//            fileChoose.remove(String.valueOf(arrayList.get(position)));
+//        }
+//    }
+
+    public void SharePhoto() {
+        new AlbumDetailFragment.ShareThread().execute();
     }
 
-    private class LoadDataThread extends AsyncTask<String, Void, Void> {
+    private class ShareThread extends AsyncTask <Void, Void, Boolean> {
         @Override
-        protected Void doInBackground(String... strings) {
-            String[] query = { MediaStore.Images.ImageColumns._ID,
-                    MediaStore.Images.ImageColumns.DATE_MODIFIED,
-                    MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                    MediaStore.Images.ImageColumns.DATA,
-                    MediaStore.Images.ImageColumns.SIZE
-            };
-            Cursor filter = getContext().getContentResolver().query(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    query,
-                    MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " = ?",
-                    new String[] {strings[0]},
-                    MediaStore.Images.ImageColumns.DATE_MODIFIED + " DESC" // Sort order.
-            );
-
-            int image_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID);
-            int date_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_MODIFIED);
-            int data_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
-            int size_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.SIZE);
-            int name_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
-
-            int countquery = filter.getCount();
-            Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
-            for (int i = 0; i < countquery; i++) {
-                filter.moveToPosition(i);
-                int id = filter.getInt(image_column_index_1);
-
-                Long currDate = filter.getLong(date_column_index_1);
-                calendar.setTimeInMillis(currDate*1000L);
-                Date day = calendar.getTime();
-
-                Long size = filter.getLong(size_column_index_1);
-                String sizeStr = String.format("%.2f", (float) size / (1024 * 1024));
-                String name = filter.getString(name_column_index_1);
-
-                String filePath = filter.getString(data_column_index_1);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0], false);
-                arrayList.add(media);
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                if (fileChoose != null && fileChoose.size() > 0) {
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                    ArrayList<Uri> files = new ArrayList<>();
+                    for (String id : fileChoose) {
+                        files.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+                    }
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, files);
+                    shareIntent.setType("image/*");
+                    startActivity(Intent.createChooser(shareIntent, "Share images"));
+                } else {
+                    Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG).show();
+                }
+            } catch (ActivityNotFoundException e) {
+                return false;
             }
+            return true;
+        }
+    }
 
-            String[] videoColumns = { MediaStore.Video.VideoColumns._ID,
-                    MediaStore.Video.VideoColumns.DATE_MODIFIED,
-                    MediaStore.Video.VideoColumns.DURATION,
-                    MediaStore.Video.VideoColumns.DATA,
-                    MediaStore.Video.VideoColumns.DISPLAY_NAME,
-                    MediaStore.Video.VideoColumns.SIZE,
-            };
+    public void DeletePhotos() {
+        new AlbumDetailFragment.DeleteThread().execute();
+    }
 
-            Cursor videocursor = getContext().getContentResolver().query(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    videoColumns,
-                    MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME + " = ?",
-                    new String[] {strings[0]},
-                    MediaStore.Video.VideoColumns.DATE_MODIFIED + " DESC" // Sort order.
-            );
-
-            int video_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns._ID);
-            int video_duration_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DURATION);
-            int video_date_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATE_MODIFIED);
-            int video_data_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
-            int video_size_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE);
-            int video_name_column_index = videocursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DISPLAY_NAME);
-
-            int videoCount = videocursor.getCount();
-            for (int i = 0; i < videoCount; i++) {
-                videocursor.moveToPosition(i);
-                int id = videocursor.getInt(video_column_index);
-
-                Long currDate = videocursor.getLong(video_date_column_index);
-                calendar.setTimeInMillis(currDate*1000L);
-                Date day = calendar.getTime();
-
-                Long size = videocursor.getLong(video_size_column_index);
-                String sizeStr = String.format("%.2f", (float) size / (1024 * 1024));
-                String name = videocursor.getString(video_name_column_index);
-
-                Long duration = videocursor.getLong(video_duration_column_index);
-
-                String filePath = videocursor.getString(video_data_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, strings[0], false);
-                arrayList.add(media);
+    private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                for (String id : fileChoose) {
+                    getActivity().getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id), null, null);
+                }
+            } catch (Throwable e) {
+                return false;
             }
-            videocursor.close();
-
-            Collections.sort(arrayList, new SortByModified());
-            return null;
+            return true;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Log.d("size", String.valueOf(arrayList.size()));
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean) {
+                getActivity().onBackPressed();
+            } else {
+                Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
+            }
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

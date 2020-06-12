@@ -3,14 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_gravity="center"
-        android:textAlignment="center"
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins"
-        android:text="Function is in development stage and not available at the moment."/>
-
+        android:layout_height="match_parent"
+        android:id="@+id/album_recycle"/>
 </LinearLayout>

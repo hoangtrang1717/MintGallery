@@ -4,26 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.icu.text.UnicodeSetSpanner;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -40,7 +33,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -55,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     Fragment photoFrag, videoFrag, albumFrag;
     Toolbar mainToolbar;
     TextView toolBarText;
-    ArrayList<Media> photoList, videoList;
-    ArrayList<String> albumList, thumbnailAlbum;
+    ArrayList<Media> photoList, videoList, albumList;
+    ArrayList<String> favoriteList;
     FavoriteDatabase favoriteDatabase;
     boolean isOpenedCamera;
     File photoFile;
@@ -95,10 +87,14 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             @Override
             public void onClick(View view) {
                 currentFrag = ALBUM_FRAG;
-                toolBarText.setText("Album");
+                toolBarText.setText("Albums");
+                albumFrag = new AlbumFragment();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("list", albumList);
+                albumFrag.setArguments(bundle);
                 videoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
                 photoTabbar.setColorFilter(Color.argb(60, 0, 0,0));
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, albumFrag).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, albumFrag, "album").commit();
             }
         });
 
@@ -162,12 +158,14 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         toolbarMenu = menu;
-        if (currentFrag != ALBUM_FRAG) {
+        if (currentFrag == ALBUM_FRAG) {
+            getMenuInflater().inflate(R.menu.album_menu, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.toolbar_menu, menu);
             toolbarMenu.setGroupVisible(R.id.camera_group, true);
         }
-        return super.onCreateOptionsMenu(toolbarMenu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -186,6 +184,8 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
                 return true;
+            case R.id.createFolder_toolbar:
+                Log.e("ALBUM", "Create album");
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -360,6 +360,37 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
     }
 
     private void fetchImageFromGallery() {
+        if (photoList != null) {
+            photoList.clear();
+        } else {
+            photoList = new ArrayList<>();
+        }
+        if (videoList != null) {
+            videoList.clear();
+        } else {
+            videoList = new ArrayList<>();
+        }
+        if (albumList != null) {
+            albumList.clear();
+        } else {
+            albumList = new ArrayList<>();
+        }
+        if (favoriteList != null) {
+            favoriteList.clear();
+        } else {
+            favoriteList = new ArrayList<>();
+        }
+        if (albumList != null) {
+            albumList.clear();
+        } else {
+            albumList = new ArrayList<>();
+        }
+        if (favoriteList != null) {
+            favoriteList.clear();
+        } else {
+            favoriteList = new ArrayList<>();
+        }
+
         try {
             Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
             String[] imageColumns = { MediaStore.Images.ImageColumns._ID,
@@ -452,7 +483,15 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     media.setMimeType(imagecursor.getString(mime_column_index));
                     media.setCountDate(positionOfDate);
                     photoList.add(media);
+                    if (favorite == true) {
+                        favoriteList.add(filePath);
+                    }
                 }
+                if (photoList.get(1).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                    Media recentsMedia = new Media(photoList.get(1).path, "Recents");
+                    albumList.add(recentsMedia);
+                }
+                
                 photoList.get(positionOfDate).setId(countPhotoInDate);
                 imagecursor.close();
             }
@@ -508,39 +547,60 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     media.setMimeType(videocursor.getString(mime_column_index));
                     media.setCountDate(positionOfDate);
                     videoList.add(media);
+                    if (favorite == true) {
+                        favoriteList.add(filePath);
+                    }
                 }
                 videoList.get(positionOfDate).setId(countVideoInDate);
                 videocursor.close();
             }
-            if (albumList != null) {
-                albumList.clear();
-            } else {
-                albumList = new ArrayList<>();
-            }
-            if (thumbnailAlbum != null) {
-                thumbnailAlbum.clear();
-            } else {
-                thumbnailAlbum = new ArrayList<>();
+
+
+            if (favoriteList.size() > 0) {
+                String favoriteThumbnail = favoriteList.get(0);
+                Media favoriteMedia = new Media(favoriteThumbnail, "Favorites");
+                albumList.add(favoriteMedia);
             }
 
-            String[] albumColumn = { "DISTINCT " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME };
+            String[] albumColumn = { "DISTINCT " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME};
 
-            Cursor albumCursor = this.getApplication().getContentResolver().query(
+            String mediaQuery = MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
+                    " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+            Cursor  albumCursor = this.getApplication().getContentResolver().query(
                     MediaStore.Files.getContentUri("external"),
                     albumColumn,
-                    MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
-                            " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO,
+                    mediaQuery,
                     null, // Selection args (none).
                     null
             );
 
             int album_column_index_1 = albumCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME);
             int albumCount = albumCursor.getCount();
+
             for (int i = 0; i < albumCount; i++) {
                 albumCursor.moveToPosition(i);
                 String name = albumCursor.getString(album_column_index_1);
-                albumList.add(name);
+
+                String[] query = {"MAX(" + MediaStore.Files.FileColumns.DATE_MODIFIED + ")",
+                        MediaStore.Files.FileColumns.DATA
+                };
+                Cursor filter = this.getApplication().getContentResolver().query(
+                        MediaStore.Files.getContentUri("external"),
+                        query,
+                        "(" + mediaQuery + ") AND " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME + " = ?",
+                        new String[]{name},
+                        null // Sort order.
+                );
+
+                int data_column_index_1 = filter.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+
+                filter.moveToPosition(0);
+                String filePath = filter.getString(data_column_index_1);
+                Media media = new Media(filePath, name);
+                albumList.add(media);
+                filter.close();
             }
+
             albumCursor.close();
         } catch (Exception e) {
             Log.d("Error getting data", e.getMessage());

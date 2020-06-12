@@ -69,6 +69,11 @@ public class Media implements Serializable {
         this.countDate += change;
     }
 
+    public Media(String path, String album) {
+        this.path = path;
+        this.album = album;
+    }
+
     public boolean setFavorite() {
         this.isFavorite = !this.isFavorite;
         return this.isFavorite;

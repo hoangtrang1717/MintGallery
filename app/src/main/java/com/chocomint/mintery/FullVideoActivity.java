@@ -59,6 +59,8 @@ public class FullVideoActivity extends AppCompatActivity {
     private final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
     private final int REQUEST_TRIM_VIDEO = 8;
 
+    final int REQUEST_READ_WRITE_EXTERNAL = 123;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
