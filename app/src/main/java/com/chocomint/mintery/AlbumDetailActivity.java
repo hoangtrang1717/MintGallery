@@ -1,14 +1,18 @@
 package com.chocomint.mintery;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -20,6 +24,11 @@ import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -32,6 +41,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
     TextView toolBarText;
     Fragment mediaFrag;
     FavoriteDatabase favoriteDatabase;
+    String path, albumTitle;
+
+    final int REQUEST_READ_WRITE_EXTERNAL = 123;
+    final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +58,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        String albumTitle = getIntent().getExtras().getString("title");
+        albumTitle = getIntent().getExtras().getString("title");
+        path = getIntent().getExtras().getString("path");
         toolBarText.setText(albumTitle);
         new LoadDataThread().execute(albumTitle);
         super.onResume();
@@ -73,12 +87,31 @@ public class AlbumDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.album_detail_menu, menu);
+        if (albumTitle.equals("Favorites") || albumTitle.equals("Recents")) {
+            MenuItem item = menu.findItem(R.id.delete_album);
+            item.setVisible(false);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.delete_album: {
+                File directory = new File(String.valueOf(Paths.get(path).getParent()));
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        FileUtils.deleteDirectory(directory);
+                        onBackPressed();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_DELETE);
+                }
+            }
+            return true;
             case R.id.about_us:
                 startActivity(new Intent(this, AboutUsActivity.class));
                 return true;
@@ -174,7 +207,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
                     Long duration = videocursor.getLong(video_duration_column_index);
 
                     String filePath = videocursor.getString(video_data_column_index);
-                    if (favorite == true) {
+                    if (favorite == true && !name.equals("welcomeImg.jpg")) {
                         Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, day, duration, name, sizeStr, strings[0], favorite);
                         arrayList.add(media);
                     }
@@ -216,8 +249,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
                     String name = filter.getString(name_column_index_1);
 
                     String filePath = filter.getString(data_column_index_1);
-                    Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0], favorite);
-                    arrayList.add(media);
+                    if (!name.equals("welcomeImg.jpg")) {
+                        Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0], favorite);
+                        arrayList.add(media);
+                    }
                 }
 
                 String[] videoColumns = { MediaStore.Video.VideoColumns._ID,
@@ -301,8 +336,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
                     String name = filter.getString(name_column_index_1);
 
                     String filePath = filter.getString(data_column_index_1);
-                    Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0], favorite);
-                    arrayList.add(media);
+                    if (!name.equals("welcomeImg.jpg")) {
+                        Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, strings[0], favorite);
+                        arrayList.add(media);
+                    }
                 }
 
                 String[] videoColumns = { MediaStore.Video.VideoColumns._ID,
@@ -359,6 +396,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             Bundle bundle = new Bundle();
             bundle.putSerializable("list", arrayList);
+            mediaFrag = new AlbumDetailFragment();
             mediaFrag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_photo, mediaFrag, "media").commit();
         }

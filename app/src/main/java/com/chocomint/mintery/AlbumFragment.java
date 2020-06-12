@@ -46,13 +46,8 @@ public class AlbumFragment extends Fragment {
             if (albumList != null && albumList.size() > 0) {
                 layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_album_layout, null);
                 recyclerView = layout_photo.findViewById(R.id.album_recycle);
-                if (from.compareTo("DELETE") == 0) {
-//                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), albumList, this);
-//                    recyclerView.setAdapter(chooseFileAdapter);
-                } else {
-                    adapter = new AlbumAdapter(getActivity(), albumList);
-                    recyclerView.setAdapter(adapter);
-                }
+                adapter = new AlbumAdapter(getActivity(), albumList);
+                recyclerView.setAdapter(adapter);
 
                 recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
             } else {
@@ -69,68 +64,4 @@ public class AlbumFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-//    @Override
-//    public void chooseFile(int position, boolean add) {
-//        if (add) {
-//            fileChoose.add(String.valueOf(photoList.get(position).id));
-//        } else {
-//            fileChoose.remove(String.valueOf(photoList.get(position)));
-//        }
-//    }
-
-//    public void SharePhoto() {
-//        new PhotoFragment.ShareThread().execute();
-//    }
-
-    private class ShareThread extends AsyncTask<Void, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            try {
-                if (fileChoose != null && fileChoose.size() > 0) {
-                    Intent shareIntent = new Intent();
-                    shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                    ArrayList<Uri> files = new ArrayList<>();
-                    for (String id : fileChoose) {
-                        files.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
-                    }
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, files);
-                    shareIntent.setType("image/*");
-                    startActivity(Intent.createChooser(shareIntent, "Share images"));
-                } else {
-                    Toast.makeText(getContext(), "You did not choose any photo", Toast.LENGTH_LONG).show();
-                }
-            } catch (ActivityNotFoundException e) {
-                return false;
-            }
-            return true;
-        }
-    }
-
-//    public void DeletePhotos() {
-//        new PhotoFragment.DeleteThread().execute();
-//    }
-
-    private class DeleteThread extends AsyncTask <Void, Boolean, Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            try {
-                for (String id : fileChoose) {
-                    getActivity().getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id), null, null);
-                }
-            } catch (Throwable e) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (aBoolean) {
-                getActivity().onBackPressed();
-            } else {
-                Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
-            }
-        }
-    }
 }

@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/delete_album"
-        android:title="Camera"
+        android:id="@+id/share_toolbar"
+        android:title="Share"
+        android:icon="@drawable/ic_share"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/delete_toolbar"
+        android:title="Delete"
         android:icon="@drawable/ic_trash"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/setting_toolbar"
         android:title="Setting"

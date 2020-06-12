@@ -82,12 +82,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.HolderView> 
         holder.view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Intent intent = new Intent(mContext, DeleteMainActivity.class);
-                intent.putExtra("fullList", allMedia);
-                intent.putExtra("type", allMedia.get(position).type);
-                intent.putExtra("position", position);
-                mContext.startActivity(intent);
-                return true;
+                return false;
             }
         });
     }

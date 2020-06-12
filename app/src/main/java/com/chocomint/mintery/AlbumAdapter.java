@@ -56,15 +56,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.HolderView> 
             public void onClick(View view) {
                 Intent intent;
                 intent = new Intent(mContext, AlbumDetailActivity.class);
-//                if (allMedia.get(0).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-//                    intent = new Intent(mContext, FullImageActivity.class);
-//                } else {
-//                    intent = new Intent(mContext, FullVideoActivity.class);
-//                }
                 intent.putExtra("title", allMedia.get(position).album);
-                Log.e("Title", allMedia.get(position).album);
-//                intent.putExtra("position", position);
-//                intent.putExtra("list", allMedia);
+                intent.putExtra("path", allMedia.get(position).path);
                 mContext.startActivity(intent);
             }
         });

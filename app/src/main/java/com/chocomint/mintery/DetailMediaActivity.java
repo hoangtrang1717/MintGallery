@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.chocomint.mintery.videoTrimmer.utils.FileUtils;
+import com.google.android.exoplayer2.C;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -55,10 +56,11 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
     boolean isPlaying;
 
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
-    private final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
-    private final int REQUEST_EDIT_IMAGE = 6;
     final int REQUEST_WRITE_EXTERNAL = 124;
-    private final int REQUEST_TRIM_VIDEO = 8;
+    final int REQUEST_EDIT_IMAGE = 6;
+    final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
+    final int REQUEST_TRIM_VIDEO = 8;
+
     int type;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -205,12 +207,10 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
                                     }
                                     imageSlider.notifyDataSetChanged();
                                 }
-                            }
-                        });
+                            }});
                         myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface arg0, int arg1) {
-                            }
-                        });
+                            }});
                         myAlertDialog.show();
                     } else {
                         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
@@ -242,11 +242,8 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
                         onBackPressed();
                     }
                     imageSlider.notifyDataSetChanged();
-
-                    if (arrayList.get(CurrentPosition + 1).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-                        isPlaying = true;
-                        secondBtn.setImageResource(R.drawable.ic_pause);
-                    }
+//                    isPlaying = true;
+//                    secondBtn.setImageResource(R.drawable.ic_pause);
                 }
             }});
         myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -315,11 +312,13 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        pauseVideo();
         switch (item.getItemId()) {
             case R.id.detail:
                 Intent intent = new Intent(this, MediaDetailActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("media", arrayList.get(CurrentPosition));
+                Media media = new Media(arrayList.get(CurrentPosition));
+                bundle.putSerializable("media", media);
                 intent.putExtras(bundle);
                 startActivity(intent);
                 return true;
@@ -335,6 +334,26 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void pauseVideo() {
+        if (isPlaying && arrayList.get(CurrentPosition).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+            imageSlider.pauseVideo(CurrentPosition);
+            isPlaying = false;
+            secondBtn.setImageResource(R.drawable.ic_play);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pauseVideo();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        pauseVideo();
     }
 
     private void setFavoriteIcon() {
@@ -446,7 +465,6 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
         @Override
         protected Boolean doInBackground(Boolean... booleans) {
             boolean isDone;
-            Log.e("Type", String.valueOf(arrayList.get(CurrentPosition).type));
             if (arrayList.get(CurrentPosition).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE){
                 if (booleans != null && booleans[0]) {
                     isDone = favoriteDatabase.deleteFavorite(arrayList.get(CurrentPosition).id, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
@@ -473,33 +491,13 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
                 } else {
                     menuItem.setIcon(R.drawable.ic_heart_outline);
                 }
+                if (arrayList.get(CurrentPosition).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO){
+                    secondBtn.setImageResource(R.drawable.ic_pause);
+                }
                 imageSlider.notifyDataSetChanged();
             } else {
                 Toast.makeText(DetailMediaActivity.this, "Đã có lỗi xảy ra", Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    public void hideActionBar() {
-        if (getSupportActionBar().isShowing()) {
-            getSupportActionBar().hide();
-            mediaBottomTab.setVisibility(View.INVISIBLE);
-        } else {
-            getSupportActionBar().show();
-            mediaBottomTab.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void pauseVideo() {
-        if (isPlaying) {
-            isPlaying = imageSlider.pauseVideo(CurrentPosition);
-            secondBtn.setImageResource(R.drawable.ic_play);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        pauseVideo();
     }
 }
