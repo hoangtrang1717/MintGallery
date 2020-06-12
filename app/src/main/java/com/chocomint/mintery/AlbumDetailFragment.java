@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
-public class AlbumDetailFragment extends Fragment implements ChooseFileCallback {
+public class AlbumDetailFragment extends Fragment  {
     Context context;
     RecyclerView recyclerView;
     ArrayList<Media> arrayList;
@@ -51,8 +51,8 @@ public class AlbumDetailFragment extends Fragment implements ChooseFileCallback 
                 layout_photo = (LinearLayout) inflater.inflate(R.layout.fragment_detail_album_layout, null);
                 recyclerView = layout_photo.findViewById(R.id.media_reycle);
                 if (from.compareTo("DELETE") == 0) {
-                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), arrayList, this);
-                    recyclerView.setAdapter(chooseFileAdapter);
+//                    chooseFileAdapter = new ChooseFileAdapter(getActivity(), arrayList, this);
+//                    recyclerView.setAdapter(chooseFileAdapter);
                 } else {
                     adapter = new MediaAdapter(getActivity(), arrayList);
                     recyclerView.setAdapter(adapter);
@@ -72,15 +72,15 @@ public class AlbumDetailFragment extends Fragment implements ChooseFileCallback 
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
-
-    @Override
-    public void chooseFile(int position, boolean add) {
-        if (add) {
-            fileChoose.add(String.valueOf(arrayList.get(position).id));
-        } else {
-            fileChoose.remove(String.valueOf(arrayList.get(position)));
-        }
-    }
+//
+//    @Override
+//    public void chooseFile(int position, boolean add) {
+//        if (add) {
+//            fileChoose.add(String.valueOf(arrayList.get(position).id));
+//        } else {
+//            fileChoose.remove(String.valueOf(arrayList.get(position)));
+//        }
+//    }
 
     public void SharePhoto() {
         new AlbumDetailFragment.ShareThread().execute();
@@ -136,5 +136,10 @@ public class AlbumDetailFragment extends Fragment implements ChooseFileCallback 
                 Toast.makeText(getContext(), "Error. Try again later", Toast.LENGTH_LONG);
             }
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

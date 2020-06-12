@@ -62,6 +62,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.HolderView> 
 //                    intent = new Intent(mContext, FullVideoActivity.class);
 //                }
                 intent.putExtra("title", allMedia.get(position).album);
+                Log.e("Title", allMedia.get(position).album);
 //                intent.putExtra("position", position);
 //                intent.putExtra("list", allMedia);
                 mContext.startActivity(intent);

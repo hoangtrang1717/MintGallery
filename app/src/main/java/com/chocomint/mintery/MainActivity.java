@@ -380,11 +380,17 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
         } else {
             favoriteList = new ArrayList<>();
         }
-//        if (thumbnailAlbum != null) {
-//            thumbnailAlbum.clear();
-//        } else {
-//            thumbnailAlbum = new ArrayList<>();
-//        }
+        if (albumList != null) {
+            albumList.clear();
+        } else {
+            albumList = new ArrayList<>();
+        }
+        if (favoriteList != null) {
+            favoriteList.clear();
+        } else {
+            favoriteList = new ArrayList<>();
+        }
+
         try {
             Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
             String[] imageColumns = { MediaStore.Images.ImageColumns._ID,
@@ -406,34 +412,6 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
             );
 
             int count = imagecursor.getCount();
-            for (int i = 0; i < count; i++) {
-                imagecursor.moveToPosition(i);
-                int id = imagecursor.getInt(image_column_index);
-                boolean favorite = favoriteDatabase.readFavorite(id, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
-
-                Long currDate = imagecursor.getLong(date_column_index);
-                calendar.setTimeInMillis(currDate*1000L);
-                Date day = calendar.getTime();
-
-                Long size = imagecursor.getLong(size_column_index);
-                String sizeStr = String.format("%.2f", (float) size / (1024 * 1024));
-                String name = imagecursor.getString(name_column_index);
-
-                String filePath = imagecursor.getString(data_column_index);
-                String album = imagecursor.getString(album_column_index);
-                Media media = new Media(id, filePath, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, day, (long) 0, name, sizeStr, album, favorite);
-                photoList.add(media);
-//                if (favorite) {
-//                    favoriteList.add(filePath);
-//                }
-            }
-
-            imagecursor.moveToPosition(0);
-            String recentThumbnail = imagecursor.getString(data_column_index);
-            Media recentMedia = new Media(recentThumbnail, "Recents");
-            albumList.add(recentMedia);
-
-            imagecursor.close();
 
             String[] videoColumns = { MediaStore.Video.VideoColumns._ID,
                     MediaStore.Video.VideoColumns.DATE_MODIFIED,
@@ -505,7 +483,15 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     media.setMimeType(imagecursor.getString(mime_column_index));
                     media.setCountDate(positionOfDate);
                     photoList.add(media);
+                    if (favorite == true) {
+                        favoriteList.add(filePath);
+                    }
                 }
+                if (photoList.get(1).type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                    Media recentsMedia = new Media(photoList.get(1).path, "Recents");
+                    albumList.add(recentsMedia);
+                }
+                
                 photoList.get(positionOfDate).setId(countPhotoInDate);
                 imagecursor.close();
             }
@@ -561,24 +547,20 @@ public class MainActivity extends AppCompatActivity implements CallbackFunction 
                     media.setMimeType(videocursor.getString(mime_column_index));
                     media.setCountDate(positionOfDate);
                     videoList.add(media);
+                    if (favorite == true) {
+                        favoriteList.add(filePath);
+                    }
                 }
                 videoList.get(positionOfDate).setId(countVideoInDate);
                 videocursor.close();
             }
-            if (albumList != null) {
-                albumList.clear();
-            } else {
-                albumList = new ArrayList<>();
-            }
-            if (thumbnailAlbum != null) {
-                thumbnailAlbum.clear();
-            } else {
-                thumbnailAlbum = new ArrayList<>();
-            }
 
-//            String favoriteThumbnail = favoriteList.get(0);
-//            Media favoriteMedia = new Media(favoriteThumbnail, "Favorites");
-//            albumList.add(favoriteMedia);
+
+            if (favoriteList.size() > 0) {
+                String favoriteThumbnail = favoriteList.get(0);
+                Media favoriteMedia = new Media(favoriteThumbnail, "Favorites");
+                albumList.add(favoriteMedia);
+            }
 
             String[] albumColumn = { "DISTINCT " + MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME};
 

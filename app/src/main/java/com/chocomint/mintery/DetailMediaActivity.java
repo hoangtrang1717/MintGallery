@@ -30,9 +30,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.chocomint.mintery.videoTrimmer.utils.FileUtils;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -53,6 +55,10 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
     boolean isPlaying;
 
     final int REQUEST_READ_WRITE_EXTERNAL = 123;
+    private final int REQUEST_WRITE_EXTERNAL_DELETE = 7;
+    private final int REQUEST_EDIT_IMAGE = 6;
+    final int REQUEST_WRITE_EXTERNAL = 124;
+    private final int REQUEST_TRIM_VIDEO = 8;
     int type;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -131,7 +137,16 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
                     }
                 } else if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
                     pauseVideo();
-                    Toast.makeText(view.getContext(), "Hit trim", Toast.LENGTH_LONG).show();
+                    if (ContextCompat.checkSelfPermission(DetailMediaActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL);
+                    }
+                    if (ContextCompat.checkSelfPermission(DetailMediaActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    Intent intent = new Intent(getApplicationContext(), TrimmerActivity.class);
+                    intent.putExtra("EXTRA_VIDEO_PATH", FileUtils.getPath(getApplicationContext(), Uri.fromFile(new File(arrayList.get(CurrentPosition).path))));
+                    intent.putExtra("id", String.valueOf(arrayList.get(CurrentPosition).id));
+                    startActivityForResult(intent, REQUEST_TRIM_VIDEO);
                 }
             }
         });
@@ -140,7 +155,14 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
             @Override
             public void onClick(View view) {
                 if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                    Toast.makeText(view.getContext(), "Hit edit", Toast.LENGTH_LONG).show();
+                    if (arrayList.get(CurrentPosition).mimeType.contains("gif")) {
+                        Toast.makeText(DetailMediaActivity.this, "Cannot edit gif.", Toast.LENGTH_LONG).show();
+                    } else {
+                        Intent intent = new Intent(DetailMediaActivity.this, EditImageActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        intent.putExtra("path", arrayList.get(CurrentPosition).path);
+                        startActivityForResult(intent, REQUEST_EDIT_IMAGE);
+                    }
                 } else if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
                     isPlaying = imageSlider.pauseVideo(CurrentPosition);
                     if (isPlaying) {
@@ -167,63 +189,70 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
         fourthBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-                            .start(DetailMediaActivity.this);
-                } else {
-                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
-                }
+
                 if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                    AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DetailMediaActivity.this);
-                    myAlertDialog.setTitle("Delete Photo");
-                    myAlertDialog.setMessage("Do you want to delete it?");
-                    myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
-                            if (delete > 0) {
-                                arrayList.remove(CurrentPosition);
-                                if (arrayList.size() < 1) {
-                                    onBackPressed();
+                    if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DetailMediaActivity.this);
+                        myAlertDialog.setTitle("Delete Photo");
+                        myAlertDialog.setMessage("Do you want to delete it?");
+                        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                                if (delete > 0) {
+                                    arrayList.remove(CurrentPosition);
+                                    if (arrayList.size() < 1) {
+                                        onBackPressed();
+                                    }
+                                    imageSlider.notifyDataSetChanged();
                                 }
-                                imageSlider.notifyDataSetChanged();
                             }
-                        }
-                    });
-                    myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                        }
-                    });
-                    myAlertDialog.show();
+                        });
+                        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface arg0, int arg1) {
+                            }
+                        });
+                        myAlertDialog.show();
+                    } else {
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_READ_WRITE_EXTERNAL);
+                    }
+
                 } else if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
-                    pauseVideo();
-                    AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DetailMediaActivity.this);
-                    myAlertDialog.setTitle("Delete Video");
-                    myAlertDialog.setMessage("Do you want to delete it?");
-                    myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id));
-                            int delete = getContentResolver().delete(uri, null, null);
-
-                            if (delete > 0) {
-
-                                arrayList.remove(CurrentPosition);
-                                if (arrayList.size() < 1) {
-                                    onBackPressed();
-                                }
-                                imageSlider.stopVideo(CurrentPosition);
-                                imageSlider.notifyDataSetChanged();
-                            }
-
-                        }
-                    });
-                    myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                        }
-                    });
-                    myAlertDialog.show();
+                    if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        showDialogDelete();
+                    } else {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_DELETE);
+                    }
                 }
             }
         });
+    }
+
+    private void showDialogDelete() {
+        pauseVideo();
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(DetailMediaActivity.this);
+        myAlertDialog.setTitle("Delete Video");
+        myAlertDialog.setMessage("Do you want to delete it?");
+        myAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                int delete = getContentResolver().delete(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)), null, null);
+                if (delete > 0) {
+                    imageSlider.stopVideo(CurrentPosition);
+                    arrayList.remove(CurrentPosition);
+                    if (arrayList.size() < 1) {
+                        onBackPressed();
+                    }
+                    imageSlider.notifyDataSetChanged();
+
+                    if (arrayList.get(CurrentPosition + 1).type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                        isPlaying = true;
+                        secondBtn.setImageResource(R.drawable.ic_pause);
+                    }
+                }
+            }});
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+            }});
+        myAlertDialog.show();
     }
 
     protected void setVideo(int position) {
@@ -319,19 +348,6 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_READ_WRITE_EXTERNAL: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
-                            .start(DetailMediaActivity.this);
-                }
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -362,6 +378,29 @@ public class DetailMediaActivity extends AppCompatActivity implements CallbackFu
                 break;
             }
             default: return;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_READ_WRITE_EXTERNAL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    CropImage.activity(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(arrayList.get(CurrentPosition).id)))
+                            .start(DetailMediaActivity.this);
+                }
+            }
+            case REQUEST_WRITE_EXTERNAL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                }
+            }
+            case REQUEST_WRITE_EXTERNAL_DELETE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialogDelete();
+                }
+            }
         }
     }
 
