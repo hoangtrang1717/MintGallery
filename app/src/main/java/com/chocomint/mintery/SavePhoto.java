@@ -2,6 +2,7 @@ package com.chocomint.mintery;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -22,6 +23,7 @@ public class SavePhoto {
     Context context;
     String fileName;
     CallbackFunction callbackFunction;
+    String albumDir;
 
     public SavePhoto(Bitmap bitmap, Context context, String fileName, String mimeType, CallbackFunction callbackFunction) {
         this.bitmap = bitmap;
@@ -38,6 +40,16 @@ public class SavePhoto {
         this.mimeType = mimeType;
         this.format = mimeType.substring(mimeType.indexOf('/') + 1);
         this.callbackFunction = callbackFunction;
+    }
+
+    public SavePhoto(Bitmap bitmap, Context context, String fileName, String mimeType, CallbackFunction callbackFunction, String albumDir) {
+        this.bitmap = bitmap;
+        this.context = context;
+        this.fileName = fileName;
+        this.mimeType = mimeType;
+        this.format = mimeType.substring(mimeType.indexOf('/') + 1);
+        this.callbackFunction = callbackFunction;
+        this.albumDir = albumDir;
     }
 
     public void saveImage() throws FileNotFoundException {
@@ -89,5 +101,36 @@ public class SavePhoto {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void saveImagetoAlbum() throws FileNotFoundException {
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            ContentValues values = contentValues();
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/" + albumDir);
+            values.put(MediaStore.Images.Media.IS_PENDING, true);
+            // RELATIVE_PATH and IS_PENDING are introduced in API 29.
+
+            Uri uri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                saveImageToStream(bitmap, context.getContentResolver().openOutputStream(uri));
+                values.put(MediaStore.Images.Media.IS_PENDING, false);
+                context.getContentResolver().update(uri, values, null, null);
+            }
+        } else {
+            File directory = new File(Environment.getExternalStorageDirectory().toString() + separator + "DCIM" + separator + albumDir);
+
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            String fileName = this.fileName == null ? System.currentTimeMillis() + "." + format : this.fileName + "." + format;
+            File file = new File(directory, fileName);
+            saveImageToStream(bitmap, new FileOutputStream(file));
+            if (file.getAbsolutePath() != null) {
+                ContentValues values = contentValues();
+                values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
+                context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            }
+        }
+        callbackFunction.onAddPhotoSuccess();
     }
 }
