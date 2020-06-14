@@ -42,8 +42,8 @@ Android Java - MintGallery
  1. 25/04 - 01/05 https://docs.google.com/document/d/1TNrrPG5Jb1EEzvTIBDJVuGnuC7H8MJBHxrQ61Yi4ynM/edit?usp=sharing
  2. 02/05 - 08/05 https://docs.google.com/document/d/1W-ZXX68kKPAlfJkMtbK6QEE6smI5GLrK6PI2rwHbmyw/edit?usp=sharing
  3. 09/05 - 15/05 https://docs.google.com/document/d/1gvQvI2ATLC_5xUMAGHy94zHRMUwilkMVcBBMQwXbDOc/edit?usp=sharing
- 4 23/05 - 29/05 https://docs.google.com/document/d/1R1jzWIe1DVotAkKo1OEllUTXKfGroOtgIHxx7VgQTjo/edit?usp=sharing
- 5 30/05 - 05/06 https://docs.google.com/document/d/1fwsaXUOC_4B3VYFnekD8u0Gg-kxYCseT53nUBbgqV_U/edit?usp=sharing
+ 4. 23/05 - 29/05 https://docs.google.com/document/d/1R1jzWIe1DVotAkKo1OEllUTXKfGroOtgIHxx7VgQTjo/edit?usp=sharing
+ 5. 30/05 - 05/06 https://docs.google.com/document/d/1fwsaXUOC_4B3VYFnekD8u0Gg-kxYCseT53nUBbgqV_U/edit?usp=sharing
 ### Tài liệu tham khảo
  1. Bottom nav https://youtu.be/tPV8xA7m-iw 
  2. Request permission https://developer.android.com/training/permissions/requesting?authuser=1
